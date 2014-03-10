@@ -1,0 +1,25 @@
+<input id="jrpg_login_developerkey" type="text" placeholder="developer key" />
+
+<script type="text/javascript">
+
+$('#jrpg_login_developerkey').keydown(function(ev) {
+    
+    if (ev.which == 13) {
+               
+        var devKey = $(this).val();
+        
+        // TODO: login on server and load user object from there
+        
+        if (devKey == '1983') {
+        
+            JRPG.setUser({ id: 1, name: 'AndiW' });
+            
+            JRPG.module('startscreen');
+        
+        }
+    
+    }
+
+});
+
+</script>

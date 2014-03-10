@@ -1,0 +1,89 @@
+<div id="game">
+<div id="jrpg_ui"></div>
+</div>
+
+<script type="text/javascript">
+
+/*var src = new JRPG.Object('chest', 'Chest', 8), 
+    hero = new JRPG.Character('hero', 'Hero', 1);
+        
+var res = JRPG.DropFactory.createDropTest(src, hero, 100);
+
+for (var i = 0; i < res.drops.length; i++) {
+
+    for (var j = 0; j < res.drops[i].length; j++) {
+    
+        var item = res.drops[i][j];
+        
+        hero.pickUp(item);
+    
+    }
+
+}
+
+//console.dir(JRPG.DropFactory.createDropTest(src, hero, 10000));
+console.dir(hero);
+
+JRPG.hero = hero;
+
+JRPG.hero.on('death', function(ev) {
+
+    $('body').css('background', '#c10000').css('color', '#fff').html('<h1>' + ev.data.src.displayName() + ' sent the Character to the clearing at the end of the path</h1>');
+
+});
+
+/*console.log('life: ' + hero.attr('life'));
+console.log('mana: ' + hero.attr('mana'));
+console.log('vit: ' + hero.attr('vit'));
+console.log('str: ' + hero.attr('str'));
+console.log('dex: ' + hero.attr('dex'));
+console.log('int: ' + hero.attr('int'));
+console.log('armor: ' + hero.attr('armor'));
+console.log('gold: ' + hero.gold);*/
+
+/*hero.xp = 10;
+
+JRPG.hero = hero;
+
+var blacksmith = new JRPG.Character(1, 'blacksmith', 'The Blacksmith', 1);
+
+var blacksmithWindow = new JRPG.UI.BlacksmithWindow(blacksmith);
+
+blacksmithWindow.show();
+
+var characterWindow = new JRPG.UI.CharacterWindow(hero);
+
+characterWindow.show();
+
+var creature = new JRPG.Creature(1, 'spider', 'Evil Spider', 1, 0);
+
+JRPG.Attacks.bash(hero, creature);
+
+console.dir(JRPG.Attacks.attackLog);*/
+
+var controls = new JRPG.UI.Controls();
+
+JRPG.hero.on('death', function(ev) {
+
+    JRPG.game.stop();
+
+    $('body').css('background', '#c10000').css('color', '#fff').html('<h1>' + ev.data.src.displayName() + ' sent the Character to the clearing at the end of the path</h1><br /><br /><input type="button" value="restart" class="restart" />');
+
+    $('.restart').click(function(ev) {
+    
+        $('body').css('background', '#fff').
+        
+        JRPG.hero.updatePosition(1000, 1000);
+        
+        JRPG.game.active = true;
+    
+    });
+
+});
+
+
+JRPG.startGame();
+
+//_scenarioA();       
+
+</script>

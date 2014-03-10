@@ -1,0 +1,63 @@
+<input id="jrpg_editor_droptables_add" type="button" value="create new droptable" />
+
+<table class="list">
+<thead><th>name</th><th>amount</th><th>types</th></thead>
+<tbody></tbody>
+</table>
+
+<script type="text/javascript">
+
+var editorDropTables = {
+
+    refresh: function() {
+    
+        _post('dropTables.list', {}, function(t) {
+
+            $('.list tbody').html('');
+        
+            console.dir(t);
+        
+            _.each(t, function(i, key) {
+                
+                var baseType = key;
+                
+                _.each(i, function(i, key) {
+                
+                    var name = baseType + ' / ' + key, 
+                        amount = i.amount[0] + '-' + i.amount[1], 
+                        types = _.reduce(i.types, function(memo, i) { return memo + 1; }, 0);
+                
+                    $('.list tbody').append('<tr data-id="' + i.id + '"><td>' + name + '</td><td>' + amount + '</td><td>' + types + '</td><td><input type="button" value="edit" class="edit" /></td></tr>');
+                
+                });    
+            
+            });
+        
+            $('.list .edit').click(function(ev) {
+            
+                JRPG.UI.module('editor_droptables_edit', 'editor', { id: $(ev.target).parents('tr').attr('data-id') });
+            
+            });
+        
+        });    
+    
+    }, 
+    
+    onAddDropTable: function(data) {
+    
+        JRPG.UI.module('editor_droptables_edit', 'editor', { id: data.dropTableId });        
+    
+    }
+
+}
+
+$('#jrpg_editor_droptables_add').click(function(ev) {
+
+    new JRPG.UI.Dialog('editor_droptables_add', 500, { onClose: editorDropTables.onAddDropTable });
+
+});
+
+editorDropTables.refresh();
+
+
+</script>

@@ -1,0 +1,577 @@
+JRPG.SUPERTYPE = {
+    LOOTABLE: 0,
+    PROJECTILE: 1,
+    ANIMAL: 2,
+    HUMAN: 3,
+    DEMON: 4
+}
+
+JRPG.Object = function(type, name, level) {
+  
+    // the unique identifier
+    this.id = 0;
+    // the name of the object
+    this.name = '';
+    // the objects supertype
+    this.supertype = '';
+    // the objects type
+    this.type = '';
+    // the position in global coordinates
+    this.x = 0;
+    this.y = 0;
+    // the dimensions of the object
+    this.width = 0;
+    this.height = 0;
+    // the objects rotation
+    this.rotation = 0;
+    // the objects level
+    this.level = 0;
+    // the objects attributes
+    this.attributes = null;
+    // objects spawned by this object
+    this.children = null;
+    // changing values like life, mana
+    this.currentAttributeValues = null;
+    // the time of death
+    this.tsDeath = 0;
+    // the attack target
+    this.target = null;
+    // the owner of this object if any
+    this.owner = null;
+    // a flag if the object is on the dark side
+    // only creatures are evil, chest etc aren't (except for 
+    // evil chests of course)
+    this.isEvil = false;
+    // the hitbox of the object
+    this.hitBox = null;
+    
+    this.initObject = function(type, name, level) {
+    
+        var data = JRPG.Object.data[type] || {};
+    
+        this.id = JRPG.id();
+        
+        this.type = type;
+        this.name = name;
+        this.level = level || 0;
+        
+        this.supertype = JRPG.Object.getSupertype(type);
+        
+        this.attributes = {};
+        this.children = [];
+        
+        this.currentAttributeValues = {};
+        
+        this.width = data.width || 0;
+        this.height = data.height || 0;
+        
+        this.hitBox = new JRPG.HitBox(this);
+
+    };
+    
+    this.initCurrentAttributeValue = function(key) {
+    
+        this.currentAttributeValues[key] = this.attr(key);
+    
+    };
+    
+    this.changeCurrentAttributeValue = function(key, amount) {
+    
+        if (amount < 0) {
+        
+            this.attr(key + '-current', Math.max(0, this.attr(key + '-current') + amount));
+        
+        } else {
+        
+            this.attr(key + '-current', Math.min(this.attr(key), this.attr(key + '-current') + amount));
+        
+        }
+    
+    };
+    
+    this.addLife = function(amount) {
+    
+        this.changeCurrentAttributeValue('life', amount);
+    
+    };
+    
+    /*
+    ** remove life
+    *
+    ** returns true if the object was killed the amount of life lost        
+    */    
+    this.removeLife = function(amount, src) {
+    
+        this.changeCurrentAttributeValue('life', amount * -1);
+        
+        if (this.attr('life-current') == 0) {
+        
+            this.die(src);
+            
+            return true;
+        
+        }
+        
+        return false;
+    
+    };
+    
+    this.addMana = function(amount) {
+    
+        this.changeCurrentAttributeValue('mana', amount);    
+    
+    };
+    
+    this.removeMana = function(amount) {
+    
+        this.changeCurrentAttributeValue('mana', amount * -1);
+    
+    };
+    
+    /*
+    ** kill the object 
+    */    
+    this.die = function(src) {
+    
+        this.tsDeath = +new Date();
+        
+        this.emit('death', { src: src });
+    
+    };
+    
+    this.loop = function(ticks) {
+    
+        this.objectLoop(ticks);
+    
+    };
+        
+    /*
+    ** handle everything a static object does in a single frame
+    */    
+    this.objectLoop = function(ticks) {
+    
+        var ts = +new Date(),
+            attack;
+    
+        if (this.channeling) {
+        
+            if (ts - this.channeling.ts >= this.channeling.duration) {
+            
+                this.channeling.func(this.channeling.data);
+                
+                this.channeling = null;
+            
+            }
+        
+        }
+        
+        if (this.attacking) {
+        
+            // half the attack time has passed
+            // now we either attack or close the attack
+            if (ts - this.attacking.ts >= this.attacking.duration) {
+            
+                // prior to attacking
+                if (this.attacking.state == 0) {
+                
+                    this.attacking.ts = ts;
+                    
+                    this.attacking.data.attack.invoke(this, this.attacking.data.target);
+                    
+                    this.attacking.state = 1;
+                
+                } 
+                // we attacked already
+                else {
+                
+                    this.attacking = null;    
+                
+                }    
+            
+            }    
+        
+        } 
+        // if we don't have a target, let's find one
+        else if (this.isEvil && this.target == null) {
+        
+            // check the distance between us and the hero
+            if (_dist(this, JRPG.hero) < this.attr('aggroRange')) {
+            
+                this.target = JRPG.hero;
+                
+                attack = this.chooseAttack();
+
+                if (this.targetInRange(attack)) {
+                
+                    this.attack(this.target, attack);
+                
+                } else {
+                
+                    this.approachTarget();
+                
+                }
+            
+            }               
+        
+        }
+        
+        _.invoke(this.children, 'loop', ticks);
+    
+    };
+    
+    /*
+    ** use a skil
+    */    
+    this.useSkill = function(skill, target) {
+
+        skill.invoke(target);
+    
+    };
+    
+    /*
+    ** place the object on a specific position
+    */    
+    this.updatePosition = function(x, y) {
+    
+        this.x = x;
+        this.y = y;
+        
+        this.hitBox.refresh();
+    
+    };
+    
+    /*
+    ** checks if a target is within the range of 
+    ** the selected attack    
+    */
+    this.targetInRange = function(attack) {
+    
+        return _dist(this, this.target) < attack.range;
+    
+    };
+    
+    /*
+    ** a target was found and now we check if it's close enough
+    ** to be attacked    
+    */    
+    this.approachTarget = function() {
+    
+        // we can't move so we don't
+    
+    };  
+    
+    /*
+    ** returns a damage value based on min/max damage, equipped items, 
+    ** chance for critical hits and crushing blow    
+    */    
+    this.damage = function() {
+    
+        var damage = {
+              damage: 0, 
+              rank: JRPG.DamageRank.NORMAL, 
+              src: this
+            }, 
+            minDmg = this.attr('minDmg'), 
+            maxDmg = this.attr('maxDmg'), 
+            dmg = _.random(minDmg, maxDmg),
+            critChance = this.attr('critChance'), 
+            crushingBlowChance = this.attr('crushingBlowChance'),  
+            r = Math.random();
+        
+        if (r <= crushingBlowChance) {
+        
+            damage.rank = JRPG.DamageRank.CRUSHING_BLOW;
+        
+        } else if (r <= critChance) {
+        
+            damage.rank = JRPG.DamageRank.CRITICAL;
+            
+            dmg += dmg * this.attr('critDmg');
+        
+        }
+        
+        damage.damage = dmg;
+        
+        return damage;        
+
+    };
+    
+    /*
+    ** applies damage to this creature
+    */ 
+    this.receiveDamage = function(damage) {
+    
+        var result = {
+                damage: 0, 
+                lethal: false, 
+                dodged: false
+            }, 
+            dmg = damage.damage, 
+            r = Math.random();
+        
+        // apply dodge chance
+        if (r <= this.attr('dodgeChance')) {
+        
+            result.dodged = true;  
+        
+        } 
+        // the damage was not dodged
+        else {
+        
+            // crushing blow damage is always 25% of 
+            // the creature's life
+            if (damage.rank == JRPG.DamageRank.CRUSHING_BLOW) {
+            
+                dmg = this.currentLife * 0.25;    
+            
+            }
+            
+            // apply reduction by armor
+            dmg -= this.attr('armor');
+            
+            result.damage = dmg;
+            
+            if (this.removeLife(dmg, damage.src)) {
+            
+                result.lethal = true;
+            
+            } 
+        
+        } 
+        
+        return result;     
+    
+    };   
+    
+    /*
+    ** returns the display name of the object or creature
+    ** the display name is shown when the object is hovered over          
+    */    
+    this.displayName = function() {
+    
+        return this.name;
+    
+    };
+    
+    /*
+    ** get or set an attribute
+    */    
+    this.attr = function(key, value) {
+    
+        // the value is not set so we want to GET the value
+        if (value == undefined) {
+        
+            // first let's check if we're asked for the current value of the
+            // attribute
+            if (key.indexOf('-current') != -1) {
+            
+                return this.currentAttributeValues[key.replace(/\-current/, '')] || 0;     
+            
+            }
+        
+            // the base value for the given attribute kan be derived 
+            // either from the attributes set or directly from the object 
+            // (e.g. speed); otherwise its set to 0
+            var value = this.attributes[key] || this[key] || 0;
+            
+            // if we have equipment we check all equipped items if they
+            // modify this attribute
+            if (this.equipment) {
+            
+                value = this.equipment.attr(key, value);
+            
+            }
+                        
+            // some attributes are getting applied a special modifier
+            switch (key) {
+            
+                // the value of 'life' is multiplied by 10% of the amount
+                // of vitality the creature has
+                case 'life':
+                
+                    value += value * this.attr('vit') / 10;
+                
+                    break;
+                
+                // the value of 'mana' is multiplied by 2.5% of the amount
+                // of intelligence/focus the creature has
+                case 'mana':
+                
+                    value += value * this.attr('int') / 25;
+                    
+                    break; 
+                
+                // the attack speed is calculated from the weapon and 
+                // improved by ias
+                case 'attackSpeed':
+                
+                    value += (value / 100 * this.attr('ias')); 
+                
+                    break;
+            
+            }
+            
+            return value;
+        
+        } 
+        // we have a value, let's SET the attribute to this value
+        else {
+        
+            // first let's check if we're asked to set the current value
+            // of the attribute
+            if (key.indexOf('-current') != -1) {
+            
+                this.currentAttributeValues[key.replace(/\-current/, '')] = value;   
+            
+            } else {
+        
+                this.attributes[key] = value;
+            
+            }
+            
+            this.emit('attributeChanged', { key: key, value: value });
+            this.emit('attributeChanged_' + key, { value: value });
+        
+        }    
+    
+    };
+    
+    /*
+    ** channel an action
+    */    
+    this.channel = function(duration, func, data) {
+    
+        this.channeling = { 
+            ts: +new Date(), 
+            duration: duration, 
+            func: func, 
+            data: data 
+        };
+    
+    };
+    
+    /*
+    ** validate if we can perform an attack    
+    */
+    this.canAttack = function() {
+    
+        return !this.channeling && !this.attacking;
+    
+    };    
+    
+    /*
+    ** perform an attack
+    ** handle channeling, delay, etc    
+    */
+    this.attack = function(target, attack) {
+    
+        var data = { target: target, attack: attack };
+    
+        if (this.canAttack()) {
+    
+            this.stop();
+    
+            var channelDuration = data.channelDuration || 0, 
+                attackSpeed;
+        
+            if (channelDuration) {
+            
+                data.channelDuration = 0;
+            
+                this.channel(channelDuration, $.proxy(this.attack, this), data);
+            
+            } else {
+            
+                attackSpeed = this.attr('attackSpeed');
+
+                // if we don't have an attack speed we probably don't have 
+                // a weapon -> so: bad luck
+                if (attackSpeed > 0) {
+            
+                    this.attacking = {
+                        ts: +new Date(), 
+                        state: 0, 
+                        data: data, 
+                        // this is half the attack duration
+                        // attack speed is in attacks per second
+                        duration: 1000 / attackSpeed / 2                            
+                    }; 
+                
+                }
+            
+            } 
+        
+        }       
+    
+    };
+    
+    /*
+    ** choose from our attack options
+    **
+    ** creatures can always use their main attack (mostly bash) but
+    ** can also decide to use a skilled attack (e.g. ranged, aoe, etc) 
+    ** if they have enough mana                
+    */    
+    this.chooseAttack = function() {
+    
+        // TODO: validate options and stuff
+        return this.skills.random();
+    
+    };  
+    
+    this.stop = function() {
+    
+        this.channeling = null;
+    
+    };
+    
+    /*
+    ** remove an object either from the game stack or from 
+    ** its parent    
+    */      
+    this.remove = function() {
+    
+        if (this.owner) {
+        
+            this.owner.children.remove(this);
+        
+        } else {
+        
+            JRPG.game.stack.remove(this);
+        
+        }
+    
+    }
+    
+    if (type) {
+    
+        this.initObject(type, name, level);
+    
+    }  
+
+}
+JRPG.Object.prototype = new JRPG.EventHandler();
+
+JRPG.Object.types = {
+    lootable: ['chest'],
+    projectile: ['fireball'],  
+    animal: ['spider'],
+    human: ['hero', 'swordsman', 'priest', 'rogue'], 
+    demon: ['spirit']
+}
+
+JRPG.Object.getSupertype = function(type) {
+    
+    for (var supertype in JRPG.Object.types) {
+    
+        if (_.contains(JRPG.Object.types[supertype], type)) {
+        
+            return supertype;
+        
+        }
+    
+    }
+    
+    return undefined;
+
+}

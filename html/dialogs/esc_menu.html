@@ -1,0 +1,25 @@
+<div class="jrpg-ui-esc-menu">
+<input type="button" data-key="exit" value="Leave Game" />
+</div>
+
+<script type="text/javascript">
+
+$('.jrpg-ui-esc-menu input[type="button"]').click(function(ev) {
+
+    var key = $(ev.target).attr('data-key');
+    
+    switch (key) {
+    
+        case 'exit':
+        
+            _dlg(this).close();
+        
+            JRPG.leaveGame();
+        
+            break;
+    
+    }
+
+});
+
+</script>

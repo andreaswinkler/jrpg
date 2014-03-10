@@ -1,0 +1,162 @@
+<span id="jrpg_editor_maps_edit_id"></span>
+
+<canvas width="100%" height="100%" id="jrpg_editor_maps_edit_map"></canvas>
+
+<div id="jrpg_editor_maps_edit_toolbar"></div>
+
+<div id="jrpg_editor_maps_edit_properties"></div>
+
+<script type="text/javascript">
+
+JRPG.UI.MapEditor = {
+
+    map: null,
+    
+    mapSizes: {
+        tiny: { w: 50, h: 100 }, 
+        small: { w: 75, h: 150 }, 
+        normal: { w: 100, h: 200 }, 
+        large: { w: 200, h: 400 }    
+    }, 
+    
+    mapContext: null, 
+    
+    init: function() {
+    
+        var canvas = $('#jrpg_editor_maps_edit_map');
+        
+        canvas.attr('width', $(window).width()).attr('height', $(window).height() - 20);
+    
+        this.mapContext = canvas.get(0).getContext('2d');
+    
+        _post('map.load', { id: JRPG.UI.moduleData.id }, $.proxy(function(t) {
+
+            this.map = t;
+            
+            if (!this.map.tiles) {
+            
+                this.emptyMap();
+            
+            }
+            
+            this.initToolbar();
+            
+            this.initProperties();
+            
+            this.renderMap();
+        
+        }, this));    
+    
+    }, 
+    
+    initToolbar: function() {
+    
+        var e = $('#jrpg_editor_maps_edit_toolbar');
+        
+        e.html('');
+        
+        e.append(this.toolbarSection('Basic tiles', ['Grass', 'Road', 'Water'], true));
+        
+        e.append(this.toolbarSection('Structures', ['Tree', 'Rock']));
+        
+        e.append(this.toolbarSection('Interactive objects', ['Healing well', 'Surface portal', 'Random shrine', 'Door']));
+        
+        e.append(this.toolbarSection('Controls', ['Entry', 'Exit', 'Spawn point']));
+    
+    }, 
+    
+    initProperties: function() {
+    
+        var e = $('#jrpg_editor_maps_edit_properties');
+        
+        e.html('');
+        
+        e.append(this.propertyWindow('Map', this.map, ['name', 'size']));
+    
+    }, 
+    
+    toolbarSection: function(title, items, open) {
+    
+        var s = '<div class="toolbar-section">', 
+            e, i;
+        
+        s += '<span class="toolbar-section-title">' + title + '</span>';
+        
+        s += '<div class="toolbar-section-content">';
+        
+        for (i = 0; i < items.length; i++) {
+        
+            s += '<div class="toolbar-item"><div class="toolbar-item-icon"></div><span class="toolbar-item-title">' + items[i] + '</span></div>';
+        
+        }
+        
+        s += '</div>';
+        
+        s += '</div>';
+        
+        e = $(s);
+        
+        if (open) {
+        
+            e.addClass('open');
+        
+        }
+        
+        e.find('.toolbar-section-title').click(function(ev) {
+        
+            $(ev.target).parents('.toolbar-section').toggleClass('open');
+        
+        });
+        
+        return e;
+    
+    }, 
+    
+    propertyWindow: function(title, obj, fields) {
+    
+        var s = '<table><thead><th colspan="2">' + title + '</th></thead>', 
+            i;
+        
+        s += '<tbody>';
+        
+        for (i = 0; i < fields.length; i++) {
+        
+            s += '<tr><td>' + fields[i] + '</td><td>' + obj[fields[i]] + '</td></tr>';
+        
+        }
+        
+        s += '</tbody></table>';
+        
+        return s;
+    
+    }, 
+    
+    renderMap: function() {
+    
+        JRPG.Renderer.renderMap(this.map, this.mapContext);    
+    
+    }, 
+    
+    emptyMap: function() {
+    
+        var w = this.mapSizes[this.map.size].w, 
+            h = this.mapSizes[this.map.size].h, 
+            i;
+        
+        this.map.tiles = [];
+        this.map.width = w;
+        this.map.height = h;
+        
+        for (i = 0; i < w * h; i++) {
+        
+            this.map.tiles.push(1);
+        
+        }
+    
+    }
+
+}
+
+JRPG.UI.MapEditor.init();
+
+</script>

@@ -1,0 +1,18 @@
+<input id="jrpg_startscreen_editor" type="button" value="Editor" />
+<input id="jrpg_startscreen_startGame" type="button" value="Start game" />
+
+<script type="text/javascript">
+
+$('#jrpg_startscreen_editor').click(function(ev) {
+
+    JRPG.UI.module('editor');
+
+});
+
+$('#jrpg_startscreen_startGame').click(function(ev) {
+
+    JRPG.UI.module('game');
+
+});
+
+</script>

@@ -1,0 +1,1 @@
+{ leatherarmor: { superType: 'chestarmor', category: 'armor', durability: 10, levelRequirement: 1, minDropLevel: 1, maxDropLevel: 10, attributes: { armor: 1 } } }

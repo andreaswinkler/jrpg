@@ -1,0 +1,40 @@
+<h2>Create new map</h2>
+
+<label>name:</label><input id="jrpg_editor_maps_add_name" type="text" value="" /><br />
+<label>theme:</label><select id="jrpg_editor_maps_add_theme">
+<option value="grassland">Grassland</option>
+<option value="dungeon">Dungeon</option>
+<option value="cellar">Cellar</option>
+</select><br />
+<label>size:</label><select id="jrpg_editor_maps_add_size">
+<option>tiny</option>
+<option>small</option>
+<option>normal</option>
+<option>large</option>
+</select>
+<input id="jrpg_editor_maps_add_save" type="button" value="save" />
+<input id="jrpg_editor_maps_add_cancel" type="button" value="cancel" />
+
+<script type="text/javascript">
+
+$('#jrpg_editor_maps_add_save').click(function(ev) {
+
+    _post('map.save', { id: 0, name: $('#jrpg_editor_maps_add_name').val(), theme: $('#jrpg_editor_maps_add_theme').val(), size: $('#jrpg_editor_maps_add_size').val() }, $.proxy(function(t) {
+        
+        var dlg = _dlg(this);
+        
+        dlg.data.mapId = t.id;
+        
+        dlg.close();    
+        
+    }, this));
+
+});
+
+$('#jrpg_editor_maps_add_cancel').click(function() {
+
+    _dlg(this).cancel();
+
+});
+
+</script>

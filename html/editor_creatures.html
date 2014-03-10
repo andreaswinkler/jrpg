@@ -1,0 +1,58 @@
+<input id="jrpg_editor_creatures_add" type="button" value="create new creature" />
+
+<table class="list">
+<thead><th>key</th><th>name</th><th>speed</th><th>life</th><th>mana</th><th>damage</th></thead>
+<tbody></tbody>
+</table>
+
+<script type="text/javascript">
+
+var editorCreatures = {
+
+    refresh: function() {
+    
+        _post('creatureData.load', {}, function(t) {
+
+            $('.list tbody').html('');
+        
+            _.each(t, function(i, key) {
+            
+                var type = key, 
+                    name = i.name, 
+                    speed = i.speed ? i.speed : '', 
+                    life = i.attributes && i.attributes.life ? i.attributes.life : '', 
+                    mana = i.attributes && i.attributes.mana ? i.attributes.mana : '', 
+                    damage = i.attributes && i.attributes.minDmg ? i.attributes.minDmg + ' - ' + i.attributes.maxDmg : '';
+                
+                $('.list tbody').append('<tr data-id="' + i.id + '"><td>' + key + '</td><td>' + name + '</td><td>' + speed + '</td><td>' + life + '</td><td>' + mana + '</td><td>' + damage + '</td><td><input type="button" value="edit" class="edit" /></td></tr>'); 
+            
+            });
+        
+            $('.list .edit').click(function(ev) {
+            
+                JRPG.UI.module('editor_creatures_edit', 'editor', { id: $(ev.target).parents('tr').attr('data-id') });
+            
+            });
+        
+        });    
+    
+    }, 
+    
+    onAddCreature: function(data) {
+    
+        JRPG.UI.module('editor_creature_edit', 'editor', { id: data.creatureId });        
+    
+    }
+
+}
+
+$('#jrpg_editor_creatures_add').click(function(ev) {
+
+    new JRPG.UI.Dialog('editor_creatures_add', 500, { onClose: editorCreatures.onAddCreature });
+
+});
+
+editorCreatures.refresh();
+
+
+</script>

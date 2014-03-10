@@ -1,0 +1,90 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>jrpg</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+<script src="js/jrpg.js"></script>
+<script src="js/jrpg.game.js"></script>
+<script src="js/jrpg.map.js"></script>
+<script src="js/jrpg.ui.js"></script> 
+<script src="js/jrpg.ui.dialog.js"></script>
+<script src="js/jrpg.ui.window.js"></script>
+<script src="js/jrpg.ui.progressbar.js"></script>
+<script src="js/jrpg.ui.item.js"></script>
+<script src="js/jrpg.ui.inventory.js"></script>
+<script src="js/jrpg.ui.equipment.js"></script>
+<script src="js/jrpg.ui.blacksmith.js"></script>
+<script src="js/jrpg.ui.jeweller.js"></script>
+<script src="js/jrpg.ui.character.js"></script>
+<script src="js/jrpg.ui.sphere.js"></script>
+<script src="js/jrpg.ui.controls.js"></script>
+<script src="js/jrpg.eventHandler.js"></script>
+<script src="js/jrpg.renderer.js"></script>
+<script src="js/jrpg.item.js"></script>
+<script src="js/jrpg.hitBox.js"></script>
+<script src="js/jrpg.dropFactory.js"></script>
+<script src="js/jrpg.object.js"></script>
+<script src="js/jrpg.movingObject.js"></script>
+<script src="js/jrpg.creature.js"></script>
+<script src="js/jrpg.character.js"></script>
+<script src="js/jrpg.equipment.js"></script>
+<script src="js/jrpg.inventory.js"></script>
+<script src="js/jrpg.projectile.js"></script>
+<script src="js/jrpg.skills.js"></script>
+<link rel="stylesheet" type="text/css" href="css/default.css" />
+</head>
+<body>
+
+<div id="content"></div>
+
+<div id="jrpg_ui_infobox">Calc: <span class="calc"></span><br />Stack: <span class="stack"></span></div>
+
+<script type="text/javascript">
+
+/* Szenario a
+   create hero, create creature with attack bash
+   let the hero walk towards the creature
+   
+   expected outcome: the creature attacks the hero and eventually kills him
+*/
+function _scenarioA() {
+
+    console.log('start scenario A');
+
+    JRPG.hero.moveTo(1000, 1000, null, function() {
+    
+        console.log('hero reached its target');
+        
+        JRPG.hero.moveTo(2000, 2000, null, function() {
+        
+            console.log('hero reached its second target');
+            
+        });
+    
+    });    
+
+}
+
+$(document).ready(function() {
+    
+    JRPG.onLoad = function() {
+    
+        if (JRPG.isAuthenticated()) {
+    
+            JRPG.UI.module('startscreen')
+        
+        } else {
+        
+            JRPG.UI.module('login');
+        
+        }        
+        
+    };
+    
+    JRPG.load();
+    
+});
+</script>
+</body>
+</html>

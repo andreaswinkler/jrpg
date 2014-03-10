@@ -1,0 +1,48 @@
+<ul id="jrpg_editor_menu" class="menu">
+<li>File
+<ul><li key="exit">Exit</li></ul>
+</li>
+<li>Edit
+<ul>
+<li key="maps">Maps</li>
+<li key="droptables">Drop tables</li>
+<li key="items">Items</li>
+<li key="creatures">Creatures</li>
+</ul>
+</li>
+<li>?</li>
+</ul>
+
+<div id="editor"></div>
+
+<script type="text/javascript">
+
+$('#jrpg_editor_menu li').click(function(ev) {
+
+    var key = $(this).attr('key');
+
+    if (key && key != '') {
+    
+        switch (key) {
+        
+            case 'exit':
+            
+                JRPG.UI.module('startscreen');
+                
+                break;
+            
+            default:
+            
+                JRPG.UI.module('editor_' + key, 'editor');
+                
+                break;
+        
+        }
+    
+    }
+    
+    return false;
+
+});
+
+</script>

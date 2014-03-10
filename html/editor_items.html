@@ -1,0 +1,62 @@
+<input id="jrpg_editor_items_add" type="button" value="create new droptable" />
+
+<table class="list">
+<thead><th>name</th><th>anchestors</th><th>durability</th><th>drop levels</th><th>size</th><th>attributes</th><th>sets</th><th>legendaries</th></thead>
+<tbody></tbody>
+</table>
+
+<script type="text/javascript">
+
+var editorItems = {
+
+    refresh: function() {
+    
+        _post('itemTypes.list', {}, function(t) {
+
+            $('.list tbody').html('');
+        
+            console.dir(t);
+        
+            _.each(t, function(i, key) {
+            
+                var name = i.name || '<i>' + key + '</i>', 
+                    anchestors = i.baseType ? i.category + ' > ' + i.superType + ' > ' + i.baseType : '', 
+                    durability = i.durability || '', 
+                    dropLevels = i.minDropLevel ? i.minDropLevel + ' - ' + i.maxDropLevel : '', 
+                    size = i.inventoryWidth ? i.inventoryWidth + 'x' + i.inventoryHeight : '', 
+                    attributes = i.attributes ? _.reduce(i.attributes, function(memo, i, key) { return memo + (i[0] == i[1] ? i[0] : i[0] + '-' + i[1]) + ' ' + key + '<br />'; }, '') : '', 
+                    sets = i.setPieces ? i.setPieces.length : '', 
+                    legendaries = i.legendaries ? i.legendaries.length : '';
+            
+                $('.list tbody').append('<tr data-id="' + i.id + '"><td>' + name + '</td><td>' + anchestors + '</td><td>' + durability + '</td><td>' + dropLevels + '</td><td>' + size + '</td><td>' + attributes + '</td><td>' + sets + '</td><td>' + legendaries + '</td><td><input type="button" value="edit" class="edit" /></td></tr>');
+            
+            });
+        
+            $('.list .edit').click(function(ev) {
+            
+                JRPG.UI.module('editor_items_edit', 'editor', { id: $(ev.target).parents('tr').attr('data-id') });
+            
+            });
+        
+        });    
+    
+    }, 
+    
+    onAddItem: function(data) {
+    
+        JRPG.UI.module('editor_items_edit', 'editor', { id: data.itemId });        
+    
+    }
+
+}
+
+$('#jrpg_editor_items_add').click(function(ev) {
+
+    new JRPG.UI.Dialog('editor_items_add', 500, { onClose: editorItems.onAddDropTable });
+
+});
+
+editorItems.refresh();
+
+
+</script>

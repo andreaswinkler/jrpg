@@ -1,0 +1,53 @@
+<input id="jrpg_editor_maps_add" type="button" value="create new map" />
+
+<table class="list">
+<thead><th>name</th><th>theme</th><th>size</th></thead>
+<tbody></tbody>
+</table>
+
+<script type="text/javascript">
+
+var editorMaps = {
+
+    refresh: function() {
+    
+        _post('maps.list', {}, function(t) {
+
+            $('.list tbody').html('');
+        
+            var i;
+        
+            for (i = 0; i < t.length; i++) {
+            
+                $('.list tbody').append('<tr data-id="' + t[i].id + '"><td>' + t[i].name + '</td><td>' + t[i].theme + '</td><td>' + t[i].size + '</td><td><input type="button" value="edit" class="edit" /></td></tr>');    
+            
+            }
+            
+            $('.list .edit').click(function(ev) {
+            
+                JRPG.UI.module('editor_maps_edit', 'editor', { id: $(ev.target).parents('tr').attr('data-id') });
+            
+            });
+        
+        });    
+    
+    }, 
+    
+    onAddMap: function(data) {
+    
+        JRPG.UI.module('editor_maps_edit', 'editor', { id: data.mapId });        
+    
+    }
+
+}
+
+$('#jrpg_editor_maps_add').click(function(ev) {
+
+    new JRPG.UI.Dialog('editor_maps_add', 500, { onClose: editorMaps.onAddMap });
+
+});
+
+editorMaps.refresh();
+
+
+</script>
