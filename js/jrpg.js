@@ -123,7 +123,7 @@ var JRPG = {
          _post('map.load', { id: mapId }, $.proxy(function(t) {
          
             // initialize a game with the newly loaded map
-            this.game = new JRPG.Game(t);  
+            this.game = new JRPG.Game(t); 
 
             this.loop();
          

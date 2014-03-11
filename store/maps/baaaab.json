@@ -1,7 +1,7 @@
 {"id":"baaaab","name":"Playground","theme":"grassland","size":"small","level":3,"width":100,"height":100,
 "objects":[
   {"type":"spawnpoint",
-  "settings":{"amount":1,"type":"spider"},"x":2000,"y":2000}
+  "settings":{"amount":1,"type":"spider"},"x":4000,"y":4000}
 ],"positions":[
   {"isDefault":true,"x":100,"y":100}
 ]}

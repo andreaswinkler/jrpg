@@ -56,6 +56,8 @@ JRPG.Game = function(map) {
         } else {
     
             _.invoke(this.stack, 'loop', ticks);
+            
+            JRPG.UI.Minimap.update(JRPG.hero);
         
         }
     
@@ -82,6 +84,9 @@ JRPG.Game = function(map) {
         this.initHeroPosition(oldMapId);
         
         this.active = true;
+        
+        // initialize minimap
+        JRPG.UI.Minimap.initMinimap(this.map);
     
     };
     
