@@ -91,6 +91,8 @@ JRPG.Object = function(type, name, level) {
     
     this.addLife = function(amount) {
     
+        var amount = amount || this.attr('life');
+    
         this.changeCurrentAttributeValue('life', amount);
     
     };
@@ -101,7 +103,7 @@ JRPG.Object = function(type, name, level) {
     ** returns true if the object was killed the amount of life lost        
     */    
     this.removeLife = function(amount, src) {
-    
+        
         this.changeCurrentAttributeValue('life', amount * -1);
         
         if (this.attr('life-current') == 0) {
@@ -117,6 +119,8 @@ JRPG.Object = function(type, name, level) {
     };
     
     this.addMana = function(amount) {
+    
+        var amount = amount || this.attr('mana');
     
         this.changeCurrentAttributeValue('mana', amount);    
     
@@ -176,7 +180,7 @@ JRPG.Object = function(type, name, level) {
                 
                     this.attacking.ts = ts;
                     
-                    this.attacking.data.attack.invoke(this, this.attacking.data.target);
+                    this.attacking.data.attack.invoke(this.attacking.data.target);
                     
                     this.attacking.state = 1;
                 
@@ -196,14 +200,14 @@ JRPG.Object = function(type, name, level) {
         
             // check the distance between us and the hero
             if (_dist(this, JRPG.hero) < this.attr('aggroRange')) {
-            
-                this.target = JRPG.hero;
+                
+                this.aggroTarget = JRPG.hero;
                 
                 attack = this.chooseAttack();
-
-                if (this.targetInRange(attack)) {
                 
-                    this.attack(this.target, attack);
+                if (this.targetInRange(attack)) {
+                    
+                    this.attack(this.aggroTarget, attack);
                 
                 } else {
                 
@@ -245,8 +249,8 @@ JRPG.Object = function(type, name, level) {
     ** the selected attack    
     */
     this.targetInRange = function(attack) {
-    
-        return _dist(this, this.target) < attack.range;
+
+        return _dist(this, this.aggroTarget) < attack.range;
     
     };
     
@@ -322,7 +326,7 @@ JRPG.Object = function(type, name, level) {
             // the creature's life
             if (damage.rank == JRPG.DamageRank.CRUSHING_BLOW) {
             
-                dmg = this.currentLife * 0.25;    
+                dmg = this.attr('life-current') * 0.25;    
             
             }
             
@@ -420,8 +424,8 @@ JRPG.Object = function(type, name, level) {
             // first let's check if we're asked to set the current value
             // of the attribute
             if (key.indexOf('-current') != -1) {
-            
-                this.currentAttributeValues[key.replace(/\-current/, '')] = value;   
+  
+                this.currentAttributeValues[key.replace(/\-current/, '')] = value;  
             
             } else {
         

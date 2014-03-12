@@ -52,9 +52,15 @@ JRPG.RenderLayer = function(width, height) {
     
     this.drawMasked = function(maskCanvas, canvas, x, y) {
     
-        //this.ctx.drawImage(maskCanvas, x, y);
-        //this.ctx.globalCompositeOperation = 'source-in';
-        //this.ctx.drawImage(canvas, x, y);
+        this.ctx.save();
+    
+        this.ctx.drawImage(maskCanvas, x, y);
+        //this.circle(100, 100, 50, 'rgba(0,210,0,1)');
+        this.ctx.globalCompositeOperation = 'source-in';
+        //this.rect(20, 20, 100, 100, 'rgba(210,0,0,1)');
+        this.ctx.drawImage(canvas, x, y);
+        
+        this.ctx.restore();
     
     };
       

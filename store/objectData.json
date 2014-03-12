@@ -1,4 +1,4 @@
-{"hero":{"name":"The Hero","width":50,"height":120,"speed":0.2,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10}, 
+{"hero":{"name":"The Hero","width":50,"height":120,"speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10}, 
     "skills": ["weaponPrimary","weaponSecondary","fireball"],
     "levels": [0, 100, 300, 900, 2700, 8100, 24300]
     },
@@ -25,8 +25,8 @@
             "aggroRange": 700, 
             "attackRange": 100, 
             "attackSpeed": 0.5, 
-            "minDmg": 10, 
-            "maxDmg": 20, 
+            "minDmg": 1, 
+            "maxDmg": 2, 
             "critChance": 0, 
             "crushingBlowChance": 0, 
             "critDmg": 1

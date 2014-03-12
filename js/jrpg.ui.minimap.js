@@ -6,13 +6,19 @@ JRPG.UI.Minimap = {
     height: 250,
     center: { x: 125, y: 125 }, 
     
-    viewRange: 20,  
+    offset: { x: 0, y: 0 }, 
+    
+    viewRange: 100,  
 
     map: null, 
     mapLayer: null, 
     maskLayer: null, 
     
-    renderLayer: null, 
+    renderLayer: null,
+    
+    zoom: 5,  
+    
+    tsLastUpdate: 0, 
     
     e: null, 
     
@@ -58,7 +64,7 @@ JRPG.UI.Minimap = {
         else {
         
             this.mapLayer = this.createMap(this.map.map);
-            this.maskLayer = this.createMask(this.map.map.width, this.map.map.height);
+            this.maskLayer = this.createMask(this.map.map);
         
         }
         
@@ -66,9 +72,9 @@ JRPG.UI.Minimap = {
     
     }, 
     
-    createMask: function(width, height) {
+    createMask: function(map) {
     
-        var l = new JRPG.RenderLayer(width, height);
+        var l = new JRPG.RenderLayer(map.width * this.zoom, map.height * this.zoom);
         
         l.clear('rgba(0,0,0,1)');
         
@@ -78,40 +84,64 @@ JRPG.UI.Minimap = {
     
     update: function(hero) {
     
-        var heroTile = this.map.tileAtPosition(hero.x, hero.y);
-    
-        // clear the object layer
-        this.renderLayer.clear('rgba(0,210,0,1)');
+        // we do this only once a second
+        if (+new Date() - this.tsLastUpdate > 1000) {        
         
-        // draw correct map part
-        this.renderLayer.drawMasked(this.maskLayer.canvas, this.mapLayer.canvas, 0, 0);
+            var heroTile = this.map.tileAtPosition(hero.x, hero.y);
         
-        // place the hero marker on it's position with the correct
-        // rotation
-        /*this.renderLayer.drawRotated(
-            'hero_marker', 
-            this.center.x, 
-            this.center.y, 
-            hero.rotation
-        );*/
-        this.renderLayer.circle(this.center.x, this.center.y, 5, 'rgba(210,0,0,1)');
+            this.offset.x = this.center.x - heroTile.col * this.zoom;
+            this.offset.y = this.center.y - heroTile.row * this.zoom;
         
-        // unhide now visible parts of the map
-        this.maskLayer.circle(heroTile.col, heroTile.row, this.viewRange, 'rgba(255,255,255,1)');        
+            // clear the object layer
+            this.renderLayer.clear();
+            
+            // unhide now visible parts of the map
+            this.maskLayer.circle(heroTile.col * this.zoom, heroTile.row * this.zoom, this.viewRange, 'rgba(255,255,255,1)');
+            
+            // draw correct map part
+            this.renderLayer.drawMasked(this.maskLayer.canvas, this.mapLayer.canvas, this.offset.x, this.offset.y);
+            
+            // place the hero marker on it's position with the correct
+            // rotation
+            /*this.renderLayer.drawRotated(
+                'hero_marker', 
+                this.center.x, 
+                this.center.y, 
+                hero.rotation
+            );*/            
+            _.each(JRPG.game.stack, function(i) { 
+            
+                if (i.type != 'hero') {
+            
+                    var tile = this.map.tileAtPosition(i.x, i.y), 
+                        x = this.offset.x + tile.col * this.zoom, 
+                        y = this.offset.y + tile.row * this.zoom;
+                    
+                    this.renderLayer.circle(x, y, 5, 'rgba(0,0,210,1)');
+                
+                }
+            
+            }, this);
+            
+            this.renderLayer.circle(this.center.x, this.center.y, 5, 'rgba(210,0,0,1)');
+        
+            this.tsLastUpdate = +new Date();
+        
+        }   
     
     }, 
     
     createMap: function(map) {
     
-        var l = new JRPG.RenderLayer(map.width, map.height),
-            y = -1, x = 0,   
-            i, t;
+        var l = new JRPG.RenderLayer(map.width * this.zoom, map.height * this.zoom),
+            y = 0, x = 0,   
+            i, t, c;
             
         for (i = 0; i < map.tiles.length; i++) {
         
-            if (i % map.width == 0) {
+            if (i > 0 && i % map.width == 0) {
             
-                y++;
+                y += this.zoom;
                 x = 0;
             
             }
@@ -120,15 +150,17 @@ JRPG.UI.Minimap = {
             
             if (t.walkable) {
             
-                l.rect(x, y, 1, 1, 'rgba(100,100,100,1)');
-            
+                c = 'rgba(100,100,100,1)';
+
             } else {
             
-                l.rect(x, y, 1, 1, 'rgba(25,25,25,1)');
+                c = 'rgba(25,25,25,1)';
             
             }
             
-            x++;               
+            l.rect(x, y, this.zoom, this.zoom, c);
+            
+            x += this.zoom;               
         
         }
         

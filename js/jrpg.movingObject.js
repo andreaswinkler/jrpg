@@ -1,6 +1,11 @@
 JRPG.MovingObject = function(type, name, level, speed) {
 
     this.target = null;
+    
+    // a direction vector that is multiplied with the 
+    // move vector and is used to guide creatures away
+    // from each other
+    this.drift = null;
 
     this.initMovingObject = function(type, name, level, speed) {
     
@@ -8,7 +13,9 @@ JRPG.MovingObject = function(type, name, level, speed) {
         
         this.attr('speed', speed);
         
-        this.initCurrentAttributeValue('speed');  
+        this.initCurrentAttributeValue('speed');
+        
+        this.drift = { x: 0, y: 0 };  
     
     };
 
@@ -48,6 +55,10 @@ JRPG.MovingObject = function(type, name, level, speed) {
         // set the rotation of the creature towards
         // the target
         this.rotation = _rot(x, y, this.x, this.y);
+        
+        if (this.type == 'hero') {
+        console.log(this.name + ' move to ' + x + '/' + y);
+        }
 
     };
     
@@ -72,7 +83,7 @@ JRPG.MovingObject = function(type, name, level, speed) {
     */    
     this.approachTarget = function() {
     
-        this.moveToObj(this.target);
+        this.moveToObj(this.aggroTarget);
     
     };
        
@@ -122,7 +133,9 @@ JRPG.MovingObject = function(type, name, level, speed) {
     /*
     ** the creature moves towards its target
     ** the distance travelled per frame is calculated from the amount 
-    ** of ticks times the speed of the creature        
+    ** of ticks times the speed of the creature 
+    **
+    ** if the target is our aggro target we update the target frequently               
     */    
     this.move = function(ticks) {
     
@@ -130,10 +143,16 @@ JRPG.MovingObject = function(type, name, level, speed) {
     
         if (this.target) {
         
+            if (this.target.obj && this.target.obj == this.aggroTarget) {
+            
+                this.approachTarget();
+            
+            }
+        
             currentSpeed = this.attr('speed-current') * ticks;
         
-            newX = this.x + this.target.dx * currentSpeed;
-            newY = this.y + this.target.dy * currentSpeed;
+            newX = (this.x + this.target.dx * currentSpeed) + this.drift.x;
+            newY = (this.y + this.target.dy * currentSpeed) + this.drift.y;
             
             if (JRPG.game.map.canMoveTo(this, newX, newY)) {
         

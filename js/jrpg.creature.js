@@ -81,7 +81,34 @@ JRPG.Creature = function(type, name, level, rank) {
     
     this.creatureLoop = function(ticks) {
     
-        this.movingObjectLoop(ticks);    
+        this.movingObjectLoop(ticks); 
+        
+        // creatures are pretty smart so they try not
+        // to run into each other
+        var tooCloseCreatures = JRPG.game.stack.filter(function(i) { 
+        
+            return _dist(i.x, i.y, this.x, this.y) < this.width / 2 + i.width / 2; 
+            
+        }, this);
+        
+        if (tooCloseCreatures.length > 0) {
+        
+            var centroid = _centroid(tooCloseCreatures);
+            
+            this.drift = _normalVector(centroid.x, centroid.y, this.x, this.y); 
+            
+            if (this.drift.x == 0 && this.drift.y == 0) {
+            
+                this.drift.x = Math.random();
+            
+            }           
+        
+        } else {
+        
+            this.drift.x = 0;
+            this.drift.y = 0;
+        
+        } 
     
     };
     

@@ -48,3 +48,7 @@ body { overflow: hidden; width: 100%; height: 100%; }
 
 #jrpg_ui_minimap { position: absolute; top: 10px; right: 10px; width: 250px; height: 250px; overflow: hidden; }
 #jrpg_ui_minimap canvas { position: absolute; top: 0; left: 0; }
+
+#jrpg_gameover { background: #c10000; color: #fff; text-align: center; display: none; width: 100%; height: 100%; z-index: 1000; position: absolute; top: 0; left: 0; }
+
+#jrpg_game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: block; }

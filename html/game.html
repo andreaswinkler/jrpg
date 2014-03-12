@@ -1,5 +1,13 @@
 <div id="game">
+<div id="jrpg_game"></div>
 <div id="jrpg_ui"></div>
+<div id="jrpg_gameover">
+<h1>You died.</h1>
+<br />
+<span class="info"></span>
+<br /><br />
+<input type="button" value="resurrect" class="resurrect" />
+</div>
 </div>
 
 <script type="text/javascript">
@@ -65,19 +73,27 @@ var controls = new JRPG.UI.Controls();
 
 JRPG.hero.on('death', function(ev) {
 
+    JRPG.game.clearAggroTargets();
+
     JRPG.game.stop();
 
-    $('body').css('background', '#c10000').css('color', '#fff').html('<h1>' + ev.data.src.displayName() + ' sent the Character to the clearing at the end of the path</h1><br /><br /><input type="button" value="restart" class="restart" />');
+    $('#jrpg_gameover .resurrect').unbind().click(function(ev) {
 
-    $('.restart').click(function(ev) {
-    
-        $('body').css('background', '#fff').
+        $('#jrpg_gameover').css('display', 'none');
         
-        JRPG.hero.updatePosition(1000, 1000);
+        JRPG.game.resurrectHero(); 
         
-        JRPG.game.active = true;
-    
+        JRPG.restartGame();   
+
     });
+
+    $('#jrpg_gameover').css('display', 'block').find('.info').html('<b>' + ev.data.src.name + '</b> was too strong.');
+
+});
+
+$('#jrpg_game').click(function(ev) {
+
+    JRPG.hero.moveTo(ev.pageX, ev.pageY);
 
 });
 

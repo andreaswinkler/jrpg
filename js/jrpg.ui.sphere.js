@@ -28,7 +28,7 @@ JRPG.UI.Sphere = function(obj, attribute) {
     
         var total = this.ref.attr(this.refAttribute), 
             current = this.ref.attr(this.refAttribute + '-current');
-        
+      
         this.eContent.css('height', (current / total * 100) + '%');
         this.eValue.html(current);
     

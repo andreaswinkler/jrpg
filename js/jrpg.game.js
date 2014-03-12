@@ -25,6 +25,8 @@ JRPG.Game = function(map) {
         this.initMap(map);
         
         _log('init game <' + map.name + '> complete', this.timer);
+        
+        _scenarioA();
     
     };
     
@@ -62,6 +64,42 @@ JRPG.Game = function(map) {
         }
     
     };
+    
+    /*
+    ** our hero died, now we resurrect him and place him on the last
+    ** known checkpoint
+    */        
+    this.resurrectHero = function() {
+    
+        // restore the hero to full health
+        JRPG.hero.addLife();
+        
+        // restore the hero to full mana
+        JRPG.hero.addMana();
+        
+        // reset the dead flag
+        JRPG.hero.tsDeath = 0;
+    
+        // TODO: get the last known checkpoint
+        JRPG.hero.updatePosition(0, 0);
+    
+    };
+    
+    /*
+    ** removes aggro from all creatures
+    **
+    ** used e.g. in case of death of the hero or in case of
+    ** a level switch            
+    */
+    this.clearAggroTargets = function() {
+    
+        _.each(this.stack, function(i) {
+        
+            i.aggroTarget = null;
+        
+        }, this);
+    
+    };    
     
     /*
     ** we initialize a map by setting the reference and by looping through
