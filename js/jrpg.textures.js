@@ -84,7 +84,7 @@ JRPG.Textures = {
         
             key = keys.shift();
             
-            this.load(key, 'tex/' + key + '.png', true, $.proxy(this.character, this), [character, callback]);
+            this.load(key, 'tex/' + key + '.png', true, $.proxy(this.character, this), [character, callback, loadingBar]);
         
         } 
         // all textures are loaded, we can stack the hero now
