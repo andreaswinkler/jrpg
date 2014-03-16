@@ -1,4 +1,4 @@
-html, body, ul { margin: 0; padding: 0; font-family: Arial; font-size: 11px; }
+html, body, ul { margin: 0; padding: 0; font-family: Arial; font-size: 11px; background: #000; }
 
 ul, li { float: left; list-style: none; }
 
@@ -32,8 +32,8 @@ body { overflow: hidden; width: 100%; height: 100%; }
 
 
 .progress-bar, .progress-bar div { height: 10px; }
-.progress-bar-container { background: #333; }
-.progress-bar-filled { background: #ddd; }
+.progress-bar-container { background: #222; }
+.progress-bar-filled { background: #508c91; }
 .progress-bar-value { color: #fff; font-size: 8px; margin: -10px; text-align: center; }
 
 
@@ -52,3 +52,10 @@ body { overflow: hidden; width: 100%; height: 100%; }
 #jrpg_gameover { background: #c10000; color: #fff; text-align: center; display: none; width: 100%; height: 100%; z-index: 1000; position: absolute; top: 0; left: 0; }
 
 #jrpg_game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: block; }
+
+#jrpg_startscreen_hero canvas { float: left; background: transparent; }
+#jrpg_startscreen_hero span { clear: both; float: left; }
+
+img.logo { position: absolute; top: 50%; left: 50%; margin: -400px 0px 0px -350px; }
+
+.

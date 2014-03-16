@@ -228,6 +228,40 @@ switch ($_REQUEST["service"]) {
                     )
                 )
             ),
+            "smallshield" => (object)array(
+                "name" => "Small Shield", 
+                "baseType" => "bt_shield", 
+                "superType" => "st_armor", 
+                "category" => "c_equipment", 
+                "durability" => 10,  
+                "minDropLevel" => 1, 
+                "maxDropLevel" => 10, 
+                "minRank" => 0, 
+                "inventoryWidth" => 2, 
+                "inventoryHeight" => 2,
+                "maxStackAmount" => 1,  
+                "attributes" => (object)array(
+                    "armor" => array(1, 2)
+                )
+            ),
+            "smallsword" => (object)array(
+                "name" => "Small Sword", 
+                "baseType" => "bt_sword", 
+                "superType" => "st_weapon", 
+                "category" => "c_equipment", 
+                "durability" => 10,  
+                "minDropLevel" => 1, 
+                "maxDropLevel" => 10, 
+                "minRank" => 0, 
+                "inventoryWidth" => 2, 
+                "inventoryHeight" => 2,
+                "maxStackAmount" => 1,  
+                "attributes" => (object)array(
+                    "minDmg" => array(1, 1), 
+                    "maxDmg" => array(3, 3), 
+                    "attackSpeed" => array(0.95, 0.95)
+                )  
+            ),
             "token" => (object)array(
                 "name" => "Token", 
                 "baseType" => "bt_token", 
@@ -334,7 +368,33 @@ switch ($_REQUEST["service"]) {
                 "rareNames2" => array(
                     "Ward", "Sting", "Mesh", "Storm", "Wind", "Net"                
                 )    
-            ),  
+            ), 
+            "bt_sword" => (object)array(
+                "suffixes" => array(
+                    (object)array("name" => "of Fire", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("fireball" => array(1, 1))), 
+                    (object)array("name" => "of Ice", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("iceshard" => array(1, 1))), 
+                    (object)array("name" => "of Lightning", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("lightningbolt" => array(1, 1)))
+                ), 
+                "rareNames1" => array(
+                    "Vile", "Zonc", "Maid", "Pain", "Weld", "Proc"        
+                ), 
+                "rareNames2" => array(
+                    "Ward", "Sting", "Mesh", "Storm", "Wind", "Net"                
+                )    
+            ), 
+            "bt_shield" => (object)array(
+                "suffixes" => array(
+                    (object)array("name" => "of Fire", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("fireball" => array(1, 1))), 
+                    (object)array("name" => "of Ice", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("iceshard" => array(1, 1))), 
+                    (object)array("name" => "of Lightning", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("lightningbolt" => array(1, 1)))
+                ), 
+                "rareNames1" => array(
+                    "Vile", "Zonc", "Maid", "Pain", "Weld", "Proc"        
+                ), 
+                "rareNames2" => array(
+                    "Ward", "Sting", "Mesh", "Storm", "Wind", "Net"                
+                )    
+            ),   
             "bt_chestarmor" => (object)array(
                 "suffixes" => array(
                     (object)array("name" => "of Toughness", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("armor" => array(1, 3)))
@@ -397,7 +457,9 @@ switch ($_REQUEST["service"]) {
                     "amount" => array(0, 3), 
                     "types" => (object)array(
                         "leatherarmor" => (object)array("chance" => 0.5),
-                        "leatherpants" => (object)array("chance" => 0.25), 
+                        "leatherpants" => (object)array("chance" => 0.25),
+                        "smallshield" => (object)array("chance" => 0.5), 
+                        "smallsword" => (object)array("chance" => 0.5),  
                         "helm" => (object)array("chance" => 0.5), 
                         "gold" => (object)array("chance" => 1.0), 
                         "token" => (object)array("chance" => 0.1), 

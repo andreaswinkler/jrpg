@@ -18,7 +18,7 @@ JRPG.DropFactory = {
         
             rank = this.rollRank(type, magicFind);
         
-            item = new JRPG.Item(type, level, rank);
+            return new JRPG.Item(type, level, rank);
         
         }  
     

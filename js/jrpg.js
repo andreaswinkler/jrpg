@@ -41,30 +41,55 @@ var JRPG = {
 
     load: function() {
     
-        console.log('JRPG version <' + this.version + '>');
+        var loadingBar = new JRPG.UI.ProgressBar();
+        loadingBar.initProgressBar({ width: $(window).width(), showValue: false, total: 4 });
     
+        console.log('JRPG version <' + this.version + '>');
+  
+        $('#content').append(loadingBar.e);
+
         _post('itemTypes.list', {}, function(data) {
         
             JRPG.Item.data = data;
             
+            loadingBar.refresh(1, 4);
+            
             _post('dropTables.list', {}, function(data) {
             
                 JRPG.DropFactory.dropTables = data;
+                
+                loadingBar.refresh(2, 4);
             
                 _post('objectData.load', {}, function(data) {
                 
                     JRPG.Object.data = data;
+                    
+                    loadingBar.refresh(3, 4);
 
                     // TODO: load hero from somewhere
                     JRPG.hero = new JRPG.Character('hero', 'Hero', 1);
                     
                     JRPG.UI.init();
                     
-                    if (JRPG.onLoad) {
-                
-                        JRPG.onLoad.call();
+                    /* lets give the hero a sword and shield to see
+                    what happens */
+                    JRPG.hero.equip(JRPG.DropFactory.createItem('smallsword', 1, 0, 0)); 
+                    JRPG.hero.equip(JRPG.DropFactory.createItem('smallshield', 1, 0, 0));
+
+                    // load all textures necessary to display the hero
+                    // the hero will then be accessible via the 
+                    // hero_complete texture
+                    JRPG.Textures.character(JRPG.hero, function() {
                     
-                    }
+                        loadingBar.refresh(4, 4);
+                    
+                        if (JRPG.onLoad) {
+                
+                            JRPG.onLoad.call();
+                        
+                        }
+                    
+                    });
                 
                 });
             

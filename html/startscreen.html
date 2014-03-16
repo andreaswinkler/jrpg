@@ -1,7 +1,17 @@
 <input id="jrpg_startscreen_editor" type="button" value="Editor" />
 <input id="jrpg_startscreen_startGame" type="button" value="Start game" />
+<div id="jrpg_startscreen_hero"><canvas width="300" height="300"></canvas><input type="button" value="&lt;" class="rotateLeft" /><input type="button" value="&gt;" class="rotateRight" />
+<input type="button" value="toggleSword" data-key="weapon1" class="toggleEquipment" />
+<input type="button" value="toggleOffhand" data-key="offhand1" class="toggleEquipment" />
+<span class="name">The Hero</span><span class="level"></span></div>
 
 <script type="text/javascript">
+
+var startscreenHeroDisplayX = 2700, 
+    startscreenHeroDisplayY = 1200, 
+    startscreenHeroDisplayCtx = $('#jrpg_startscreen_hero canvas').get(0).getContext('2d'), 
+    startscreenHeroDisplayEquipment = {}, 
+    startscreenHeroDisplayInterval;
 
 $('#jrpg_startscreen_editor').click(function(ev) {
 
@@ -14,5 +24,73 @@ $('#jrpg_startscreen_startGame').click(function(ev) {
     JRPG.UI.module('game');
 
 });
+
+$('#jrpg_startscreen_hero .rotateRight').click(function(ev) {
+
+    startscreenHeroDisplayY -= 300;
+    
+    if (startscreenHeroDisplayY < 0) {
+    
+        startscreenHeroDisplayY = 2100;
+    
+    }
+
+});
+
+$('#jrpg_startscreen_hero .rotateLeft').click(function(ev) {
+
+    startscreenHeroDisplayY += 300;
+    
+    if (startscreenHeroDisplayY > 2100) {
+    
+        startscreenHeroDisplayY = 0;    
+    
+    }
+
+});
+
+$('#jrpg_startscreen_hero .toggleEquipment').click(function(ev) {
+
+    var e = $(ev.target), 
+        slot = e.attr('data-key');
+    
+    if (JRPG.hero.equipment[slot] != null) {
+    
+        startscreenHeroDisplayEquipment[slot] = JRPG.hero.equipment[slot]; 
+        JRPG.hero.equipment[slot] = null;    
+    
+    } else {
+    
+        JRPG.hero.equipment[slot] = startscreenHeroDisplayEquipment[slot];
+    
+    }
+    
+    clearInterval(startscreenHeroDisplayInterval);
+    
+    JRPG.Textures.character(JRPG.hero, function() {
+    
+        startscreenHeroDisplayInterval = setInterval(_startscreenHeroDisplayDraw, 120);    
+    
+    });
+
+});
+
+$('#jrpg_startscreen_hero .level').html('Level ' + JRPG.hero.level);
+
+function _startscreenHeroDisplayDraw() {
+
+    var x = startscreenHeroDisplayX, 
+        y;
+    startscreenHeroDisplayX += 300;
+    if (startscreenHeroDisplayX > JRPG.Textures.textures['hero_complete'].width) {
+        startscreenHeroDisplayX = 0;
+    }
+    startscreenHeroDisplayCtx.clearRect(0, 0, 300, 300);
+    y = startscreenHeroDisplayY;
+    startscreenHeroDisplayCtx.drawImage(JRPG.Textures.textures['hero_complete'], x, y, 300, 300, 0, 0, 300, 300);   
+
+}
+
+startscreenHeroDisplayInterval = setInterval(_startscreenHeroDisplayDraw, 120);
 
 </script>
