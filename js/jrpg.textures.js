@@ -53,10 +53,16 @@ JRPG.Textures = {
     
     }, 
     
-    character: function(character, callback) {
+    character: function(character, callback, loadingBar) {
     
         var keys = [], 
             key, canvas, tex, ctx;
+        
+        if (loadingBar) {
+        
+            loadingBar.refresh(loadingBar.options.current + 1, loadingBar.options.total + 1);
+        
+        }
         
         if (!this.textures[character.type]) {
         

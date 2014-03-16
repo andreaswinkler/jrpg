@@ -89,7 +89,7 @@ var JRPG = {
                         
                         }
                     
-                    });
+                    }, loadingBar);
                 
                 });
             
