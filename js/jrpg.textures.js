@@ -56,7 +56,8 @@ JRPG.Textures = {
     character: function(character, callback, loadingBar) {
     
         var keys = [], 
-            key, canvas, tex, ctx;
+            key, canvas, tex, ctx, 
+            equipment = character.equipment.getList();
         
         if (loadingBar) {
         
@@ -70,9 +71,9 @@ JRPG.Textures = {
         
         }
         
-        _.each(character.equipment, function(i) {
+        _.each(equipment, function(i) {
         
-            if (i instanceof JRPG.Item && !this.textures[i.type]) {
+            if (!this.textures[i.type]) {
             
                 keys.push(i.type);
             
@@ -100,9 +101,9 @@ JRPG.Textures = {
             
             _.each(this.equipmentTexturesOrder, function(i) {
   
-                if (character.equipment[i] != null) {
+                if (equipment[i] != null) {
                 
-                    tex = this.textures[character.equipment[i].type];
+                    tex = this.textures[equipment[i].type];
                     
                     ctx.drawImage(tex, 0, 0);
                 

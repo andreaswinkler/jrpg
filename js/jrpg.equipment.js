@@ -138,24 +138,14 @@ JRPG.Equipment = function(owner) {
     */    
     this.attr = function(key, value) {
     
-        var item;
+        var equipment = this.getList();
         
-        for (item in this) {
+        for (item in equipment) {
         
-            if (this[item] instanceof JRPG.Item && this[item] != null && this[item].attr) {
-            
-                if (!((this.primaryWeaponSlot && (item == 'weapon2' || item == 'offhand2')) || 
-                     (!this.primaryWeaponSlot && (item == 'weapon1' || item == 'offhand1')))) 
-                {
-                
-                    value += this[item].attr(key, value);
-                
-                }
-            
-            }
+            value += this[item].attr(key, value);
         
         }
-        
+    
         return value;  
     
     };
@@ -167,7 +157,34 @@ JRPG.Equipment = function(owner) {
     
         return this.primaryWeaponSlot ? this.weapon1 : this.weapon2;
     
-    }     
+    };
+    
+    /*
+    ** returns the current equipment based on the primaryWeaponSlot status
+    */
+    this.getList = function() {
+    
+        var equipment = {};
+        
+        _.each(this, function(item, slot) {
+        
+            if (item instanceof JRPG.Item) {
+            
+                if (!((this.primaryWeaponSlot && (slot == 'weapon2' || slot == 'offhand2')) || 
+                     (!this.primaryWeaponSlot && (slot == 'weapon1' || slot == 'offhand1')))) 
+                {
+                
+                    equipment[slot] = item;
+                
+                }
+            
+            }
+        
+        }, this);
+        
+        return equipment;
+    
+    };         
 
 }
 JRPG.Equipment.prototype = new JRPG.EventHandler();

@@ -3,6 +3,7 @@
 <div id="jrpg_startscreen_hero"><canvas width="300" height="300"></canvas><input type="button" value="&lt;" class="rotateLeft" /><input type="button" value="&gt;" class="rotateRight" />
 <input type="button" value="toggleSword" data-key="weapon1" class="toggleEquipment" />
 <input type="button" value="toggleOffhand" data-key="offhand1" class="toggleEquipment" />
+<input type="button" value="toggleWeaponSlots [W]" data-key="weaponslots" class="toggleEquipment" />
 <span class="name">The Hero</span><span class="level"></span></div>
 
 <script type="text/javascript">
@@ -54,14 +55,22 @@ $('#jrpg_startscreen_hero .toggleEquipment').click(function(ev) {
     var e = $(ev.target), 
         slot = e.attr('data-key');
     
-    if (JRPG.hero.equipment[slot] != null) {
+    if (slot == 'weaponslots') {
     
-        startscreenHeroDisplayEquipment[slot] = JRPG.hero.equipment[slot]; 
-        JRPG.hero.equipment[slot] = null;    
+        JRPG.hero.equipment.toggleWeaponSlot();
     
     } else {
     
-        JRPG.hero.equipment[slot] = startscreenHeroDisplayEquipment[slot];
+        if (JRPG.hero.equipment[slot] != null) {
+        
+            startscreenHeroDisplayEquipment[slot] = JRPG.hero.equipment[slot]; 
+            JRPG.hero.equipment[slot] = null;    
+        
+        } else {
+        
+            JRPG.hero.equipment[slot] = startscreenHeroDisplayEquipment[slot];
+        
+        }
     
     }
     
