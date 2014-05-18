@@ -1,4 +1,4 @@
-html, body, ul { margin: 0; padding: 0; font-family: Arial; font-size: 11px; background: url(../img/bg.jpg) #000; }
+html, body, ul { margin: 0; padding: 0; font-family: Times New Roman; font-size: 11px; background: url(../img/bg.jpg) #000; }
 
 ul, li { float: left; list-style: none; }
 
@@ -46,8 +46,13 @@ body { overflow: hidden; width: 100%; height: 100%; }
 
 #jrpg_ui_infobox { position: absolute; top: 0; right: 0; width: 200px; height: 200px; background: #ddd; font-size: 8px; display: none; }
 
-#jrpg_ui_minimap { position: absolute; top: 10px; right: 10px; width: 250px; height: 250px; overflow: hidden; }
-#jrpg_ui_minimap canvas { position: absolute; top: 0; left: 0; }
+#jrpg_ui_minimap { position: absolute; top: 10px; right: 10px; width: 250px; height: 250px; overflow: hidden; border: 1px solid #333; box-shadow: 3px 3px 3px #111; }
+#jrpg_ui_minimap canvas { position: absolute; top: 25; left: 0; background: rgba(100, 100, 100, 0.5); }
+#jrpg_ui_minimap label { width: 100%; display: block; height: 25px; text-align: center; color: #508c91; font-size: 20px; background: #111; }
+
+#jrpg_object_info { width: 500px; position: absolute; top: 75px; left: 50%; margin-left: -250px; text-align: center; font-size: 40px; text-shadow: 1px 1px 5px #111; color: #eee; z-index: 1000; }
+#jrpg_object_info.rank-1 { color: #1973d8; text-shadow: 1px 1px 5px #eee; }
+#jrpg_object_info.rank-2 { color: #eedc15; }
 
 #jrpg_gameover { background: #c10000; color: #fff; text-align: center; display: none; width: 100%; height: 100%; z-index: 1000; position: absolute; top: 0; left: 0; }
 
@@ -57,3 +62,5 @@ body { overflow: hidden; width: 100%; height: 100%; }
 #jrpg_startscreen_hero span { clear: both; float: left; }
 
 img.logo { position: absolute; top: 50%; left: 50%; margin: -400px 0px 0px -400px; }
+
+#jrpg_game canvas { position: absolute; top: 0; left: 0; background: transparent; }

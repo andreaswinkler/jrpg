@@ -53,6 +53,41 @@ JRPG.Textures = {
     
     }, 
     
+    map: function(map, callback) {
+    
+        var keys = [], 
+            key;
+        
+        if (!this.textures[map.theme]) {
+        
+            keys.push(map.theme);
+        
+        }
+        
+        _.each(map.objects, function(i) {
+        
+            if (i.type == 'chest' && !this.textures[i.type] && keys.indexOf(i.type) == -1) {
+            
+                keys.push(i.type);
+            
+            }    
+        
+        }, this);
+    
+        if (keys.length > 0) {
+        
+            key = keys.shift();
+            
+            this.load(key, 'tex/' + key + '.png', false, $.proxy(this.map, this), [map, callback]);
+        
+        } else {
+        
+            callback();
+        
+        }  
+    
+    }, 
+    
     character: function(character, callback, loadingBar) {
     
         var keys = [], 

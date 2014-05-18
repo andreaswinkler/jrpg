@@ -63,5 +63,11 @@ JRPG.RenderLayer = function(width, height) {
         this.ctx.restore();
     
     };
+    
+    this.pixel = function(x, y) {
+    
+        return this.ctx.getImageData(x, y, 1, 1).data;
+    
+    };
       
 }

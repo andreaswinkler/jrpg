@@ -6,6 +6,8 @@
 JRPG.Gold = function(amount) {
 
     this.amount = amount;
+    this.type = 'gold';
+    this.name = this.amount + ' Gold';
 
 }
 

@@ -3,5 +3,5 @@
   {"type":"spawnpoint",
   "settings":{"amount":1,"type":"spider"},"x":2000,"y":2000}
 ],"positions":[
-  {"isDefault":true,"x":100,"y":100}
+  {"isDefault":true,"x":1000,"y":1000}
 ]}

@@ -1,4 +1,4 @@
-{"hero":{"name":"The Hero","width":50,"height":120,"speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10}, 
+{"hero":{"name":"The Hero","width":300,"height":300,"speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10}, 
     "skills": ["weaponPrimary","weaponSecondary","fireball"],
     "levels": [0, 100, 300, 900, 2700, 8100, 24300]
     },
@@ -34,7 +34,12 @@
     },
     "chest": {
         "name": "Chest", 
-        "width": 50,
-        "height": 50
+        "width": 70,
+        "height": 74
+    }, 
+    "grandchest": {
+        "name": "Grand Chest", 
+        "width": 90,
+        "height": 97
     }
 }

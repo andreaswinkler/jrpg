@@ -24,6 +24,8 @@ JRPG.Game = function(map) {
     
         this.initMap(map);
         
+        JRPG.Renderer.init();
+        
         _log('init game <' + map.name + '> complete', this.timer);
         
         _scenarioA();
@@ -58,6 +60,8 @@ JRPG.Game = function(map) {
         } else {
     
             _.invoke(this.stack, 'loop', ticks);
+            
+            JRPG.Renderer.update(this.map, this.stack);
             
             JRPG.UI.Minimap.update(JRPG.hero);
         
@@ -154,7 +158,7 @@ JRPG.Game = function(map) {
             position = _.find(map.positions, function(i) { return i.isDefault; });
         
         }
-        
+        console.dir(position);
         if (position) {
         
             JRPG.hero.updatePosition(position.x, position.y);
@@ -237,8 +241,16 @@ JRPG.Game = function(map) {
         switch (obj.type) {
         
             case 'chest':
+            case 'grandchest':
             
-                this.stack.push(new JRPG.Object(0, 'chest', 'Chest', this.map.level));
+                var i = new JRPG.Object(obj.type, JRPG.Object.data[obj.type].name, this.map.level);
+                i.x = obj.x;
+                i.y = obj.y;
+            
+                i.behavior('click', JRPG.Behaviors.drop);
+                i.animation('drop', new JRPG.Animation(i, 0, 0, 7, 1));
+            
+                this.stack.push(i);
             
                 break;
             
@@ -247,7 +259,7 @@ JRPG.Game = function(map) {
                 var creatures = this.spawn(obj), 
                     i;
                 
-                this.stack = this.stack.concat(creatures);
+                //this.stack = this.stack.concat(creatures);
                     
                 break;
         
@@ -287,6 +299,32 @@ JRPG.Game = function(map) {
         return creatures;
     
     };
+    
+    /*
+    **
+    */
+    this.drop = function(x, y, drop) {
+
+        _.each(drop, function(i) {
+            
+            var droppedItem = new JRPG.Object(i.type, i.name, i.level), 
+                pos = _randomPositionAround(x, y, 120, 60), 
+                duration = 0.4 + (0.1 * drop.length), 
+                leapHeight = 100 + (10 * drop.length);
+            
+            droppedItem.x = x;
+            droppedItem.y = y;
+            droppedItem.width = 64;
+            droppedItem.height = 64;
+            droppedItem.item = i;
+            droppedItem.rank = i.rank;
+            droppedItem.animation('now', new JRPG.LeapAnimation(droppedItem, leapHeight, pos.x, pos.y, duration));
+            
+            this.stack.push(droppedItem);
+        
+        }, this);   
+    
+    };    
     
     /*
     ** create a town portal next to the hero

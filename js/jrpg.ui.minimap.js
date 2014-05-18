@@ -16,18 +16,20 @@ JRPG.UI.Minimap = {
     
     renderLayer: null,
     
-    zoom: 5,  
+    zoom: 2,  
     
     tsLastUpdate: 0, 
     
-    e: null, 
+    e: null,
+    eLabel: null,  
     
     initMinimap: function(map) {
     
         if (this.e == null) {
         
             // create map element
-            this.e = $('<div id="jrpg_ui_minimap"></div>');
+            this.e = $('<div id="jrpg_ui_minimap"><label></label></div>');
+            this.eLabel = this.e.find('label');
             
             $('#jrpg_ui').append(this.e);
             
@@ -37,7 +39,7 @@ JRPG.UI.Minimap = {
         }
         
         // clear any existing contents
-        this.e.html();
+        this.e.find('canvas').remove();
         this.renderLayer.clear();        
     
         // we already had a map loaded
@@ -52,6 +54,8 @@ JRPG.UI.Minimap = {
         }
         
         this.map = map;
+        
+        this.eLabel.html(this.map.map.name);
         
         // load from cache
         if (this.cache[this.map.id]) {
@@ -150,11 +154,11 @@ JRPG.UI.Minimap = {
             
             if (t.walkable) {
             
-                c = 'rgba(100,100,100,1)';
+                c = 'rgba(255,255,255,0.8)';
 
             } else {
             
-                c = 'rgba(25,25,25,1)';
+                c = 'rgba(0,0,0,0.8)';
             
             }
             

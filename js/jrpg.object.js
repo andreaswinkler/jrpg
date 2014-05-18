@@ -44,6 +44,10 @@ JRPG.Object = function(type, name, level) {
     this.isEvil = false;
     // the hitbox of the object
     this.hitBox = null;
+    // behaviors of the object
+    this.behaviors = null;
+    // animations of the object
+    this.animations = null;
     
     this.initObject = function(type, name, level) {
     
@@ -66,7 +70,79 @@ JRPG.Object = function(type, name, level) {
         this.height = data.height || 0;
         
         this.hitBox = new JRPG.HitBox(this);
+        
+        this.behaviors = {};
+        
+        this.animations = {};
 
+    };
+    
+    this.animate = function(key, callback, data) {
+    
+        var animation = this.animation(key);
+
+        if (animation) {
+
+            animation.tsStart = +new Date();
+            animation.callback = callback;
+            animation.data = data;
+        
+        } else if (callback) {
+        
+            callback.apply(data);
+        
+        }
+    
+    };
+    
+    this.stopAnimation = function(key) {
+    
+        var animation = this.animation(key);
+        
+        if (animation) {
+        
+            animation.tsStart = -1;
+        
+        }
+    
+    };
+    
+    this.animation = function(key, value) {
+    
+        if (value != undefined) {
+        
+            this.animations[key] = value;
+            
+            if (key == 'now') {
+            
+                this.animations.now.tsStart = +new Date();
+            
+            }
+        
+        } else if (key != undefined) {
+        
+            return this.animations[key];
+        
+        } else {
+    
+            return _.find(this.animations, function(i) { return i.tsStart > -1; });
+        
+        }
+    
+    };
+    
+    this.behavior = function(event, value) {
+    
+        if (value == undefined) {
+        
+            return this.behaviors[event];
+        
+        } else {
+        
+            this.behaviors[event] = value;
+        
+        }
+    
     };
     
     this.initCurrentAttributeValue = function(key) {
@@ -545,7 +621,31 @@ JRPG.Object = function(type, name, level) {
         
         }
     
-    }
+    };
+    
+    /*
+    ** determines if the object an be used by clicking on it
+    */
+    this.canBeUsed = function() {
+    
+        return this.behavior('click') != undefined;    
+    
+    }; 
+    
+    /*
+    ** uses the object
+    */       
+    this.use = function(src) {
+    
+        var behavior = this.behavior('click');
+        
+        if (behavior) {
+        
+            behavior(this, src);        
+        
+        }
+    
+    };
     
     if (type) {
     
@@ -557,7 +657,7 @@ JRPG.Object = function(type, name, level) {
 JRPG.Object.prototype = new JRPG.EventHandler();
 
 JRPG.Object.types = {
-    lootable: ['chest'],
+    lootable: ['chest', 'grandchest'],
     projectile: ['fireball'],  
     animal: ['spider'],
     human: ['hero', 'swordsman', 'priest', 'rogue'], 

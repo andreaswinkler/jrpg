@@ -68,8 +68,7 @@ var JRPG = {
 
                     // TODO: load hero from somewhere
                     JRPG.hero = new JRPG.Character('hero', 'Hero', 1);
-                    
-                    JRPG.UI.init();
+                    JRPG.hero.animation('move', new JRPG.Animation(JRPG.hero, 0, 0, 7, 'auto', true));
                     
                     /* lets give the hero a sword and shield to see
                     what happens */
@@ -156,10 +155,17 @@ var JRPG = {
         
          _post('map.load', { id: mapId }, $.proxy(function(t) {
          
-            // initialize a game with the newly loaded map
-            this.game = new JRPG.Game(t); 
-
-            this.loop();
+            // load all map textures
+            JRPG.Textures.map(t, $.proxy(function() {
+         
+                 JRPG.UI.init();
+         
+                // initialize a game with the newly loaded map
+                this.game = new JRPG.Game(t); 
+    
+                this.loop();
+            
+            }, this));
          
          }, this));
     
@@ -305,6 +311,33 @@ function _dist(x1, y1, x2, y2) {
 
 }
 
+function _random(min, max) {
+
+    return Math.floor(Math.random() * (max - min + 1)) + min;
+
+}
+
+function _randomPositionAround(x, y, maxDistance, minDistance) {
+
+    var x2, y2, dist, cnt = 0;
+    
+    do {
+    
+        x2 = _random(x - maxDistance, x + maxDistance);
+        y2 = _random(y - maxDistance, y + maxDistance);
+        
+        dist = _dist(x, y, x2, y2);
+        
+        cnt++;
+    
+    } while (cnt < 1000 && (dist > maxDistance || dist < minDistance));
+    
+    console.log('found after <' + cnt + '> tries');
+    
+    return { x: x2, y: y2 };
+
+}
+
 function _centroid(list) {
 
     var x = _.reduce(list, function(memo, i) { return memo + i.x }, 0), 
@@ -330,6 +363,34 @@ function _normalVector(x1, y1, x2, y2) {
         return { x: 0, y: 0 };
     
     }    
+
+}
+
+function _radians(degrees) {
+
+    return degrees * (Math.PI / 180);
+
+}
+
+function _degrees(radians) {
+
+    return radians * (180 / Math.PI);
+
+}
+
+function _rgb2Int(r, g, b) {
+
+    return ((r & 0x0ff) << 16) | ((g & 0x0ff) << 8) | (b & 0x0ff);
+
+}
+
+function _int2Rgb(v) {
+
+    return {
+        red: v >> 16 & 0x0ff, 
+        green: v >> 8 & 0x0ff, 
+        blue: v & 0x0ff 
+    };    
 
 }
 

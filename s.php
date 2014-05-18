@@ -115,7 +115,10 @@ switch ($_REQUEST["service"]) {
     
         $map = json_decode(_read("store/maps", $_POST["id"]));
     
-        $map->positions = array((object)array("isDefault" => true, "x" => 0, "y" => 100));
+        $map->positions = array((object)array("isDefault" => true, "x" => 1000, "y" => 1000));
+        $map->objects[] = (object)array("type" => "chest", "x" => 800, "y" => 800);
+        $map->objects[] = (object)array("type" => "chest", "x" => 1200, "y" => 1200);
+        $map->objects[] = (object)array("type" => "grandchest", "x" => 800, "y" => 1200);
         
         echo json_encode($map);
 
@@ -454,18 +457,25 @@ switch ($_REQUEST["service"]) {
         $dropTables = (object)array(
             "lootable" => (object)array(
                 "chest" => (object)array(
-                    "amount" => array(0, 3), 
+                    "amount" => array(0, 2), 
                     "types" => (object)array(
                         "leatherarmor" => (object)array("chance" => 0.5),
-                        "leatherpants" => (object)array("chance" => 0.25),
                         "smallshield" => (object)array("chance" => 0.5), 
-                        "smallsword" => (object)array("chance" => 0.5),  
                         "helm" => (object)array("chance" => 0.5), 
                         "gold" => (object)array("chance" => 1.0), 
                         "token" => (object)array("chance" => 0.1), 
                         "woodenstaff" => (object)array("chance" => 0.15), 
                         "rune_el" => (object)array("chance" => 0.005), 
                         "chippedruby" => (object)array("chance" => 0.01)
+                    )
+                ), 
+                "grandchest" => (object)array(
+                    "amount" => array(2, 8), 
+                    "types" => (object)array(
+                        "leatherarmor" => (object)array("chance" => 0.5),
+                        "smallshield" => (object)array("chance" => 0.5), 
+                        "helm" => (object)array("chance" => 0.5), 
+                        "gold" => (object)array("chance" => 1.0), 
                     )
                 )
             )

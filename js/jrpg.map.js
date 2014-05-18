@@ -60,7 +60,7 @@ JRPG.Map = function(map) {
     this.canMoveTo = function(obj, x, y) {
     
         var tile = this.tileAtPosition(x, y);
-        
+
         if (!tile) {
         
             return false;

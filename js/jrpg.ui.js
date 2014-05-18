@@ -48,7 +48,26 @@ JRPG.UI = {
     refreshInfoBox: function() {
 
         this.eInfoBoxCalc.html(JRPG.lastCalcTime);
-        this.eInfoBoxStack.html(_.reduce(JRPG.game.stack, function(memo, i) { return memo + i.children.length + 1 }, 0));    
+        this.eInfoBoxStack.html(_.reduce(JRPG.game.stack, function(memo, i) { return memo + (i.children ? i.children.length : 0) + 1 }, 0));    
+    
+    }, 
+    
+    updateObjectInfo: function(obj) {
+    
+        this.eObjectInfo.attr('class', '');
+    
+        if (obj != null) {
+        
+            this.eObjectInfo.find('.title').html(obj.displayName());
+            this.eObjectInfo.addClass('rank-' + obj.rank);
+        
+            this.eObjectInfo.css('display', 'block');
+        
+        } else {
+        
+            this.eObjectInfo.css('display', 'none');
+        
+        }
     
     }, 
     
@@ -58,8 +77,9 @@ JRPG.UI = {
         this.skillsWindow = null;
         this.eInfoBoxCalc = $('#jrpg_ui_infobox .calc');
         this.eInfoBoxStack = $('#jrpg_ui_infobox .stack');
+        this.eObjectInfo = $('#jrpg_object_info');
     
-        $(document).keydown(function(ev) {
+        $(document).keydown($.proxy(function(ev) {
         
             switch (ev.which) {
             
@@ -103,14 +123,37 @@ JRPG.UI = {
             
             }
         
-        });
+        }, this));
         
-        $(document).mousemove(function(ev) {
+        $(document).mousemove($.proxy(function(ev) {
         
             JRPG.UI.cursorPosition.x = ev.pageX;
             JRPG.UI.cursorPosition.y = ev.pageY;
+            
+            var obj = JRPG.Renderer.objectAtPosition(ev.pageX, ev.pageY);
+            
+            this.updateObjectInfo(obj);
+
+        }, this));
         
-        });
+        $('#jrpg_game').click($.proxy(function(ev) {
+
+            var obj = JRPG.Renderer.objectAtPosition(ev.pageX, ev.pageY), 
+                global; 
+
+            if (obj != null && obj.canBeUsed()) {
+            
+                obj.use(JRPG.hero);    
+            
+            } else {
+            
+                global = JRPG.Renderer.toGlobal(ev.pageX, ev.pageY);
+                
+                JRPG.hero.moveTo(global.x, global.y);
+            
+            }
+            
+        }, this));
     
     } 
 

@@ -1,6 +1,11 @@
 <div id="game">
 <div id="jrpg_game"></div>
 <div id="jrpg_ui"></div>
+<div id="jrpg_object_info">
+<label class="title"></label>
+<div class="healthbar"></div>
+<label class="info"></label>
+</div>
 <div id="jrpg_gameover">
 <h1>You died.</h1>
 <br />
@@ -88,12 +93,6 @@ JRPG.hero.on('death', function(ev) {
     });
 
     $('#jrpg_gameover').css('display', 'block').find('.info').html('<b>' + ev.data.src.name + '</b> was too strong.');
-
-});
-
-$('#jrpg_game').click(function(ev) {
-
-    JRPG.hero.moveTo(ev.pageX, ev.pageY);
 
 });
 

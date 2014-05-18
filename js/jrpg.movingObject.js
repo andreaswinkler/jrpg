@@ -56,9 +56,11 @@ JRPG.MovingObject = function(type, name, level, speed) {
         // the target
         this.rotation = _rot(x, y, this.x, this.y);
         
-        if (this.type == 'hero') {
-        console.log(this.name + ' move to ' + x + '/' + y);
-        }
+        /*if (this.type == 'hero') {
+            console.log(this.name + ' move to ' + x + '/' + y);
+        }*/
+        
+        this.animate('move');
 
     };
     
@@ -188,6 +190,8 @@ JRPG.MovingObject = function(type, name, level, speed) {
     this.stop = function() {
     
         this.target = null;
+        
+        this.stopAnimation('move');
     
     };
     
