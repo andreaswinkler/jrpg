@@ -57,7 +57,7 @@ JRPG.UI = {
     
         this.eObjectInfo.attr('class', '');
     
-        if (obj != null && !obj.item) {
+        if (obj != null && !obj.item && !((obj.type == 'chest' || obj.type == 'grandchest') && obj.behavior('click') == null)) {
         
             this.eObjectInfo.find('.title').html(obj.displayName());
             this.eObjectInfo.addClass('rank-' + obj.rank);
