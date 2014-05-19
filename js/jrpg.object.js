@@ -131,6 +131,12 @@ JRPG.Object = function(type, name, level) {
     
     };
     
+    this.removeBehavior = function(event) {
+    
+        this.behaviors[event] = null;
+    
+    };
+    
     this.behavior = function(event, value) {
     
         if (value == undefined) {

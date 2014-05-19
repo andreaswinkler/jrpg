@@ -42,6 +42,8 @@ JRPG.Animation = function(owner, row, colStart, colEnd, duration, loop) {
                 this.callback.apply(this, this.data);
             
             }
+            
+            frame = this.colEnd;
         
         }
         

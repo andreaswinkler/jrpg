@@ -205,13 +205,11 @@ JRPG.Renderer = {
                 x += result.offsetX;
                 y += result.offsetY;
             
+            } else if ((obj.type == 'chest' || obj.type == 'grandchest') && obj.behavior('click') == null) {
+        
+                col = 6;    
+            
             }
-        
-        }
-        
-        if (obj.type == 'chest' && !obj.canBeUsed()) {
-        
-            col = 6;    
         
         }
         
