@@ -10,9 +10,6 @@ JRPG.Behaviors = {
     
         var drop = JRPG.DropFactory.createDrop(src, obj);
     
-        console.log('click, create drop:');
-        console.dir(drop);
-    
         // we only drop something once
         src.behavior('click', null);
     

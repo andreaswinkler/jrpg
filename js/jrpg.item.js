@@ -108,7 +108,13 @@ JRPG.Item = function(type, level, rank) {
         
         }
     
-    };       
+    };  
+    
+    this.hasSockets = function() {
+    
+        return false;
+    
+    };     
 
     var data = JRPG.Item.data[type] || {};
 
@@ -157,6 +163,9 @@ JRPG.Item = function(type, level, rank) {
     
     // the maximum amount of items of this type than can be stacked
     this.maxStackAmount = data.maxStackAmount;
+    
+    // is the item etheral?
+    this.isEtheral = false;
     
     // we want a legendary or set so we need to check if one exists for this 
     // type at all, if not we reduce the item rank to rare

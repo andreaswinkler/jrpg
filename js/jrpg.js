@@ -6,6 +6,16 @@ var JRPG = {
         NORMAL: 0, 
         CRITICAL: 1, 
         CRUSHING_BLOW: 2
+    },
+    
+    colors: {
+        white: { hex: '#fff' },       
+        grey: { hex: '#a3a3a3' }, 
+        blue: { hex: '#00baff' },   
+        yellow: { hex: '#f1ce0c' },   
+        green: { hex: '#5eed1f' }, 
+        orange: { hex: '#f2890c' }, 
+        violet: { hex: '#ea0cf2' }
     }, 
     
     goodCreatures: ['hero', 'vendor', 'blacksmith', 'jeweller'], 
@@ -36,6 +46,49 @@ var JRPG = {
         this._id++;
         
         return this._id;    
+    
+    }, 
+    
+    colorByItemRank: function(item) {
+        
+        if (item instanceof JRPG.Gold) {
+        
+            return this.colors.yellow;
+        
+        }
+        
+        switch (item.rank) {
+        
+            // can be white or grey based on enhancements (sockets, etheral)
+            case 0:
+            
+                if (item.isEtheral || item.hasSockets()) {
+                
+                    return this.colors.grey;
+                
+                } else {
+                
+                    return this.colors.white;
+                
+                }
+              
+                break;
+            
+            case 1:
+            
+                return this.colors.blue;
+                
+                break;
+            
+            case 2:
+            
+                return this.colors.yellow;
+                
+                break;                
+        
+        }
+        
+        return this.colors.white;
     
     }, 
 
@@ -331,8 +384,6 @@ function _randomPositionAround(x, y, maxDistance, minDistance) {
         cnt++;
     
     } while (cnt < 1000 && (dist > maxDistance || dist < minDistance));
-    
-    console.log('found after <' + cnt + '> tries');
     
     return { x: x2, y: y2 };
 

@@ -13,6 +13,8 @@ JRPG.Renderer = {
 
     width: 0, 
     height: 0, 
+    
+    showDroppedItemTooltips: false, 
 
     init: function() {
     
@@ -28,7 +30,8 @@ JRPG.Renderer = {
         
         this.layers = {
             map: new JRPG.RenderLayer(this.width, this.height), 
-            objects: new JRPG.RenderLayer(this.width, this.height)
+            objects: new JRPG.RenderLayer(this.width, this.height), 
+            info: new JRPG.RenderLayer(this.width, this.height)
         };
         
         // add all canvas elements to dom
@@ -64,8 +67,30 @@ JRPG.Renderer = {
         
         // render the map objects
         _.each(stack, this.renderObject, this);
+        
+        // optionally, render tooltips of dropped items
+        this.layers.info.clear();
+
+        if (this.showDroppedItemTooltips) {
+        
+            this.renderTooltips(stack.filter(function(i) { return i.item != undefined; }));
+        
+        }
     
     },
+    
+    renderTooltips: function(list) {
+        
+        _.each(list, function(i) {
+        
+            var color = JRPG.colorByItemRank(i.item).hex, 
+                local = this.toLocal(i.x, i.y);
+        
+            this.layers.info.textbox(local.x - i.width / 2 - 15, local.y - i.height - 5, i.displayName(), 'rgba(100,100,100,0.8)', color);
+        
+        }, this);    
+    
+    }, 
     
     toLocal: function(x, y) {
     

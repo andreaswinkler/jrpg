@@ -24,10 +24,12 @@ JRPG.RenderLayer = function(width, height) {
     
     };
     
-    this.rect = function(x, y, w, h, fs) {
+    this.rect = function(x, y, w, h, fs, ss) {
     
         this.ctx.fillStyle = fs || '#000';
+        this.ctx.strokeStyle = ss || '#000';
         this.ctx.fillRect(x, y, w, h);
+        this.ctx.stroke();
     
     };
     
@@ -68,6 +70,21 @@ JRPG.RenderLayer = function(width, height) {
     
         return this.ctx.getImageData(x, y, 1, 1).data;
     
+    };
+    
+    this.textbox = function(x, y, text, color, borderColor) {
+    
+        var w;
+    
+        this.ctx.font = 'italic 12px Arial';
+        
+        w = this.ctx.measureText(text).width;
+        
+        this.rect(x - 3, y, w + 3, 15, color, borderColor);
+        
+        this.ctx.fillStyle = borderColor;
+        this.ctx.fillText(text, x, y + 12);
+
     };
       
 }

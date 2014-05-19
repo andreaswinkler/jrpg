@@ -13,7 +13,8 @@ JRPG.UI = {
         T: 84, 
         I: 73, 
         S: 83, 
-        One: 49  
+        One: 49, 
+        ALT: 18   
     },  
 
     currentMode: 0,
@@ -56,7 +57,7 @@ JRPG.UI = {
     
         this.eObjectInfo.attr('class', '');
     
-        if (obj != null) {
+        if (obj != null && !obj.item) {
         
             this.eObjectInfo.find('.title').html(obj.displayName());
             this.eObjectInfo.addClass('rank-' + obj.rank);
@@ -120,8 +121,20 @@ JRPG.UI = {
                     }
                 
                     break; 
+                
+                case JRPG.UI.KeyCode.ALT:
+                    
+                    JRPG.Renderer.showDroppedItemTooltips = true;
+                    
+                    break;
             
             }
+        
+        }, this));
+        
+        $(document).keyup($.proxy(function(ev) {
+        
+            JRPG.Renderer.showDroppedItemTooltips = false;   
         
         }, this));
         

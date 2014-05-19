@@ -27,8 +27,6 @@ JRPG.Game = function(map) {
         JRPG.Renderer.init();
         
         _log('init game <' + map.name + '> complete', this.timer);
-        
-        _scenarioA();
     
     };
     
@@ -301,7 +299,10 @@ JRPG.Game = function(map) {
     };
     
     /*
+    ** drop items on a given position
     **
+    ** this can be uses either by creatures, chests dropping something 
+    ** or in case heroes drop something from their inventory            
     */
     this.drop = function(x, y, drop) {
 
@@ -318,6 +319,9 @@ JRPG.Game = function(map) {
             droppedItem.height = 64;
             droppedItem.item = i;
             droppedItem.rank = i.rank;
+            
+            // add a leap animation to the dropping item that plays
+            // immediately
             droppedItem.animation('now', new JRPG.LeapAnimation(droppedItem, leapHeight, pos.x, pos.y, duration));
             
             this.stack.push(droppedItem);
