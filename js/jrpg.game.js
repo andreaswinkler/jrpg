@@ -246,7 +246,7 @@ JRPG.Game = function(map) {
                 i.y = obj.y;
             
                 i.behavior('click', JRPG.Behaviors.drop);
-                i.animation('drop', new JRPG.Animation(i, 0, 0, 7, 1));
+                i.animation('drop', new JRPG.Animation(i, 0, 0, 6, 1));
             
                 this.stack.push(i);
             
@@ -306,12 +306,12 @@ JRPG.Game = function(map) {
     */
     this.drop = function(x, y, drop) {
 
-        _.each(drop, function(i) {
+        _.each(drop, function(i, ind) {
             
             var droppedItem = new JRPG.Object(i.type, i.name, i.level), 
                 pos = _randomPositionAround(x, y, 120, 60), 
-                duration = 0.4 + (0.1 * drop.length), 
-                leapHeight = 100 + (10 * drop.length);
+                duration = 0.3 + (0.05 * drop.length), 
+                leapHeight = 100 + (5 * drop.length);
             
             droppedItem.x = x;
             droppedItem.y = y;
@@ -322,7 +322,7 @@ JRPG.Game = function(map) {
             
             // add a leap animation to the dropping item that plays
             // immediately
-            droppedItem.animation('now', new JRPG.LeapAnimation(droppedItem, leapHeight, pos.x, pos.y, duration));
+            droppedItem.animation('now', new JRPG.LeapAnimation(droppedItem, leapHeight, pos.x, pos.y, duration, ind * 100));
             
             this.stack.push(droppedItem);
         

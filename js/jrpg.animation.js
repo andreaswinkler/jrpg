@@ -1,5 +1,5 @@
 /* 2014/5/18 */
-JRPG.Animation = function(owner, row, colStart, colEnd, duration, loop) {
+JRPG.Animation = function(owner, row, colStart, colEnd, duration, loop, delayMS) {
 
     this.owner = null;
     this.tsStart = -1;
@@ -11,8 +11,9 @@ JRPG.Animation = function(owner, row, colStart, colEnd, duration, loop) {
     this.duration = 0;
     this.frameCount = 0;
     this.loop = false;
+    this.delayMS = 0;
 
-    this.initAnimation = function(owner, row, colStart, colEnd, duration, loop) {
+    this.initAnimation = function(owner, row, colStart, colEnd, duration, loop, delayMS) {
     
         this.owner = owner;
         this.callback = null;
@@ -22,18 +23,36 @@ JRPG.Animation = function(owner, row, colStart, colEnd, duration, loop) {
         this.colEnd = colEnd;
         this.duration = duration;
         this.frameCount = this.colEnd - this.colStart;
-        this.loop = loop || false; 
+        this.loop = loop || false;
+        this.delayMS = delayMS; 
     
     }
 
     this.getFrame = function() {
+      
+        var ticks = +new Date() - this.tsStart,
+            result = { 
+                frame: this.colStart, 
+                offsetX: 0, 
+                offsetY: 0 
+            },  
+            duration, msPerFrame;
     
-        var duration = this.duration == 'auto' ? 1 / this.owner.attr('speed-current') : this.duration, 
-            msPerFrame = 1000 * duration / this.frameCount, 
-            ts = +new Date() - this.tsStart, 
-            frame = this.colStart + (Math.floor(ts / msPerFrame) % this.frameCount);
-
-        if (!this.loop && ts > duration * 1000) {
+        // do we need to wait?
+        if (ticks < this.delayMS) {
+        
+            return result;
+        
+        }
+    
+        ticks -= this.delayMS;
+    
+        duration = this.duration == 'auto' ? 1 / this.owner.attr('speed-current') : this.duration;
+        msPerFrame = 1000 * duration / this.frameCount;
+        
+        result.frame = this.colStart + (Math.floor(ticks / msPerFrame) % this.frameCount);
+    
+        if (!this.loop && ticks > duration * 1000) {
         
             this.tsStart = -1;
             
@@ -43,19 +62,19 @@ JRPG.Animation = function(owner, row, colStart, colEnd, duration, loop) {
             
             }
             
-            frame = this.colEnd;
+            result.frame = this.colEnd;
         
         }
-        
-        return { frame: frame, offsetX: 0, offsetY: 0 };
+
+        return result;
     
     }; 
     
-    this.initAnimation(owner, row, colStart, colEnd, duration, loop);
+    this.initAnimation(owner, row, colStart, colEnd, duration, loop, delayMS || 0);
 
 }
 
-JRPG.LeapAnimation = function(owner, height, targetX, targetY, duration) {
+JRPG.LeapAnimation = function(owner, height, targetX, targetY, duration, delayMS) {
 
     this.height = 0;
     this.targetX = 0;
@@ -63,9 +82,9 @@ JRPG.LeapAnimation = function(owner, height, targetX, targetY, duration) {
     this.distance = 0;
     this.durationMS = 0;
 
-    this.initLeapAnimation = function(owner, height, targetX, targetY, duration) {
+    this.initLeapAnimation = function(owner, height, targetX, targetY, duration, delayMS) {
     
-        this.initAnimation(owner, 0, 0, 0, duration, false);   
+        this.initAnimation(owner, 0, 0, 0, duration, false, delayMS);   
         
         this.height = height;
         this.targetX = targetX;
@@ -80,10 +99,27 @@ JRPG.LeapAnimation = function(owner, height, targetX, targetY, duration) {
     this.getFrame = function() {
 
         var ticks = +new Date() - this.tsStart,
-            perc = ticks / this.durationMS,  
-            progress = this.distance * perc, 
-            offsetX = this.dx * progress, 
-            offsetY = this.dy * progress + Math.sin(_radians(perc * 180)) * this.height * -1; 
+            result = { 
+                frame: this.colStart, 
+                offsetX: 0, 
+                offsetY: 0 
+            },  
+            perc, progress;
+            
+        // do we need to wait?
+        if (ticks < this.delayMS) {
+        
+            return result;
+        
+        }
+        
+        ticks -= this.delayMS;
+        
+        perc = ticks / this.durationMS;
+        progress = this.distance * perc;
+        
+        result.offsetX = this.dx * progress;
+        result.offsetY = this.dy * progress + Math.sin(_radians(perc * 180)) * this.height * -1; 
         
         if (this.durationMS - ticks < 0) {
         
@@ -92,11 +128,11 @@ JRPG.LeapAnimation = function(owner, height, targetX, targetY, duration) {
         
         } 
 
-        return { frame: 0, offsetX: offsetX, offsetY: offsetY };
+        return result;
     
     } 
     
-    this.initLeapAnimation(owner, height, targetX, targetY, duration);   
+    this.initLeapAnimation(owner, height, targetX, targetY, duration, delayMS || 0);   
 
 }
 JRPG.LeapAnimation.prototype = new JRPG.Animation();
