@@ -1,0 +1,7 @@
+Options +FollowSymLinks
+RewriteEngine on
+RewriteBase /_priv/jrpg14/web/
+
+RewriteRule ^home/?$ ?page=home [NC,L,QSA]
+RewriteRule ^game/?$ ?page=game [NC,L,QSA]
+RewriteRule ^wiki/?(.*)/?$ ?page=wiki&path=$1 [NC,L,QSA]

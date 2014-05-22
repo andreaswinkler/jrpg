@@ -1,0 +1,176 @@
+html, body { 
+    margin: 0; padding: 0; 
+    background: #111; 
+}
+
+a {
+    color: #111;
+    text-decoration: none;
+}
+
+ul, li {
+    list-style: none;
+}
+
+#page { 
+    width: 980px; min-height: 500px;
+    margin: 0 auto;
+    display: block;
+    box-shadow: 0px 0px 60px #bfc6c7;  
+    border: 1px solid #485859;
+}
+
+#page * {
+    float: left;
+    margin: 0; padding: 0;
+}
+
+#header {
+    background: #485859;
+    clear: both;
+    width: 100%;
+}
+
+#login_box {
+    float: right;
+}
+
+#top {
+    clear: both;
+    background: #bfc6c7;
+    width: 100%;
+}
+
+#top li {
+    padding: 5px 10px;
+    border-right: 1px solid #333;
+}
+
+#top li.active, #top li:hover {
+    background: #717e81;
+    color: #efefef;
+}
+
+#sidebar {
+    width: 250px; min-height: 500px;
+    margin: 30px 50px 0px 0px;
+    overflow: hidden;
+}
+
+#sidebar ul {
+    width: 100%;
+}
+
+#sidebar li {
+    clear: both;
+    background: #bfc6c7;
+    padding: 2px 5px;
+    width: 100%;
+    display: block;
+    border-bottom: 1px solid #333;
+}
+
+#sidebar li ul {
+    display: none;
+}
+
+#sidebar li.active, #sidebar li:hover {
+    background: #717e81;
+    color: #efefef; 
+}
+
+#sidebar li.active ul {
+    display: block;
+}
+
+#sidebar li.active ul li {
+    background: #111; 
+}
+
+#sidebar li.active ul li a {
+    color: #eee;
+}
+
+#sidebar li.active ul li ul {
+    display: none;
+}
+
+#sidebar li.active ul li.active ul {
+    display: block;
+}
+
+footer {
+    clear: both;
+}
+
+.home #content li {
+    clear: both;
+    margin: 20px 0px; padding: 20px;
+    color: #efefef;
+    background: #191919; 
+    width: 300px;
+}
+
+.home #content li.bluepost {
+    color: #717e81;
+}
+
+.home #content li p {
+    clear: both;
+    margin: 10px 0px;
+}
+
+.home #content li footer {
+    width: 100%; 
+}
+
+h1 {
+    color: #717e81;
+    font-size: 20pt;
+}
+
+#content h1 {
+    margin: 22px 0px;
+    font-style: italic;
+    font-size: 40px;
+    font-weight: normal;
+}
+
+#content p {
+    width: 550px;
+    clear: both;
+    color: #eee;
+    font-style: italic;
+    font-size: 30px;
+    margin: 0px 0px 20px 0px;
+}
+
+#content p.stats {
+    margin: 10px 0px 20px 0px;
+    font-size: 20px; 
+}
+
+#content p.stats strong {
+    font-size: 30px;
+}
+
+.clearfix:after {
+    content: ".";
+    display: block;
+    clear: both;
+    visibility: hidden;
+    line-height: 0;
+    height: 0;
+}
+ 
+.clearfix {
+    display: inline-block;
+}
+ 
+html[xmlns] .clearfix {
+    display: block;
+}
+ 
+* html .clearfix {
+    height: 1%;
+}

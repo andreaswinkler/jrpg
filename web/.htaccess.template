@@ -1,0 +1,7 @@
+Options +FollowSymLinks
+RewriteEngine on
+RewriteBase {ROOT}
+
+RewriteRule ^home/?$ ?page=home [NC,L,QSA]
+RewriteRule ^game/?$ ?page=game [NC,L,QSA]
+RewriteRule ^wiki/?(.*)/?$ ?page=wiki&path=$1 [NC,L,QSA]
