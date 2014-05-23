@@ -118,6 +118,8 @@ footer {
 .home #content li p {
     clear: both;
     margin: 10px 0px;
+    font-size: 12pt;
+    width: 300px;
 }
 
 .home #content li footer {
@@ -129,11 +131,21 @@ h1 {
     font-size: 20pt;
 }
 
+h2 {
+    color: #717e81;
+    font-size: 18pt;
+}
+
 #content h1 {
     margin: 22px 0px;
     font-style: italic;
     font-size: 40px;
     font-weight: normal;
+}
+
+#content h2 {
+    clear: both;
+    font-style: italic;
 }
 
 #content p {
@@ -152,6 +164,64 @@ h1 {
 
 #content p.stats strong {
     font-size: 30px;
+}
+
+#content p.item {
+    background: #2d2d2d;
+    padding: 10px;
+    margin: 20px 0px 0px;
+    font-size: 14pt;
+}
+
+#content p.item strong {
+    font-size: 16pt;
+    width: 100%;
+}
+
+#content p.item.unique strong {
+    color: #f2890c;    
+}
+
+#content p.item.legendary strong {
+    color: #ea0cf2;    
+}
+
+#content p.item cite {
+    margin: 15px 0px;
+}
+
+#content table {
+    clear: both;
+    width: 100%;
+    margin: 40px 0px;
+}
+
+#content table * {
+    float: none; 
+}
+
+#content th {
+    background: #485859;
+    color: #eee;
+    padding: 30px 5px 5px;
+}
+
+#content th:first-child {
+    background: transparent;
+}
+
+#content tr td {
+    background: #bfc6c7;
+    text-align: center;
+    padding: 5px;
+}
+
+#content tr td:first-child {
+    text-align: left; 
+}
+
+#content tr:nth-child(even) td {
+    background: #717e81;
 }
 
 .clearfix:after {

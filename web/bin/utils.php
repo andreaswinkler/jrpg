@@ -120,4 +120,53 @@ function _treeActiveElement($tree, $path = array()) {
 
 }
 
+function _table($data) {
+
+    $s = "<table>";
+    $s.= "<thead><tr><th></th>";
+    
+    foreach ($data->headers as $th) {
+    
+        $s.= "<th>".$th."</th>";
+    
+    }
+    
+    $s.= "</tr></thead><tbody>";
+    
+    foreach ($data->rows as $tr) {
+    
+        $s.= "<tr><td>".$tr->name."</td>";
+        
+        foreach ($tr->values as $td) {
+        
+            $s.= "<td>".$td."</td>";    
+        
+        }
+        
+        $s.= "</tr>";
+    
+    }
+    
+    $s.= "</tbody></table>";
+    
+    return $s;
+    
+}
+
+function _item($item) {
+
+    $s = "";
+
+    $s.= "<p class=\"item ".$item->rank."\">";
+    $s.= "<strong>".$item->name."</strong>";
+    $s.= $item->attributes;
+    $s.= "<br /><br />";
+    $s.= $item->modifiers;
+    $s.= "<cite>".$item->text."</cite>";
+    $s.= "</p>";
+    
+    return $s;
+
+}
+
 ?>
