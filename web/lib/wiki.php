@@ -19,7 +19,7 @@ $sidebar = array(
                 "items" => array(
                     "one-hand" => (object)array(
                         "name" => "One-hand weapons",
-                        "content" => "<p>One-hand weapons are often faster when compared to two-hand versions but normally provide less damage output.</p>",  
+                        "content" => "<p>One-hand weapons are often faster when compared to their two-hand versions but normally provide less damage output.</p><p>They allow you however to use a shield for some additional protection against the forces of evil.",  
                         "items" => array(
                             "small-sword" => (object)array(
                                 "name" => "Small Sword", 
@@ -30,21 +30,24 @@ $sidebar = array(
                                         "attributes" => "Damage: 4-7<br />Attack speed: 1.26", 
                                         "modifiers" => "+3-5% chance for Crushing Blow<br />+10 Life on Hit<br />+10-12 Strength<br /><br />+2 random magic properties", 
                                         "text" => "Sarkas was one of the great heroes in the times before the skies fell on Withermore.", 
-                                        "rank" => "unique"
+                                        "rank" => "unique", 
+                                        "level" => 10
                                     ), 
                                     (object)array(
                                         "name" => "Moon's Edge", 
                                         "attributes" => "Damage: 4-8<br />Attack speed: 1.2", 
-                                        "modifiers" => "+10-15% attack speed<br /><br />+4 random magic properties", 
+                                        "modifiers" => "+10-15% attack speed<br />1 socket<br /><br />+4 random magic properties", 
                                         "text" => "", 
-                                        "rank" => "unique"
+                                        "rank" => "unique", 
+                                        "level" => 10
                                     ),
                                     (object)array(
                                         "name" => "Seraph Shiv", 
                                         "attributes" => "Damage: 9<br />Attack speed: 1.32", 
-                                        "modifiers" => "+6 random magic properties", 
+                                        "modifiers" => "2 sockets<br /><br />+5 random magic properties", 
                                         "text" => "", 
-                                        "rank" => "legendary"
+                                        "rank" => "legendary", 
+                                        "level" => 10
                                     ) 
                                 )
                             )    
@@ -116,11 +119,11 @@ $sidebar = array(
         "items" => array(
             "gems" => (object)array(
                 "name" => "Gems", 
-                "content" => "<p>They exist in various colors and qualities. Socket them into your items to enhance them.</p><p>Visit the jeweller to create higher quality gems or combine different gems into jewels.", 
+                "content" => "<p>They exist in various colors and qualities. Socket some into your items to enhance them.</p><p>Visit the jeweller to create higher quality gems or combine different gems into jewels.", 
                 "items" => array(
                     "ruby" => (object)array(
                         "name" => "Ruby", 
-                        "content" => "<p>Useful for melee characters. It increases strenght, and improves the damage of your weapons.</p>", 
+                        "content" => "<p>Useful for melee characters. It increases strenght and improves the damage of your weapons.</p>", 
                         "data" => (object)array(
                             "headers" => array("Weapons", "Body Armor", "Helm", "Jewellery"), 
                             "rows" => array(
@@ -151,7 +154,7 @@ $sidebar = array(
             ), 
             "gold" => (object)array(
                 "name" => "Gold", 
-                "content" => "<p>Yeah, it's gold. It buys you goods and services.</p>"
+                "content" => "<p>Well, it's gold. It buys you goods and services.</p>"
             )
         )
     )

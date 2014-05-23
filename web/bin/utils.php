@@ -162,6 +162,7 @@ function _item($item) {
     $s.= $item->attributes;
     $s.= "<br /><br />";
     $s.= $item->modifiers;
+    $s.= "<br /><br />Requires level ".$item->level;
     $s.= "<cite>".$item->text."</cite>";
     $s.= "</p>";
     

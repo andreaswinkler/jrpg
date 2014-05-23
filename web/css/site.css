@@ -170,12 +170,14 @@ h2 {
     background: #2d2d2d;
     padding: 10px;
     margin: 20px 0px 0px;
-    font-size: 14pt;
+    font-size: 12pt;
+    font-style: normal;
 }
 
 #content p.item strong {
     font-size: 16pt;
     width: 100%;
+    font-style: italic;
 }
 
 #content p.item.unique strong {
