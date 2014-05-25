@@ -153,12 +153,33 @@ function _table($data) {
     
 }
 
+function _itemType($item) {
+
+    return ucfirst($item->rank)." Small Sword";
+
+}
+
+function _itemImage($item) {
+
+    $s = "<span class=\"image sockets-".count($item->sockets)."\">";
+    $s.= "<img src=\"{ROOT}../tex/ui-".$item->type.".png\" />";
+    foreach ($item->sockets as $socket) {
+        
+    }
+    $s.= "</span>";
+    
+    return $s;
+
+}
+
 function _item($item) {
 
     $s = "";
 
     $s.= "<p class=\"item ".$item->rank."\">";
     $s.= "<strong>".$item->name."</strong>";
+    $s.= _itemImage($item);
+    $s.= _itemType($item)."<br /><br />";
     $s.= $item->attributes;
     $s.= "<br /><br />";
     $s.= $item->modifiers;

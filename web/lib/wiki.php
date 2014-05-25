@@ -31,7 +31,9 @@ $sidebar = array(
                                         "modifiers" => "+3-5% chance for Crushing Blow<br />+10 Life on Hit<br />+10-12 Strength<br /><br />+2 random magic properties", 
                                         "text" => "Sarkas was one of the great heroes in the times before the skies fell on Withermore.", 
                                         "rank" => "unique", 
-                                        "level" => 10
+                                        "level" => 10, 
+                                        "sockets" => array(), 
+                                        "type" => "smallsword"
                                     ), 
                                     (object)array(
                                         "name" => "Moon's Edge", 
@@ -39,7 +41,9 @@ $sidebar = array(
                                         "modifiers" => "+10-15% attack speed<br />1 socket<br /><br />+4 random magic properties", 
                                         "text" => "", 
                                         "rank" => "unique", 
-                                        "level" => 10
+                                        "level" => 10,
+                                        "sockets" => array(), 
+                                        "type" => "smallsword"
                                     ),
                                     (object)array(
                                         "name" => "Seraph Shiv", 
@@ -47,7 +51,9 @@ $sidebar = array(
                                         "modifiers" => "2 sockets<br /><br />+5 random magic properties", 
                                         "text" => "", 
                                         "rank" => "legendary", 
-                                        "level" => 10
+                                        "level" => 10,
+                                        "sockets" => array(), 
+                                        "type" => "smallsword"
                                     ) 
                                 )
                             )    

@@ -192,6 +192,29 @@ h2 {
     margin: 15px 0px;
 }
 
+#content p.item .image {
+    clear: both;
+    width: 75px;
+    height: 150px;
+    display: block;
+    margin: 5px 20px 5px 0px;
+    text-align: center;
+    background: url(../../img/equipment-slot-bg-1.png) no-repeat;
+}
+
+#content p.item.unique .image {
+    background-color: #f2890c;
+}
+
+#content p.item.legendary .image {
+    background-color: #ea0cf2;
+}
+
+#content p.item .image img {
+    max-width: 75px;
+    max-height: 150px;
+}
+
 #content table {
     clear: both;
     width: 100%;
