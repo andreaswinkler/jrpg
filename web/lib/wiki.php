@@ -163,6 +163,200 @@ $sidebar = array(
                 "content" => "<p>Well, it's gold. It buys you goods and services.</p>"
             )
         )
+    ), 
+    "masteries" => (object)array(
+        "name" => "Masteries", 
+        "content" => "<p>Often use your weapons and abilities to gain masteries in various categories. Each mastery rank will grant you a specific bonus when using the according weapons or skills.</p><p>Some weapon types also require a minimum rank to be used.</p>", 
+        "items" => array(
+            "warrior" => (object)array(
+                "name" => "Warrior Masteries",
+                "content" => "<p>Use melee-range weapons like swords to master this category.</p>", 
+                "data" => (object)array(
+                    "headers" => array("Kills with melee weapons", "Bonus"), 
+                    "rows" => array(
+                        (object)array(
+                            "name" => "Apprentice Warrior", 
+                            "values" => array("100", "+2% attack speed<br />+2% damage") 
+                        ), 
+                        (object)array(
+                            "name" => "Fellow Warrior", 
+                            "values" => array("1,000", "+4% attack speed<br />+5% damage") 
+                        ), 
+                        (object)array(
+                            "name" => "Master Warrior", 
+                            "values" => array("10,000", "+7% attack speed<br />+10% damage<br />you can use phase blades") 
+                        ), 
+                        (object)array(
+                            "name" => "Grandmaster Warrior", 
+                            "values" => array("100,000", "+10% attack speed<br />+15% damage<br />enables dual-wielding of 2-hand weapons") 
+                        ), 
+                        (object)array(
+                            "name" => "Warrior Legend",
+                            "values" => array("1,000,000", "+20% damage<br />+50% critical hit chance<br />+100% critical hit damage") 
+                        ) 
+                    )
+                )                        
+            ), 
+            "hunter" => (object)array(
+                "name" => "Hunter Masteries",
+                "content" => "<p>Use bows and cross-bows to master this category.</p>", 
+                "data" => (object)array(
+                    "headers" => array("Kills with ranged weapons", "Bonus"), 
+                    "rows" => array(
+                        (object)array(
+                            "name" => "Apprentice Hunter", 
+                            "values" => array("100", "+2% attack speed<br />+2% damage") 
+                        ), 
+                        (object)array(
+                            "name" => "Fellow Hunter", 
+                            "values" => array("1,000", "+4% attack speed<br />+5% damage") 
+                        ), 
+                        (object)array(
+                            "name" => "Master Hunter", 
+                            "values" => array("10,000", "+7% attack speed<br />+10% damage<br />you can use shadow bows") 
+                        ), 
+                        (object)array(
+                            "name" => "Grandmaster Hunter", 
+                            "values" => array("100,000", "+10% attack speed<br />+15% damage<br />enables dual-wielding of 1-hand cross-bows") 
+                        ), 
+                        (object)array(
+                            "name" => "Hunter Legend",
+                            "values" => array("1,000,000", "+20% damage<br />+50% critical hit chance<br />+100% critical hit damage") 
+                        ) 
+                    )
+                )                        
+            ), 
+            "mage" => (object)array(
+                "name" => "Mage Masteries",
+                "content" => "<p>Use elemental offensive skills to master this category.</p>", 
+                "data" => (object)array(
+                    "headers" => array("Kills with elemental attacks", "Bonus"), 
+                    "rows" => array(
+                        (object)array(
+                            "name" => "Apprentice Mage", 
+                            "values" => array("100", "+2% attack speed<br />+2% damage") 
+                        ), 
+                        (object)array(
+                            "name" => "Fellow Mage", 
+                            "values" => array("1,000", "+4% attack speed<br />+5% damage") 
+                        ), 
+                        (object)array(
+                            "name" => "Master Mage", 
+                            "values" => array("10,000", "+7% attack speed<br />+10% damage<br />you can use orbs") 
+                        ), 
+                        (object)array(
+                            "name" => "Grandmaster Mage", 
+                            "values" => array("100,000", "+10% attack speed<br />+15% damage<br />you can use source shields") 
+                        ), 
+                        (object)array(
+                            "name" => "Sorcerer Legend",
+                            "values" => array("1,000,000", "+20% damage<br />+50% critical hit chance<br />+100% critical hit damage") 
+                        ) 
+                    )
+                )                        
+            ),
+            "priest" => (object)array(
+                "name" => "Priest Masteries",
+                "content" => "<p>Use healing skills to master this category.</p>", 
+                "data" => (object)array(
+                    "headers" => array("Amount of life healed<br />using healing skills", "Bonus"), 
+                    "rows" => array(
+                        (object)array(
+                            "name" => "Apprentice Priest", 
+                            "values" => array("10k", "???") 
+                        ), 
+                        (object)array(
+                            "name" => "Fellow Priest", 
+                            "values" => array("1M", "???") 
+                        ), 
+                        (object)array(
+                            "name" => "Master Priest", 
+                            "values" => array("10M", "???") 
+                        ), 
+                        (object)array(
+                            "name" => "Grandmaster Priest", 
+                            "values" => array("100M", "???") 
+                        ), 
+                        (object)array(
+                            "name" => "Priest Legend",
+                            "values" => array("1,000M", "???") 
+                        ) 
+                    )
+                )                        
+            ),
+            "summoner" => (object)array(
+                "name" => "Summoner Masteries",
+                "content" => "<p>Summon creatures to master this category.</p>", 
+                "data" => (object)array(
+                    "headers" => array("Amount of damage dealt<br />by summoned creatures", "Bonus"), 
+                    "rows" => array(
+                        (object)array(
+                            "name" => "Apprentice Summoner", 
+                            "values" => array("10k", "your creatures have 10% more life and last 5% longer") 
+                        ), 
+                        (object)array(
+                            "name" => "Fellow Summoner", 
+                            "values" => array("1M", "your creatures damage is increased by 15%") 
+                        ), 
+                        (object)array(
+                            "name" => "Master Summoner", 
+                            "values" => array("10M", "you can use druid masks") 
+                        ), 
+                        (object)array(
+                            "name" => "Grandmaster Summoner", 
+                            "values" => array("100M", "the life and damage of your creatures is doubled") 
+                        ), 
+                        (object)array(
+                            "name" => "Summoner Legend",
+                            "values" => array("1,000M", "each time you summon creatures, they appear in pairs") 
+                        ) 
+                    )
+                )                        
+            ), 
+            "assassin" => (object)array(
+                "name" => "Assassin Masteries",
+                "content" => "<p>Use traps, mines and turrets to master this category.</p>", 
+                "data" => (object)array(
+                    "headers" => array("Amount of creatures hurt<br />by your traps, mines and turrets", "Bonus"), 
+                    "rows" => array(
+                        (object)array(
+                            "name" => "Apprentice Assassin", 
+                            "values" => array("10k", "assassin spells deal 10% more damage") 
+                        ), 
+                        (object)array(
+                            "name" => "Fellow Assassin", 
+                            "values" => array("1M", "assassin spells last 10% longer") 
+                        ), 
+                        (object)array(
+                            "name" => "Master Assassin", 
+                            "values" => array("10M", "you can use claws") 
+                        ), 
+                        (object)array(
+                            "name" => "Grandmaster Assassin", 
+                            "values" => array("100M", "the attack speed of your turrets is increased by 100%") 
+                        ), 
+                        (object)array(
+                            "name" => "Assassin Legend",
+                            "values" => array("1,000M", "increase the area of effect of assassin spells by 200%") 
+                        ) 
+                    )
+                )                        
+            ) 
+        )
+    ), 
+    "maths" => (object)array(
+        "name" => "Maths", 
+        "content" => "<p>There is quite some maths going on in this game. This section details about the various calculations.</p>", 
+        "items" => array(
+            "damage" => (object)array(
+                "name" => "Damage calculation", 
+                "content" => "<h2>Weapon DPS</h2><p><code>(DMG_MIN + DMG_MAX) / 2 * AS</code></p><h2>Character DPS</h2><p><code>AVG_DMG * STRENGTH_BONUS * MAIN_SKILL_BONUS * PASSIVES_BONUS * MASTERY_BONUS * (CRIT_DMG * CRIT_CHANCE) * AS</code></p><h2>Damage</h2><p><code>DMG - DMG_REDUCTION - ABSORB - BLOCK - ARMOR - RES</code></p>"
+            ), 
+            "defense" => (object)array(
+                "name" => "Defense calculation",
+                "content" => "<h2>Armor</h2><p><code>Armor / (Armor + 50 * MonsterLevel)</code></p><h2>Resistance</h2><p><code>Resistance / (Resistance + 5 * MonsterLevel)</code></p>"
+            )
+        )
     )
 );
 

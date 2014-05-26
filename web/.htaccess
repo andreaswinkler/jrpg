@@ -1,6 +1,6 @@
 Options +FollowSymLinks
 RewriteEngine on
-RewriteBase /jrpg14/web/
+RewriteBase /_priv/jrpg14/web/
 
 RewriteRule ^home/?$ ?page=home [NC,L,QSA]
 RewriteRule ^game/?$ ?page=game [NC,L,QSA]

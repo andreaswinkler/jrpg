@@ -215,10 +215,15 @@ h2 {
     max-height: 150px;
 }
 
+#content p code {
+    font-size: 12pt;
+}
+
 #content table {
     clear: both;
-    width: 100%;
+    width: 650px;
     margin: 40px 0px;
+    max-width: 650px;
 }
 
 #content table * {
