@@ -90,8 +90,13 @@ $(document).ready(function() {
         }        
         
     };
+    $('body').append('<div id="jrpg_game"></div><div id="jrpg_ui"></div>');
+    //JRPG.load();
+    JRPG.Object.data = { hero: {} };
+    JRPG.hero = new JRPG.Character('hero', 'Hero', 1);
     
-    JRPG.load();
+    JRPG.UI.init();
+    JRPG.UI.characterWindow.toggle();
     
 });
 </script>

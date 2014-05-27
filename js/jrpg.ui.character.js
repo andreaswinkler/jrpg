@@ -28,7 +28,7 @@ JRPG.UI.CharacterWindow = function(hero) {
     
     this.initCharacterWindow = function() {
 
-        this.initWindow('The Hero', { position: 'right' });
+        this.initWindow('The Hero', { position: 'right', width: '40%' });
         
         var e = $('<div class="details hidden"></div><div class="overview"><div class="stats"></div><div class="gold"></div><input type="button" class="show-details" value="Details" /></div><div class="equipment"></div><div class="inventory"></div>');
 

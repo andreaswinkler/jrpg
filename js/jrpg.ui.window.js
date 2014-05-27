@@ -11,12 +11,12 @@ JRPG.UI.Window = function(title, options) {
     
         this.title = title;
         this.options = $.extend({
-            width: 600, 
+            width: '600px', 
             position: 'left'
         }, options || {});
         
         this.e = $('<div class="window hidden ' + this.options.position + '"><div class="window-title">' + this.title + '</div><div class="window-close"></div><div class="window-content"></div><div class="window-tab-menu"></div></div>');
-        this.e.width(this.options.width);
+        this.e.css('width', this.options.width);
         
         // we always append windows to the jrpg_ui container
         $('#jrpg_ui').append(this.e);
