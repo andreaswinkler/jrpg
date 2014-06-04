@@ -92,11 +92,20 @@ $(document).ready(function() {
     };
     $('body').append('<div id="jrpg_game"></div><div id="jrpg_ui"></div>');
     //JRPG.load();
-    JRPG.Object.data = { hero: {} };
-    JRPG.hero = new JRPG.Character('hero', 'Hero', 1);
+    _post('itemTypes.list', {}, function(data) {
+        
+        JRPG.Item.data = data;
+
+        JRPG.Object.data = { hero: {} };
+        JRPG.hero = new JRPG.Character('hero', 'Hero', 1);
+        
+        JRPG.hero.equip(JRPG.DropFactory.createItem('smallsword', 1, 0, 0)); 
+        JRPG.hero.equip(JRPG.DropFactory.createItem('smallshield', 1, 0, 0));
+        
+        JRPG.UI.init();
+        JRPG.UI.characterWindow.toggle();
     
-    JRPG.UI.init();
-    JRPG.UI.characterWindow.toggle();
+    });
     
 });
 </script>

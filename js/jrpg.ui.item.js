@@ -12,7 +12,7 @@ JRPG.UI.Item = function(item) {
     this.initItem = function() {
     
         this.e = $('<div class="jrpg-ui-item rank-' + this.item.rank + '"><img src="" class="jrpg-ui-item-img" /><div class="jrpg-ui-item-sockets"></div></div>');
-        
+
         this.e.mouseenter($.proxy(function(ev) {
         
             this.showTooltip();    

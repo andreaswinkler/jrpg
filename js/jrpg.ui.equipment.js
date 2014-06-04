@@ -1,7 +1,7 @@
 /*
 ** 2014/02/12
 */
-JRPG.UI.Equipment = function(equipment) {
+JRPG.UI.Equipment = function(equipment, p) {
 
     this.equipment = equipment;
     
@@ -9,7 +9,7 @@ JRPG.UI.Equipment = function(equipment) {
     this.ePrimary = null;
     this.eSecondary = null;
     
-    this.initEquipment = function() {
+    this.initEquipment = function(p) {
     
         var s = '', 
             slot;
@@ -20,13 +20,17 @@ JRPG.UI.Equipment = function(equipment) {
         
         }
         
-        this.e = $(s);
+        this.e = p;
+        
+        p.append(s);
         
         this.ePrimary = this.e.find('.weapon1, .offhand1');
         this.eSecondary = this.e.find('.weapon2, .offhand2');
         
         this.equipment.on('weaponSlotChanged', this.updateWeaponSlots, this);
-        
+
+        console.dir(this.e);
+
         // toggle weapon slots and add all items from the 
         // equipment
         this.update();
@@ -58,7 +62,7 @@ JRPG.UI.Equipment = function(equipment) {
         for (slot in this.equipment) {
         
             if (this.equipment[slot] instanceof JRPG.Item) {
-            
+                console.dir(this.e.find('.' + slot));
                 this.e.find('.' + slot).html(new JRPG.UI.Item(this.equipment[slot]).e);                
             
             } else if (this.equipment[slot] == null) {
@@ -71,6 +75,6 @@ JRPG.UI.Equipment = function(equipment) {
     
     };
     
-    this.initEquipment();
+    this.initEquipment(p);
 
 }

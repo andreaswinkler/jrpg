@@ -28,7 +28,7 @@ JRPG.UI.CharacterWindow = function(hero) {
     
     this.initCharacterWindow = function() {
 
-        this.initWindow('The Hero', { position: 'right', width: '40%' });
+        this.initWindow('The Hero', { position: 'right', width: '600px' });
         
         var e = $('<div class="details hidden"></div><div class="overview"><div class="stats"></div><div class="gold"></div><input type="button" class="show-details" value="Details" /></div><div class="equipment"></div><div class="inventory"></div>');
 
@@ -36,13 +36,11 @@ JRPG.UI.CharacterWindow = function(hero) {
         
         // create the inventory instance from the heros main inventory
         // and append it into the inventory container
-        this.inventory = new JRPG.UI.Inventory(this.hero.inventories.main);
-        this.e.find('.inventory').append(this.inventory.e);
+        this.inventory = new JRPG.UI.Inventory(this.hero.inventories.main, this.e.find('.inventory'));
         
         // create the equipment instance from the heros equipment 
         // and append it into the equipment container
-        this.equipment = new JRPG.UI.Equipment(this.hero.equipment);
-        this.e.find('.equipment').append(this.equipment.e);  
+        this.equipment = new JRPG.UI.Equipment(this.hero.equipment, this.e.find('.equipment')); 
         
         // create all overall stat elements
         _.each(this.overallStats, function(i) {
