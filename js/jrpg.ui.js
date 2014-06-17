@@ -21,6 +21,8 @@ JRPG.UI = {
     
     cursorPosition: { x: 0, y: 0 }, 
     
+    tooltip: null,  
+    
     moduleData: null,
 
     module: function(key, containerId, data) {

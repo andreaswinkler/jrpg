@@ -29,11 +29,21 @@ JRPG.UI.Equipment = function(equipment, p) {
         
         this.equipment.on('weaponSlotChanged', this.updateWeaponSlots, this);
 
-        console.dir(this.e);
-
         // toggle weapon slots and add all items from the 
         // equipment
         this.update();
+    
+    };
+    
+    this.tooltip = function(ev) {
+    
+        var e = $(ev.target);
+        
+        JRPG.UI.showTooltip();
+    
+    };
+    
+    this.hideTooltip = function(ev) {
     
     };
     
@@ -62,12 +72,15 @@ JRPG.UI.Equipment = function(equipment, p) {
         for (slot in this.equipment) {
         
             if (this.equipment[slot] instanceof JRPG.Item) {
-                console.dir(this.e.find('.' + slot));
-                this.e.find('.' + slot).html(new JRPG.UI.Item(this.equipment[slot]).e);                
+
+                this.e.find('.' + slot)
+                    .html(new JRPG.UI.Item(this.equipment[slot]).e);              
             
             } else if (this.equipment[slot] == null) {
             
-                this.e.find('.' + slot).html('');
+                this.e.find('.' + slot)
+                    .html('')
+                    .unbind();
             
             }
         

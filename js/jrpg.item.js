@@ -114,7 +114,21 @@ JRPG.Item = function(type, level, rank) {
     
         return false;
     
-    };     
+    };   
+    
+    this.dps = function() {
+    
+        var dps = 0;
+        
+        if (this.superType == 'st_weapon') {
+        
+            return (this.attr('minDmg') + this.attr('maxDmg')) / 2 * this.attr('attackSpeed');
+        
+        }
+        
+        return dps;
+    
+    };  
 
     var data = JRPG.Item.data[type] || {};
 
@@ -166,6 +180,10 @@ JRPG.Item = function(type, level, rank) {
     
     // is the item etheral?
     this.isEtheral = false;
+    
+    this.isWeapon = this.superType == 'st_weapon';
+    this.isArmor = this.superType == 'st_armor';
+    this.isJewellery = this.superType == 'st_jewellery';
     
     // we want a legendary or set so we need to check if one exists for this 
     // type at all, if not we reduce the item rank to rare

@@ -38,7 +38,7 @@ body { overflow: hidden; width: 100%; height: 100%; }
 
 
 
-.hidden { display: none; }
+.hidden { display: none !important; }
 
 .window-close { display: block; width: 10px; height: 10px; background: #c10000; cursor: pointer; float: right; margin: -32px 0px 0px; }
 .window-tab-menu-item { display: block; width: 10px; height: 10px; background: #00c100; cursor: pointer; margin-bottom: 2px; }
@@ -68,7 +68,7 @@ img.logo { position: absolute; top: 50%; left: 50%; margin: -400px 0px 0px -400p
 .window.right { background: #fff; position: absolute; top: 0; right: 0; height: 100%; }
 .window .window-title { width: 100%; background: #aaa; color: #eee; font-size: 20pt; text-align: center; }
 
-.window .overview { height: 560px; width: 35%; float: left; display: block; background: #eee; }
+.window .overview { height: 420px; width: 175px; float: left; display: block; background: #eee; }
 
 .window .window-content { height: 100%; max-height: 800px; }
 
@@ -81,23 +81,39 @@ img.logo { position: absolute; top: 50%; left: 50%; margin: -400px 0px 0px -400p
 .window .details label { float: left; width: 160px; text-align: left; padding: 5px; display: block; }
 .window .details .value { float: left; width: 65px; padding: 5px; text-align: right; }
 
-.window .equipment { height: 560px; float: left; background: #acacac; width: 65%; }
-.window .equipment .equipment-item { position: relative; width: 80px; height: 80px; background: #ffc1ff; }
-.window .equipment .equipment-item.headgear { left: 50%; margin-left: -40px; top: 0px; }
-.window .equipment .equipment-item.chestarmor { left: 50%; margin-left: -60px; top: 20px; width: 120px; height: 160px; }
-.window .equipment .equipment-item.gloves { left: 50%; margin-left: -160px; top: -110px; }
-.window .equipment .equipment-item.boots { left: 50%; margin-left: -40px; top: 160px; }
-.window .equipment .equipment-item.pants { left: 50%; margin-left: -40px; top: -60px; height: 120px; }
-.window .equipment .equipment-item.amulet { left: 50%; margin-left: 60px; top: -480px; width: 40px; height: 40px; }
-.window .equipment .equipment-item.ring1 { left: 50%; margin-left: -140px; top: -330px; width: 40px; height: 40px; }
-.window .equipment .equipment-item.ring2 { left: 50%; margin-left: 100px; top: -370px; width: 40px; height: 40px; }
-.window .equipment .equipment-item.weapon1 { left: 50%; margin-left: -180px; top: -340px; height: 180px; width: 120px; }
-.window .equipment .equipment-item.weapon2 { left: 50%; margin-left: -180px; top: -520px; height: 180px; width: 120px; }
-.window .equipment .equipment-item.offhand1 { left: 50%; margin-left: 60px; top: -700px; height: 180px; width: 120px; }
-.window .equipment .equipment-item.offhand2 { left: 50%; margin-left: 60px; top: -880px; height: 180px; width: 120px; }
-.window .equipment .equipment-item.belt { left: 50%; margin-left: -40px; top: -1080px; height: 40px; width: 80px; }
-.window .equipment .equipment-item.token1 { left: 50%; margin-left: -170px; top: -890px; height: 40px; width: 40px; } 
-.window .equipment .equipment-item.token2 { left: 50%; margin-left: -110px; top: -930px; height: 40px; width: 40px; } 
-.window .equipment .equipment-item.token3 { left: 50%; margin-left: 70px; top: -970px; height: 40px; width: 40px; } 
+.window .equipment { height: 420px; float: left; background: #acacac; width: 425px; position: relative; }
+.window .equipment .equipment-item { position: absolute; width: 60px; height: 60px; border: 1px solid #eee; }
+.window .equipment .equipment-item.headgear { left: 182px; top: 10px; }
+.window .equipment .equipment-item.chestarmor { left: 162px; top: 80px; width: 100px; height: 120px; }
+.window .equipment .equipment-item.gloves { left: 90px; top: 110px; }
+.window .equipment .equipment-item.boots { left: 182px; top: 340px; }
+.window .equipment .equipment-item.pants { left: 182px; top: 250px; height: 80px; }
+.window .equipment .equipment-item.amulet { left: 255px; top: 30px; width: 30px; height: 30px; }
+.window .equipment .equipment-item.ring1 { left: 105px; top: 180px; width: 30px; height: 30px; }
+.window .equipment .equipment-item.ring2 { left: 290px; top: 180px; width: 30px; height: 30px; }
+.window .equipment .equipment-item.weapon1 { left: 80px; top: 220px; width: 80px; height: 120px; }
+.window .equipment .equipment-item.weapon2 { left: 80px; top: 220px; width: 80px; height: 120px; }
+.window .equipment .equipment-item.offhand1 { left: 265px; top: 220px; width: 80px; height: 120px; }
+.window .equipment .equipment-item.offhand2 { left: 265px; top: 220px; width: 80px; height: 120px; }
+.window .equipment .equipment-item.belt { left: 182px; top: 210px; height: 30px; }
+.window .equipment .equipment-item.token1 { left: 265px; top: 370px; width: 30px; height: 30px; } 
+.window .equipment .equipment-item.token2 { left: 305px; top: 370px; width: 30px; height: 30px; } 
+.window .equipment .equipment-item.token3 { left: 345px; top: 370px; width: 30px; height: 30px; } 
 
-.window .inventory { width: 600px; height: 360px; display: block; background: url(../img/inventory-bg.png) no-repeat #9a9a9a; float: left; }
+.window .equipment .equipment-item .jrpg-ui-item { text-align: center; cursor: pointer; }
+.window .equipment .equipment-item .jrpg-ui-item-img { max-width: 100%; max-height: 100%; margin: 0 auto; }
+
+.window .inventory { width: 600px; height: 360px; display: block; float: left; }
+
+.jrpg-ui-item-tooltip { display: block; width: 260px; min-height: 350px; background: #111; border: 1px solid #eee; position: absolute; padding: 5px; font-family: Arial; color: #eee; }
+.jrpg-ui-item-tooltip .thumb { width: 100px; height: 150px; border: 1px solid #eee; display: block; text-align: center; float: left; margin: 0px 5px 5px 0px; }
+.jrpg-ui-item-tooltip .thumb img { max-width: 100%; max-height: 100%; }
+.jrpg-ui-item-tooltip strong { width: 100px; float: left; }
+.jrpg-ui-item-tooltip .slot { color: #aaa; float: left; width: 50px; text-align: right; }
+.jrpg-ui-item-tooltip.rank-1 strong { color: #6cbaeb; }
+.jrpg-ui-item-tooltip.rank-2 strong { color: #f0ed18; }
+.jrpg-ui-item-tooltip .attributes .dps { font-size: 28px; font-weight: bold; }
+.jrpg-ui-item-tooltip .attributes label { font-weight: bold; }
+.jrpg-ui-item-tooltip .modifiers { clear: both; float: left; width: 100%; display: block; }
+.jrpg-ui-item-tooltip .level { clear: both; float: left; }
+.jrpg-ui-item-tooltip .durability { float: right; color: #aaa; }
