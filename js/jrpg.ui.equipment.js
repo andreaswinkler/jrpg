@@ -74,7 +74,7 @@ JRPG.UI.Equipment = function(equipment, p) {
             if (this.equipment[slot] instanceof JRPG.Item) {
 
                 this.e.find('.' + slot)
-                    .html(new JRPG.UI.Item(this.equipment[slot]).e);              
+                    .html(new JRPG.UI.Item(this.equipment[slot], true).e);              
             
             } else if (this.equipment[slot] == null) {
             

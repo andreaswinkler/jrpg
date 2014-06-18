@@ -373,10 +373,21 @@ switch ($_REQUEST["service"]) {
                 )    
             ), 
             "bt_sword" => (object)array(
+                "prefixes" => array(
+                    (object)array("name" => "Sharp", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("minDmg" => array(2, 5))), 
+                    (object)array("name" => "Wicked", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("critChance" => array(1, 3))), 
+                    (object)array("name" => "Cruel", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("critDmg" => array(10, 20))), 
+                    (object)array("name" => "Fast", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("attackSpeed" => array(3, 6))), 
+                    (object)array("name" => "Socketed", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("sockets" => array(1, 2)))
+                ), 
                 "suffixes" => array(
-                    (object)array("name" => "of Fire", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("fireball" => array(1, 1))), 
-                    (object)array("name" => "of Ice", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("iceshard" => array(1, 1))), 
-                    (object)array("name" => "of Lightning", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("lightningbolt" => array(1, 1)))
+                    (object)array("name" => "of Brutality", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("maxDmg" => array(2, 5))), 
+                    (object)array("name" => "of Bleeding", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("openWounds" => array(1, 3))), 
+                    (object)array("name" => "of Pain", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("crushingBlow" => array(1, 2))), 
+                    (object)array("name" => "of Strength", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("str" => array(2, 6))), 
+                    (object)array("name" => "of Dexterity", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("dex" => array(2, 6))), 
+                    (object)array("name" => "of Focus", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("int" => array(2, 6))), 
+                    (object)array("name" => "of Vitality", "minLevel" => 1, "maxLevel" => 10, "modifiers" => (object)array("vit" => array(2, 6)))
                 ), 
                 "rareNames1" => array(
                     "Vile", "Zonc", "Maid", "Pain", "Weld", "Proc"        

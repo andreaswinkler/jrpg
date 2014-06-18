@@ -14,7 +14,8 @@ JRPG.UI.CharacterWindow = function(hero) {
         { label: 'Strength', attr: 'str' }, 
         { label: 'Dexterity', attr: 'dex' }, 
         { label: 'Force', attr: 'int' }, 
-        { label: 'Armor', attr: 'armor' }
+        { label: 'Armor', attr: 'armor' }, 
+        { label: 'Damage', attr: 'dps', digits: 2 }
     ];
     
     this.detailledStats = [
@@ -118,7 +119,7 @@ JRPG.UI.CharacterWindow = function(hero) {
         // update all overall stats
         _.each(this.overallStats, function(i) {
         
-            i.e.html(this.hero.attr(i.attr));
+            i.e.html(this.hero.attr(i.attr).toFixed(i.digits || 0));
         
         }, this);
 

@@ -105,15 +105,32 @@ img.logo { position: absolute; top: 50%; left: 50%; margin: -400px 0px 0px -400p
 
 .window .inventory { width: 600px; height: 360px; display: block; float: left; }
 
-.jrpg-ui-item-tooltip { display: block; width: 260px; min-height: 350px; background: #111; border: 1px solid #eee; position: absolute; padding: 5px; font-family: Arial; color: #eee; }
-.jrpg-ui-item-tooltip .thumb { width: 100px; height: 150px; border: 1px solid #eee; display: block; text-align: center; float: left; margin: 0px 5px 5px 0px; }
+.rank-0, .rank-0 .thumb { background: url(../img/equipment-slot-bg-1.png) no-repeat #000; }
+.rank-1, .rank-1 .thumb { background: url(../img/equipment-slot-bg-1.png) no-repeat #6cbaeb; }
+.rank-2, .rank-2 .thumb { background: url(../img/equipment-slot-bg-1.png) no-repeat #f0ed18; }
+
+.jrpg-ui-item-tooltip { display: block; width: 260px; min-height: 150px; background: #111; border: 1px solid #eee; position: absolute; padding: 5px; font-family: Arial; color: #eee; }
+.jrpg-ui-item-tooltip .title { width: 100%; text-align: center; font-weight: bold; clear: both; float: left; background: #eee; color: #111; margin-bottom: 5px; }
+.jrpg-ui-item-tooltip .thumb { width: 100px; height: 150px; border: 1px solid #eee; display: block; text-align: center; float: left; margin: 0px 5px 5px 0px; position: relative; }
 .jrpg-ui-item-tooltip .thumb img { max-width: 100%; max-height: 100%; }
 .jrpg-ui-item-tooltip strong { width: 100px; float: left; }
 .jrpg-ui-item-tooltip .slot { color: #aaa; float: left; width: 50px; text-align: right; }
 .jrpg-ui-item-tooltip.rank-1 strong { color: #6cbaeb; }
 .jrpg-ui-item-tooltip.rank-2 strong { color: #f0ed18; }
+.jrpg-ui-item-tooltip .attributes { width: 150px; float: left; }
 .jrpg-ui-item-tooltip .attributes .dps { font-size: 28px; font-weight: bold; }
 .jrpg-ui-item-tooltip .attributes label { font-weight: bold; }
-.jrpg-ui-item-tooltip .modifiers { clear: both; float: left; width: 100%; display: block; }
+.jrpg-ui-item-tooltip .modifiers { clear: both; float: left; width: 100%; display: block; color: #ddd; }
 .jrpg-ui-item-tooltip .level { clear: both; float: left; }
 .jrpg-ui-item-tooltip .durability { float: right; color: #aaa; }
+.jrpg-ui-item-tooltip hr { clear: both; float: left; width: 100%; border: none; height: 1px; background: #eee; }
+.jrpg-ui-item-tooltip .actions { clear: both; float: left; }
+.jrpg-ui-item-tooltip .actions input { float: left; padding: 2px 2px 2px 20px; color: #ea941a; border: none; }
+.jrpg-ui-item-tooltip .mouse-left { background: url(../img/mouseLeft.png) no-repeat left; }
+.jrpg-ui-item-tooltip .mouse-right { background: url(../img/mouseRight.png) no-repeat left; }
+
+.sockets { width: 100%; height: 100%; position: absolute; display: block; float: left; top: 0; left: 0; }
+.sockets .socket { width: 30px; height: 30px; border-radius: 15px; background: rgba(100,100,100,0.2); border: 1px solid #aaa; box-shadow: 3px 3px 3px #111; display: block; position: absolute; }
+.sockets.sockets-1 .socket { left: 50%; top: 50%; margin: -15px 0px 0px -15px; }
+.sockets.sockets-2 .socket-0 { left: 50%; top: 50%; margin: -45px 0px 0px -15px; }
+.sockets.sockets-2 .socket-1 { left: 50%; top: 50%; margin: 15px 0px 0px -15px; }

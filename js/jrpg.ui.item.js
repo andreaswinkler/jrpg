@@ -1,17 +1,44 @@
 /*
 ** 2014/02/12
 */
-JRPG.UI.Item = function(item) {
+JRPG.UI.Item = function(item, equipped) {
 
     this.stack = item instanceof JRPG.Inventory.Stack ? item : null;
     this.item = this.stack != null ? stack.items[0] : item;
+    this.equipped = equipped;
     
     this.e = null;
     this.tooltip = null;
     
     this.initItem = function() {
     
-        this.e = $('<div class="jrpg-ui-item rank-' + this.item.rank + '"><img src="tex/ui-' + this.item.type + '.png" class="jrpg-ui-item-img" /><div class="jrpg-ui-item-sockets"></div></div>');
+        var s = '';
+    
+        this.e = $('<div class="jrpg-ui-item rank-' + this.item.rank + '"><img src="tex/ui-' + this.item.type + '.png" class="jrpg-ui-item-img" /></div></div>');
+
+        if (this.item.hasSockets()) {
+
+            s += '<div class="sockets sockets-' + this.item.sockets.length + '">';
+       
+            _.each(this.item.sockets, function(v, ind) {
+            
+                s += '<span class="socket socket-' + ind + '">';
+                
+                if (v != null) {
+                
+                    // insert something
+                
+                }
+                
+                s += '</span>';
+            
+            }, this);
+       
+            s += '</div>';
+            
+            this.e.append(s);
+        
+        }
 
         this.e.mouseenter($.proxy(function(ev) {
         
@@ -31,7 +58,7 @@ JRPG.UI.Item = function(item) {
     
     this.initTooltip = function() {
     
-        this.tooltip = new JRPG.UI.ItemTooltip(this.item);
+        this.tooltip = new JRPG.UI.ItemTooltip(this.item, this.equipped);
     
     };
     
@@ -64,21 +91,109 @@ JRPG.UI.Item = function(item) {
 /*
 ** 2014/02/12
 */
-JRPG.UI.ItemTooltip = function(stack) {
+JRPG.UI.ItemTooltip = function(item, equipped) {
 
-    this.stack = stack;
-    this.item = this.stack.items ? this.stack.items[0] : stack;
+    this.item = item;
+    this.equipped = equipped;
+    this.title = equipped ? 'Equipped' : '';
     
     this.e = null;
     
+    this.modifier = function(key, value) {
+    
+        switch (key) {
+        
+            case 'int':
+            
+                return '+' + value + ' to Focus';
+            
+            case 'str':
+            
+                return '+' + value + ' to Strength';
+                
+            case 'vit':
+            
+                return '+' + value + ' to Vitality';
+                
+            case 'dex':
+            
+                return '+' + value + ' to Dexterity';
+                
+            case 'critChance':
+            
+                return '+' + value + '% critical hit chance';
+            
+            case 'openWounds':
+            
+                return '+' + value + '% chance to cause Open Wounds';
+            
+            case 'minDmg':
+            
+                return '+' + value + ' minimum damage';
+            
+            case 'maxDmg':
+            
+                return '+' + value + ' maximum damage';
+                
+            case 'crushingBlow':
+            
+                return '+' + value + '% chance for Crushing Blow';
+            
+            case 'sockets':
+            
+                return 'Sockets (' + value + ')';
+            
+            case 'attackSpeed':
+            
+                return '+' + value + '% increased attack speed';
+            
+            case 'critDmg':
+            
+                return '+' + value + '% critical hit damage';
+              
+        
+        }
+    
+        return key + ': ' + value;
+    
+    };
+    
     this.initItemTooltip = function() {
     
-        var s = '';
+        var s = '', 
+            minDmg, maxDmg;
         
         s += '<div class="jrpg-ui-item-tooltip rank-' + this.item.rank + '">';
+        
+        // title
+        s += '<span class="title">' + this.title + '</span>';
+        
         // thumbnail
         s += '<div class="thumb">';
         s += '<img src="tex/ui-' + this.item.type + '.png" class="jrpg-ui-item-img" />';
+        
+        if (this.item.hasSockets()) {
+        
+            s += '<div class="sockets sockets-' + this.item.sockets.length + '">';
+       
+            _.each(this.item.sockets, function(v, ind) {
+            
+                s += '<span class="socket socket-' + ind + '">';
+                
+                if (v != null) {
+                
+                    // insert something
+                
+                }
+                
+                s += '</span>';
+            
+            }, this);
+       
+            s += '</div>';
+            
+        }
+      
         s += '</div>';
         // title
         s += '<strong>' + this.item.name + '</strong>';
@@ -87,9 +202,12 @@ JRPG.UI.ItemTooltip = function(stack) {
         
         if (this.item.isWeapon) {
         
-            s += '<span class="dps">' + this.item.dps() + '</span> dps<br />';
-            s += '<label>Damage:</label> ' + this.item.attr('minDmg') + '-' + this.item.attr('maxDmg') + '<br />';
-            s += '<label>Speed: </label>' + this.item.attr('attackSpeed');    
+            minDmg = this.item.attr('minDmg');
+            maxDmg = this.item.attr('maxDmg');
+        
+            s += '<span class="dps">' + this.item.dps().toFixed(2) + '</span> dps<br />';
+            s += '<label>Damage:</label> ' + (minDmg != maxDmg ? minDmg + '-' + maxDmg : minDmg) + '<br />';
+            s += '<label>Speed: </label>' + this.item.attr('attackSpeed').toFixed(2);    
         
         } else if (this.item.isArmor) {
         
@@ -106,10 +224,32 @@ JRPG.UI.ItemTooltip = function(stack) {
         
         s += '</p>';
         
-        s += '<p class="modifiers"></p>';
+        s += '<p class="modifiers">';
+        
+        _.each(this.item.modifiers, function(value, key) {
+        
+            s += this.modifier(key, value) + '<br />';
+        
+        }, this);
+        
+        s += '</p>';
         
         s += '<span class="level">Level 1</span>';
         s += '<span class="durability">Durability ' + this.item.durability + '/10' + '</span>';
+        
+        s += '<hr />';
+        
+        // actions
+        s += '<div class="actions">';
+        
+        if (!this.equipped) {
+        
+            s += '<input type="button" class="mouse-left" value="" />';
+        
+        }
+        
+        s += '<input type="button" class="mouse-right" value="unequip" />';
+        s += '</div>';
         
         s += '</div>';
     

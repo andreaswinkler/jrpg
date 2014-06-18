@@ -45,17 +45,23 @@ JRPG.Item = function(type, level, rank) {
         
         if (this.modifiers[key]) {
         
-            if (this.attributes[key]) {
+            if (key == 'attackSpeed') {
             
-                v += v * this.attributes[key];
+                v += v * (this.modifiers[key] / 100);
             
             } else {
-            
+        
                 v += this.modifiers[key];
             
             }
         
-        }  
+        } 
+        
+        if (key == 'maxDmg') {
+        
+            v = Math.max(v, this.attr('minDmg'));
+        
+        } 
         
         return v;
     
@@ -72,6 +78,8 @@ JRPG.Item = function(type, level, rank) {
     */
     this.addModifier = function(key, value) {
     
+        var i;
+    
         if (this.modifiers[key]) {
         
             this.modifiers[key] += value;
@@ -80,7 +88,17 @@ JRPG.Item = function(type, level, rank) {
         
             this.modifiers[key] = value;
         
-        }   
+        }  
+        
+        if (key == 'sockets') {
+        
+            for (i = 0; i < value; i++) {
+            
+                this.sockets.push(null);
+            
+            }    
+        
+        } 
     
     };
     
@@ -112,7 +130,7 @@ JRPG.Item = function(type, level, rank) {
     
     this.hasSockets = function() {
     
-        return false;
+        return this.sockets.length > 0;
     
     };   
     
@@ -184,6 +202,9 @@ JRPG.Item = function(type, level, rank) {
     this.isWeapon = this.superType == 'st_weapon';
     this.isArmor = this.superType == 'st_armor';
     this.isJewellery = this.superType == 'st_jewellery';
+    
+    // do we have sockets
+    this.sockets = [];
     
     // we want a legendary or set so we need to check if one exists for this 
     // type at all, if not we reduce the item rank to rare
@@ -324,7 +345,7 @@ JRPG.Item.preSuffixesByLevel = function(itemBaseType, itemLevel, prefixes, suffi
 
     var d = JRPG.Item.data[itemBaseType], 
         i, fix, list = [], src = [];
-    
+
     if (d) {
     
         if (prefixes && d.prefixes) {
@@ -353,6 +374,8 @@ JRPG.Item.preSuffixesByLevel = function(itemBaseType, itemLevel, prefixes, suffi
     
     }
     
+    console.dir(list);
+    
     return list;
 
 }
@@ -361,6 +384,9 @@ JRPG.Item.addPrefix = function(item) {
 
     var prefix = JRPG.Item.preSuffixesByLevel(item.baseType, item.level, true, false).random();
     
+    console.log(item.type + ' add prefix');
+    console.dir(prefix);
+    
     if (prefix != null) {
     
         item.addModifiers(prefix.modifiers);
@@ -368,12 +394,17 @@ JRPG.Item.addPrefix = function(item) {
         item.name = prefix.name + ' ' + item.name;
     
     }
+    
+    console.dir(item);
 
 }
 
 JRPG.Item.addSuffix = function(item) {
 
     var suffix = JRPG.Item.preSuffixesByLevel(item.baseType, item.level, false, true).random();
+    
+    console.log(item.type + ' add suffix');
+    console.dir(suffix);
     
     if (suffix != null) {
     
@@ -382,6 +413,8 @@ JRPG.Item.addSuffix = function(item) {
         item.name = item.name + ' ' + suffix.name;
     
     }
+    
+    console.dir(item);
 
 }
 

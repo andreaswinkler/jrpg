@@ -357,11 +357,9 @@ JRPG.Object = function(type, name, level) {
               rank: JRPG.DamageRank.NORMAL, 
               src: this
             }, 
-            minDmg = this.attr('minDmg'), 
-            maxDmg = this.attr('maxDmg'), 
-            dmg = _.random(minDmg, maxDmg),
+            dmg = this.randomDamage(), 
             critChance = this.attr('critChance'), 
-            crushingBlowChance = this.attr('crushingBlowChance'),  
+            crushingBlowChance = this.attr('crushingBlow'),  
             r = Math.random();
         
         if (r <= crushingBlowChance) {
@@ -372,7 +370,7 @@ JRPG.Object = function(type, name, level) {
         
             damage.rank = JRPG.DamageRank.CRITICAL;
             
-            dmg += dmg * this.attr('critDmg');
+            dmg += dmg * (this.attr('critDmg') / 100);
         
         }
         
@@ -381,6 +379,42 @@ JRPG.Object = function(type, name, level) {
         return damage;        
 
     };
+    
+    /*
+    ** returns a damage value based on min/max damage and strength value
+    */
+    this.randomDamage = function() {
+    
+        var dmg = _.random(this.attr('minDmg'), this.attr('maxDmg'));
+        
+        return dmg + dmg * this.attr('str') / 100;
+    
+    };
+    
+    /*
+    ** returns the average damage based on min/max damage and strength value
+    */
+    this.averageDamage = function() {
+    
+        var dmg = (this.attr('minDmg') + this.attr('maxDmg')) / 2;
+        
+        return dmg + dmg * this.attr('str') / 100;
+    
+    }
+    
+    /*
+    ** returns the average damage per second
+    */
+    this.dps = function() {
+    
+        var dmg = this.averageDamage(), 
+            critChance = this.attr('critChance') / 100,
+            critDmg = dmg * (this.attr('critDmg') / 100), 
+            attackSpeed = this.attr('attackSpeed');
+            
+        return (dmg + (attackSpeed * (critChance) * critDmg)) * attackSpeed;
+    
+    };    
     
     /*
     ** applies damage to this creature
@@ -443,6 +477,12 @@ JRPG.Object = function(type, name, level) {
     ** get or set an attribute
     */    
     this.attr = function(key, value) {
+    
+        if (key == 'dps') {
+        
+            return this.dps();
+        
+        }
     
         // the value is not set so we want to GET the value
         if (value == undefined) {

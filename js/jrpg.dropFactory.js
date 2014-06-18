@@ -2,11 +2,11 @@ JRPG.DropFactory = {
 
     dropTables: null, 
 
-    createItem: function(type, level, magicFind, goldFind) {
+    createItem: function(type, level, magicFind, goldFind, rank) {
     
         var magicFind = 1 + (magicFind || 0), 
             goldFind =  1 + (goldFind || 0), 
-            rank, amount, item;
+            rank = rank || null, amount, item;
         
         if (type == "gold") {
         
@@ -16,7 +16,11 @@ JRPG.DropFactory = {
         
         } else {
         
-            rank = this.rollRank(type, magicFind);
+            if (rank == null) {
+            
+                rank = this.rollRank(type, magicFind);
+            
+            }
         
             return new JRPG.Item(type, level, rank);
         
