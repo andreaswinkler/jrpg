@@ -19,6 +19,9 @@ JRPG.Character = function(type, name, level) {
     
     // the type of the character
     this.type = '';
+    
+    // are we hero?
+    this.isHero = false;
 
     /*
     ** initialize the character by creating a basic creature of 
@@ -36,6 +39,18 @@ JRPG.Character = function(type, name, level) {
             case 'hero':
             
                 this.inventories.main = new JRPG.Inventory(this, 10, 6);
+                this.inventories.stash0 = new JRPG.Inventory(this, 10, 20);
+                
+                this.equipment.on('unequip', function(ev) {
+
+                    // try to add the item to the inventory
+                    this.inventories.main.addItem(ev.data.item); 
+                
+                }, this);
+                
+                this.attr('pickupRange', 1);
+                
+                this.isHero = true;
                 
                 break;
             
@@ -48,6 +63,18 @@ JRPG.Character = function(type, name, level) {
                 break;
 
         }
+    
+    };
+    
+    this.characterLoop = function(ticks) {
+    
+        this.creatureLoop(ticks);
+    
+    };
+    
+    this.loop = function(ticks) {
+    
+        this.characterLoop(ticks);
     
     };
     
@@ -142,21 +169,17 @@ JRPG.Character = function(type, name, level) {
     
     /*
     ** pick up items or gold
-    **
-    ** if the item is a real item and our inventory is full, 
-    ** the method returns false            
+    **          
     */
     this.pickUp = function(item) {
     
         if (item instanceof JRPG.Gold) {
         
             this.addGold(item.amount);
-            
-            return true;
         
         } else {
         
-            return this.inventories.main.addItem(item);
+            this.inventories.main.addItem(item);
         
         }
     

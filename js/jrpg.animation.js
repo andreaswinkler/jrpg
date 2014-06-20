@@ -125,6 +125,12 @@ JRPG.LeapAnimation = function(owner, height, targetX, targetY, duration, delayMS
         
             this.tsStart = -1;
             this.owner.updatePosition(this.targetX, this.targetY);
+            
+            if (this.callback) {
+                
+                this.callback.apply(this, this.data);
+            
+            }
         
         } 
 

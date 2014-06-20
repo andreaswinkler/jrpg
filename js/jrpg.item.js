@@ -374,8 +374,6 @@ JRPG.Item.preSuffixesByLevel = function(itemBaseType, itemLevel, prefixes, suffi
     
     }
     
-    console.dir(list);
-    
     return list;
 
 }
@@ -384,9 +382,6 @@ JRPG.Item.addPrefix = function(item) {
 
     var prefix = JRPG.Item.preSuffixesByLevel(item.baseType, item.level, true, false).random();
     
-    console.log(item.type + ' add prefix');
-    console.dir(prefix);
-    
     if (prefix != null) {
     
         item.addModifiers(prefix.modifiers);
@@ -394,17 +389,12 @@ JRPG.Item.addPrefix = function(item) {
         item.name = prefix.name + ' ' + item.name;
     
     }
-    
-    console.dir(item);
 
 }
 
 JRPG.Item.addSuffix = function(item) {
 
     var suffix = JRPG.Item.preSuffixesByLevel(item.baseType, item.level, false, true).random();
-    
-    console.log(item.type + ' add suffix');
-    console.dir(suffix);
     
     if (suffix != null) {
     
@@ -413,8 +403,6 @@ JRPG.Item.addSuffix = function(item) {
         item.name = item.name + ' ' + suffix.name;
     
     }
-    
-    console.dir(item);
 
 }
 

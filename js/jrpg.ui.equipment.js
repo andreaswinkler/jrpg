@@ -29,6 +29,8 @@ JRPG.UI.Equipment = function(equipment, p) {
         
         this.equipment.on('weaponSlotChanged', this.updateWeaponSlots, this);
 
+        this.equipment.on('equip', this.update, this);
+
         // toggle weapon slots and add all items from the 
         // equipment
         this.update();

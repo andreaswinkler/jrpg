@@ -90,9 +90,12 @@ $(document).ready(function() {
         }        
         
     };
-    $('body').append('<div id="jrpg_game"></div><div id="jrpg_ui"></div>');
-    //JRPG.load();
-    _post('itemTypes.list', {}, function(data) {
+    
+    //$('body').append('<div id="jrpg_game"></div><div id="jrpg_ui"></div>');
+    
+    JRPG.load();
+    
+    /*_post('itemTypes.list', {}, function(data) {
         
         JRPG.Item.data = data;
 
@@ -105,7 +108,7 @@ $(document).ready(function() {
         JRPG.UI.init();
         JRPG.UI.characterWindow.toggle();
     
-    });
+    }); */
     
 });
 </script>

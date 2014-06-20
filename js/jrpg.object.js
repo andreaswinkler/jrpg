@@ -107,7 +107,7 @@ JRPG.Object = function(type, name, level) {
     
     };
     
-    this.animation = function(key, value) {
+    this.animation = function(key, value, callback, data) {
     
         if (value != undefined) {
         
@@ -116,6 +116,8 @@ JRPG.Object = function(type, name, level) {
             if (key == 'now') {
             
                 this.animations.now.tsStart = +new Date();
+                this.animations.now.callback = callback;
+                this.animations.now.data = data;
             
             }
         

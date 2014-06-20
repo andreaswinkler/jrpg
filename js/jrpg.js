@@ -18,6 +18,8 @@ var JRPG = {
         violet: { hex: '#ea0cf2' }
     }, 
     
+    YARD: 100, 
+    
     goodCreatures: ['hero', 'vendor', 'blacksmith', 'jeweller'], 
 
     version: 'alpha-1.0', 

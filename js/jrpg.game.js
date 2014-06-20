@@ -59,9 +59,37 @@ JRPG.Game = function(map) {
     
             _.invoke(this.stack, 'loop', ticks);
             
+            this.autoPickup();
+            
             JRPG.Renderer.update(this.map, this.stack);
             
             JRPG.UI.Minimap.update(JRPG.hero);
+        
+        }
+    
+    };
+    
+    // auto pickup specific items if in range of hero
+    this.autoPickup = function() {
+    
+        var range = JRPG.hero.attr('pickupRange') * JRPG.YARD, 
+            items;
+        
+        if (range > 0) {
+        
+            items = _.filter(this.stack, function(i) { return i.item && i.type == 'gold' && _dist(i.x, i.y, JRPG.hero.x, JRPG.hero.y) <= range; });
+            
+            _.each(items, function(i, ind) {
+            
+                JRPG.hero.pickUp(i.item);
+                
+                i.animation('now', new JRPG.LeapAnimation(i, 100, JRPG.hero.x, JRPG.hero.y - JRPG.hero.height / 2, 0.25, ind * 20), $.proxy(function(data) {
+
+                    this.stack.remove(data.item);
+                
+                }, this), [{ item: i }]);
+            
+            }, this);      
         
         }
     

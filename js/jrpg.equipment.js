@@ -86,7 +86,7 @@ JRPG.Equipment = function(owner) {
             
                 replacedItem = this[slot]; 
                 
-                this.emit('onItemReplaced', { item: item });
+                this.emit('itemReplaced', { item: item });
             
             }
             
@@ -96,17 +96,39 @@ JRPG.Equipment = function(owner) {
             // equipment
             item.owner = this.owner;
             
-            this.emit('onEquip', { item: item, slot: slot });
+            this.emit('equip', { item: item, slot: slot });
             
             return replacedItem;
         
         }
         
-        this.emit('onEquipError', { item: item });
+        this.emit('equipError', { item: item });
         
         return item;
     
     };
+    
+    /*
+    ** returns the slot for a given item or null if the item
+    ** is not equipped
+    */
+    this.getItemSlot = function(item) {
+    
+        var slot = null;
+                
+        _.each(this, function(value, key) {
+
+            if (value == item) {
+                
+                slot = key;
+                
+            }
+        
+        }, this);
+        
+        return slot;    
+    
+    };        
     
     /*
     ** removes the item from a given slot and returns it
@@ -114,15 +136,15 @@ JRPG.Equipment = function(owner) {
     ** Events raised by this method:
     **    onUnequip (an item was successfully unequipped from the given slot)            
     */    
-    this.unequip = function(slot) {
+    this.unequip = function(item) {
     
-        var item = this[slot];
-        
-        this[slot] = null;
-        
-        if (item != null) {
-        
-            this.emit('onUnequip', { item: item, slot: slot })
+        var slot = this.getItemSlot(item);
+    
+        if (slot != null) {
+    
+            this[slot] = null;
+            
+            this.emit('unequip', { item: item, slot: slot });
         
         }
         

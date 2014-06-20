@@ -60,14 +60,14 @@ JRPG.Inventory = function(owner, width, height) {
     
     };
 
-    this.removeItem = function(type, amount) {
+    this.removeItem = function(item, amount) {
     
         var amount = amount || 1, 
             i, result;
         
         for (i = 0; i < this.stacks.length; i++) {
-        
-            if (this.stacks[i].type == type) {
+
+            if (this.stacks[i].items[0] == item) {
             
                 result = this.stacks[i].removeItem(amount);
                 
@@ -138,14 +138,18 @@ JRPG.Inventory = function(owner, width, height) {
             // items type does not match            
             if (cell.stack) {
             
-                return cell.stack.addItem(item);    
+                cell.stack.addItem(item);
+                
+                this.emit('update');    
             
             } 
             // ok, the cell is empty, we check all neighbours
             // and add a stack for this item
             else {
             
-                return this.addStack(cell, item);
+                this.addStack(cell, item);
+                
+                this.emit('update');
                 
             }
         
@@ -158,7 +162,9 @@ JRPG.Inventory = function(owner, width, height) {
             
             if (existingStack) {
             
-                return existingStack.addItem(item);   
+                existingStack.addItem(item);
+                
+                this.emit('update');   
             
             } 
             
@@ -168,13 +174,12 @@ JRPG.Inventory = function(owner, width, height) {
             
                 if (this.addStack(this.cells[i], item)) {
                 
-                    return true;
+                    this.emit('update');
+                    break;
                 
                 }
             
-            }
-            
-            return false;         
+            }        
         
         }
     

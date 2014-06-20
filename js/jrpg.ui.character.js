@@ -70,11 +70,15 @@ JRPG.UI.CharacterWindow = function(hero) {
         }, this));
         
         // if the hero earns or looses gold, refresh the gold display
-        this.hero.on('attributeChanged_gold', this.updateGold, this);
+        this.hero.on('goldChanged', this.updateGold, this);
         
         // if any of the heros stats are changed, refresh the overall 
         // and detailled stats screen
         this.hero.on('attributeChanged', this.updateStats, this);
+        
+        // if the equipment changes we need to refresh the stat screen
+        this.equipment.equipment.on('unequip', this.updateStats, this);
+        this.equipment.equipment.on('equip', this.updateStats, this);        
         
         // initally update all stats, amount of gold, etc
         this.update();

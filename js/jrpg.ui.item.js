@@ -14,7 +14,7 @@ JRPG.UI.Item = function(item, equipped) {
     
         var s = '';
     
-        this.e = $('<div class="jrpg-ui-item rank-' + this.item.rank + '"><img src="tex/ui-' + this.item.type + '.png" class="jrpg-ui-item-img" /></div></div>');
+        this.e = $('<div class="jrpg-ui-item rank-' + this.item.rank + ' iw-' + this.item.inventoryWidth + ' ih-' + this.item.inventoryHeight + '"><img src="tex/ui-' + this.item.type + '.png" class="jrpg-ui-item-img" /></div></div>');
 
         if (this.item.hasSockets()) {
 
@@ -52,7 +52,61 @@ JRPG.UI.Item = function(item, equipped) {
         
             this.hideTooltip();
         
-        }, this));  
+        }, this)); 
+        
+        this.e.mousedown($.proxy(function(ev) {
+            
+            if (ev.which == 1) {
+            
+            
+            } else if (ev.which == 3) {
+            
+                if (this.equipped) {
+                
+                    this.unequip();
+                
+                } else {
+                
+                    this.equip();
+                
+                }
+            
+            }
+            
+            ev.preventDefault();
+            ev.stopPropagation();
+
+        }, this));
+        
+        this.e.on('contextmenu', function(ev) {
+        
+            ev.preventDefault();
+            ev.stopPropagation();    
+        
+        });
+    
+    };
+    
+    this.unequip = function() {
+    
+        // unequip the item
+        this.item.owner.equipment.unequip(item);
+            
+        // remove the item element
+        this.remove();    
+    
+    };
+    
+    this.equip = function() {
+    
+        // remove the item from the inventory
+        this.item.owner.inventories.main.removeItem(this.item);
+    
+        // equip the item
+        this.item.owner.equip(this.item);
+        
+        // remove the item element
+        this.remove();
     
     };
     
@@ -81,6 +135,18 @@ JRPG.UI.Item = function(item, equipped) {
             this.tooltip.hide();
         
         }
+    
+    };
+    
+    this.remove = function() {
+    
+        if (this.tooltip != null) {
+        
+            this.tooltip.e.remove();
+        
+        }
+        
+        this.e.remove();
     
     };
     
@@ -160,7 +226,8 @@ JRPG.UI.ItemTooltip = function(item, equipped) {
     
     this.initItemTooltip = function() {
     
-        var s = '', 
+        var s = '',
+            leftClick, rightClick,  
             minDmg, maxDmg;
         
         s += '<div class="jrpg-ui-item-tooltip rank-' + this.item.rank + '">';
@@ -242,13 +309,28 @@ JRPG.UI.ItemTooltip = function(item, equipped) {
         // actions
         s += '<div class="actions">';
         
-        if (!this.equipped) {
+        if (this.equipped) {
         
-            s += '<input type="button" class="mouse-left" value="" />';
+            rightClick = 'unequip';
+        
+        } else {
+        
+            rightClick = 'equip';
         
         }
         
-        s += '<input type="button" class="mouse-right" value="unequip" />';
+        if (leftClick) {
+        
+            s += '<input type="button" class="mouse-left" value="' + leftClick + '" />';    
+        
+        }
+        
+        if (rightClick) {
+        
+            s += '<input type="button" class="mouse-right" value="' + rightClick + '" />';
+        
+        }
+        
         s += '</div>';
         
         s += '</div>';
