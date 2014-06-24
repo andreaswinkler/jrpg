@@ -74,7 +74,11 @@ JRPG.Character = function(type, name, level) {
     
     this.loop = function(ticks) {
     
-        this.characterLoop(ticks);
+        if (!this.isDead()) {
+            
+            this.characterLoop(ticks);
+        
+        }
     
     };
     
@@ -175,9 +179,13 @@ JRPG.Character = function(type, name, level) {
     
         if (item instanceof JRPG.Gold) {
         
+            JRPG.UI.log('pickup', 'Hero picks up ' + item.amount + ' gold');
+        
             this.addGold(item.amount);
         
         } else {
+        
+            JRPG.UI.log('pickup', 'Hero picks up ' + item.name);
         
             this.inventories.main.addItem(item);
         

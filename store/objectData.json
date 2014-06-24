@@ -13,18 +13,18 @@
             { "gold": 500 }
         ]
     },  
-    "spider": {
-        "name": "Spider",
-        "width": 50,
-        "height": 50,  
+    "hystrix": {
+        "name": "Hystrix",
+        "width": 96,
+        "height": 90,  
         "speed": 0.3,
-        "skills": ["bash"],  
+        "skills": ["needle"],  
         "attributes": {
             "life": 10, 
             "mana": 10,  
             "aggroRange": 700, 
             "attackRange": 100, 
-            "attackSpeed": 0.5, 
+            "attackSpeed": 0.05, 
             "minDmg": 1, 
             "maxDmg": 2, 
             "critChance": 0, 

@@ -14,7 +14,8 @@ JRPG.UI = {
         I: 73, 
         S: 83, 
         One: 49, 
-        ALT: 18   
+        ALT: 18, 
+        CTRL: 17   
     },  
 
     currentMode: 0,
@@ -24,6 +25,16 @@ JRPG.UI = {
     tooltip: null,  
     
     moduleData: null,
+    
+    itemTooltips: [],
+    
+    eLog: null,  
+
+    log: function(type, s) {
+    
+        this.eLog.prepend('<span class="log-' + type + '">' + s + '</span>');
+    
+    },
 
     module: function(key, containerId, data) {
     
@@ -81,6 +92,7 @@ JRPG.UI = {
         this.eInfoBoxCalc = $('#jrpg_ui_infobox .calc');
         this.eInfoBoxStack = $('#jrpg_ui_infobox .stack');
         this.eObjectInfo = $('#jrpg_object_info');
+        this.eLog = $('#jrpg_log');
     
         $(document).keydown($.proxy(function(ev) {
         
@@ -129,6 +141,12 @@ JRPG.UI = {
                     JRPG.Renderer.showDroppedItemTooltips = true;
                     
                     break;
+                
+                case JRPG.UI.KeyCode.CTRL:
+                
+                    _.invoke(this.itemTooltips, 'toggleStatRollRangeInfo');
+                
+                    break;
             
             }
         
@@ -154,12 +172,30 @@ JRPG.UI = {
         $('#jrpg_game').click($.proxy(function(ev) {
 
             var obj = JRPG.Renderer.objectAtPosition(ev.pageX, ev.pageY), 
-                global; 
+                global, skill; 
 
-            if (obj != null && obj.canBeUsed()) {
+            if (obj != null) {
             
-                obj.use(JRPG.hero);    
-            
+                if (obj instanceof JRPG.Creature) {
+                
+                    skill = JRPG.hero.skills[0];
+                    
+                    if (_inRange(JRPG.hero, obj, skill.range)) {
+                
+                        JRPG.hero.useSkill(skill, obj);
+                    
+                    } else {
+                    
+                        JRPG.hero.moveTo(obj.x, obj.y);
+                    
+                    }
+                
+                } else if (obj.canBeUsed()) {
+                
+                    obj.use(JRPG.hero);
+                
+                }
+          
             } else {
             
                 global = JRPG.Renderer.toGlobal(ev.pageX, ev.pageY);

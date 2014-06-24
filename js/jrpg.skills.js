@@ -2,13 +2,64 @@
 ** 2014/02/13
 */
 
-JRPG.Skill = function(key, src, range, invoke, speed) {
+JRPG.Skill = function(key, src, range, invoke, speed, cooldown) {
+
+    this._invoke = invoke;
 
     this.key = key;
     this.src = src;
     this.range = range;
-    this.invoke = invoke;
     this.speed = speed || 0;
+    
+    // cooldown can be a value in ms or the string 'attackSpeed'
+    this.cooldown = cooldown || 0;
+    this.ts = 0;
+    
+    /*
+    ** invokes the skill if ready
+    */    
+    this.invoke = function() {
+    
+        if (this.cooldownStatus() == 1) {
+        
+            this.ts = +new Date();
+            
+            this._invoke.apply(this, arguments);
+        
+        } 
+    
+    };
+    
+    /* 
+    ** returns the current cooldown status of this skill
+    ** range between 0 (not cooldowned/not available) and 1 (fully cooldowned/available)
+    */    
+    this.cooldownStatus = function() {
+      
+        var cooldown;
+        
+        if (this.cooldown == 'attackSpeed') {
+        
+            cooldown = this.src.attr('attackSpeed') * 1000;
+        
+        } else {
+        
+            cooldown = this.cooldown;
+        
+        }
+    
+        return cooldown == 0 ? 1 : Math.min(1, (+new Date() - this.ts) / cooldown); 
+    
+    };
+    
+    /*
+    ** resets the cooldown
+    */
+    this.resetCooldown = function() {
+    
+        this.ts = 0;
+    
+    }
 
 }; 
 
@@ -36,6 +87,9 @@ JRPG.Skills = {
             result: result, 
             ts: +new Date(), 
         });
+        
+        // remove
+        JRPG.UI.log('attack', src.name + ' attacks ' + target.name + ' for ' + damage.damage + ' damage' + (damage.rank == 1 ? ' (critical)' : (damage.rank == 2 ? ' (crushing blow)' : '')));
         
         return id;
     
@@ -102,7 +156,22 @@ JRPG.Skills = {
         
         });
    
-   },  
+   },
+   
+   /*
+   ** needle sends a projectile against the given target
+   */
+   needle: function(src) {
+   
+      return new JRPG.Skill('Needle', src, 500, function(target) {
+      
+          var projectile = new JRPG.Projectile('needle', this.src, target, this.speed, this.range, 40, 5);
+          
+          this.src.children.push(projectile);
+      
+      }, 0.5);
+   
+   },      
     
     /*
     ** fireball sends a projectile towards the target, 
@@ -138,7 +207,7 @@ JRPG.Skills = {
     */
     weaponPrimary: function(src) {
     
-        return new JRPG.Skill('WeaponPrimary', src, 0, function(target) {
+        return new JRPG.Skill('WeaponPrimary', src, 50, function(target) {
     
             var weapon = this.src.getWeapon();
             
@@ -164,7 +233,7 @@ JRPG.Skills = {
             
             }
         
-        });
+        }, 0, 'attackSpeed');
     
     }, 
     
@@ -199,7 +268,7 @@ JRPG.Skills = {
             
             }
         
-        });
+        }, 0, 'attackSpeed');
     
     }            
 

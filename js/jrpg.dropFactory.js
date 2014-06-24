@@ -10,7 +10,7 @@ JRPG.DropFactory = {
         
         if (type == "gold") {
         
-            amount = _.random(1, level * level * 5) * goldFind;
+            amount = _.random(1, level * level) * goldFind;
         
             return new JRPG.Gold(amount);
         

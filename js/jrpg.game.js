@@ -77,11 +77,20 @@ JRPG.Game = function(map) {
         
         if (range > 0) {
         
-            items = _.filter(this.stack, function(i) { return i.item && i.type == 'gold' && _dist(i.x, i.y, JRPG.hero.x, JRPG.hero.y) <= range; });
+            items = _.filter(this.stack, function(i) { 
+            
+                return !i.pickedUp && 
+                       i.item &&  
+                       i.type == 'gold' && 
+                       _dist(i.x, i.y, JRPG.hero.x, JRPG.hero.y) <= range; 
+            
+            });
             
             _.each(items, function(i, ind) {
             
                 JRPG.hero.pickUp(i.item);
+                
+                i.pickedUp = true;
                 
                 i.animation('now', new JRPG.LeapAnimation(i, 100, JRPG.hero.x, JRPG.hero.y - JRPG.hero.height / 2, 0.25, ind * 20), $.proxy(function(data) {
 
@@ -184,7 +193,7 @@ JRPG.Game = function(map) {
             position = _.find(map.positions, function(i) { return i.isDefault; });
         
         }
-        console.dir(position);
+
         if (position) {
         
             JRPG.hero.updatePosition(position.x, position.y);
@@ -285,7 +294,7 @@ JRPG.Game = function(map) {
                 var creatures = this.spawn(obj), 
                     i;
                 
-                //this.stack = this.stack.concat(creatures);
+                this.stack = this.stack.concat(creatures);
                     
                 break;
         
@@ -347,6 +356,7 @@ JRPG.Game = function(map) {
             droppedItem.height = 64;
             droppedItem.item = i;
             droppedItem.rank = i.rank;
+            droppedItem.pickedUp = false;
             
             // add a leap animation to the dropping item that plays
             // immediately
@@ -433,7 +443,7 @@ JRPG.Game = function(map) {
     
         // if the object is on the dark side we check if it 
         // touched the hero and if so, return the hero
-        if (obj.isEvil) {
+        if (obj.isEvil || (obj.owner && obj.owner.isEvil)) {
         
             hit = JRPG.hero.hitBox.test(obj) ? JRPG.hero : null;
         

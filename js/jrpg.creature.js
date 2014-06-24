@@ -114,7 +114,11 @@ JRPG.Creature = function(type, name, level, rank) {
     
     this.loop = function(ticks) {
     
-        this.creatureLoop(ticks);
+        if (!this.isDead()) {
+        
+            this.creatureLoop(ticks);
+        
+        }
     
     };
     

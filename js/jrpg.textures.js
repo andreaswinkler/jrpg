@@ -11,6 +11,8 @@ JRPG.Textures = {
 
     load: function(key, path, createMirrors, callback, args) {
     
+        console.log('load texture <' + key + '> from <' + path + '>. create mirrors: ' + (createMirrors ? 'yes' : 'no'));
+    
         var img = new Image();
         img.key = key;
         img.callback = callback;

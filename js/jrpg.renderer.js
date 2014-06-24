@@ -16,6 +16,8 @@ JRPG.Renderer = {
     
     showDroppedItemTooltips: false, 
 
+    messages: [], 
+
     init: function() {
     
         this.width = $(window).width(), 
@@ -30,7 +32,8 @@ JRPG.Renderer = {
         
         this.layers = {
             map: new JRPG.RenderLayer(this.width, this.height), 
-            objects: new JRPG.RenderLayer(this.width, this.height), 
+            objects: new JRPG.RenderLayer(this.width, this.height),
+            messages: new JRPG.RenderLayer(this.width, this.height),  
             info: new JRPG.RenderLayer(this.width, this.height)
         };
         
@@ -68,6 +71,9 @@ JRPG.Renderer = {
         // render the map objects
         _.each(stack, this.renderObject, this);
         
+        // render doged/damage info
+        this.renderMessages();
+        
         // optionally, render tooltips of dropped items
         this.layers.info.clear();
 
@@ -77,7 +83,52 @@ JRPG.Renderer = {
         
         }
     
-    },
+    }, 
+    
+    write: function(type, value, src) {
+    
+        var color = '255,255,255', 
+            local = this.toLocal(src.x, src.y);
+        
+        switch (type) {
+        
+            case 'damage-1': 
+            
+                color = '234,139,26';
+            
+                break;
+            
+            case 'damage-2':
+            
+                color = '234,60,26';
+                
+                break;
+        
+        }
+    
+        this.messages.push({ color: color, text: value, x: local.x, y: local.y - 100, ts: +new Date() });
+    
+    }, 
+    
+    renderMessages: function() {
+    
+        this.layers.messages.clear();
+        
+        _.each(this.messages, function(i) {
+        
+            var time = +new Date() - i.ts;
+        
+            this.layers.messages.text(i.x, i.y - (time / 2000 * 500), i.text, 'rgba(' + i.color + ',' + (1 - time / 2000) + ')');
+        
+            if (time > 2000) {
+            
+                this.messages.remove(i);
+            
+            }
+        
+        }, this);
+    
+    }, 
     
     renderTooltips: function(list) {
         
@@ -178,10 +229,10 @@ JRPG.Renderer = {
             x = local.x - obj.width / 2, 
             y = local.y - obj.height, 
             texture = obj.equipment && obj.equipment != null ? obj.type + '_complete' : obj.type, 
-            textureRow = obj.rotation ? this.rotationToTextureRow(obj.rotation) : 0, 
+            textureRow = obj.tsDeath > 0 ? 5 : (!(obj instanceof JRPG.Projectile) && obj.rotation ? this.rotationToTextureRow(obj.rotation) : 0), 
             sy = textureRow * obj.height, 
             col = 0, 
-            animation, result, sx, l;
+            animation, result, sx, l, lifeCurrent, lifeTotal;
         
         if (obj.item) {
         
@@ -212,7 +263,7 @@ JRPG.Renderer = {
             }
         
         }
-        
+
         sx = col * obj.width;
         
         // check if we have texture for this object so we can render it
@@ -224,15 +275,26 @@ JRPG.Renderer = {
         // otherwise we lazy-load the texture
         else {
         
-            JRPG.Textures.load(texture, 'tex/' + texture + '.png', false);
+            JRPG.Textures.load(texture, 'tex/' + texture + '.png', obj instanceof JRPG.Creature);
         
         }
         
-        if (obj.type != 'hero') {
+        if (obj.type != 'hero' && !(obj instanceof JRPG.Projectile) && obj.tsDeath == 0) {
         
             this.drawHitArea(obj, x, y);
         
         }
+        
+        if (obj instanceof JRPG.Creature && obj.tsDeath == 0) {
+        
+            lifeCurrent = obj.attr('life-current');
+            lifeTotal = obj.attr('life');
+        
+            l.bar(local.x - 50, y, 100, 10, lifeCurrent / lifeTotal, 'rgba(0,0,0,0.75)', 'rgba(200,0,0,1)', Math.floor(lifeCurrent) + '/' + Math.floor(lifeTotal), 'Arial 6px', '#fff');
+        
+        }
+        
+        _.each(obj.children, this.renderObject, this);
     
     }, 
     
@@ -243,7 +305,7 @@ JRPG.Renderer = {
         this.hitAreas.rect(x, y, obj.width, obj.height, 'rgba(' + rgb.red + ',' + rgb.green + ',' + rgb.blue + ',1');
         
     }, 
-    
+
     objectAtPosition: function(x, y) {
     
         if (this.hitAreas == null) {

@@ -162,8 +162,9 @@ JRPG.UI.ItemTooltip = function(item, equipped) {
     this.item = item;
     this.equipped = equipped;
     this.title = equipped ? 'Equipped' : '';
-    
+
     this.e = null;
+    this.eStatRollRangeInfo = null;
     
     this.modifier = function(key, value) {
     
@@ -295,7 +296,7 @@ JRPG.UI.ItemTooltip = function(item, equipped) {
         
         _.each(this.item.modifiers, function(value, key) {
         
-            s += this.modifier(key, value) + '<br />';
+            s += this.modifier(key, value) + '<span class="statRollRangeInfo hidden"> ' + this.statRollRangeInfo(key) + '</span><br />';
         
         }, this);
         
@@ -336,14 +337,47 @@ JRPG.UI.ItemTooltip = function(item, equipped) {
         s += '</div>';
     
         this.e = $(s);
+        this.eStatRollRangeInfo = this.e.find('.statRollRangeInfo');
         
         $('#jrpg_ui').append(this.e);
+    
+    };
+    
+    this.statRollRangeInfo = function(key) {
+    
+        var d = JRPG.Item.data[this.item.baseType], 
+            affixes = [].concat(d.prefixes).concat(d.suffixes), 
+            affix;
+        
+        _.each(affixes, function(i) {
+            
+            _.each(i.modifiers, function(v, k) {
+            
+                if (k == key) {
+                
+                    affix = v;
+                
+                }
+            
+            });
+        
+        });
+        
+        if (affix) {
+        
+            return '[' + affix[0] + '-' + affix[1] + ']';
+        
+        }
+    
+        return '';
     
     };
     
     this.hide = function() {
     
         this.e.addClass('hidden');
+        
+        JRPG.UI.itemTooltips.remove(this);
     
     };
     
@@ -357,6 +391,14 @@ JRPG.UI.ItemTooltip = function(item, equipped) {
             .removeClass('ui-sell, ui-salvage, ui-normal, ui-repair')
             .addClass('ui-' + JRPG.UI.getMode())
             .removeClass('hidden');
+        
+        JRPG.UI.itemTooltips.push(this);
+    
+    };
+    
+    this.toggleStatRollRangeInfo = function() {
+    
+        this.eStatRollRangeInfo.toggleClass('hidden');
     
     };
     

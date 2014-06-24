@@ -72,6 +72,15 @@ JRPG.RenderLayer = function(width, height) {
     
     };
     
+    this.text = function(x, y, text, color, textStyle) {
+    
+        this.ctx.font = textStyle || 'italic 18px Arial';
+        
+        this.ctx.fillStyle = color;
+        this.ctx.fillText(text, x, y);    
+    
+    };
+    
     this.textbox = function(x, y, text, color, borderColor) {
     
         var w;
@@ -85,6 +94,23 @@ JRPG.RenderLayer = function(width, height) {
         this.ctx.fillStyle = borderColor;
         this.ctx.fillText(text, x, y + 12);
 
+    };
+    
+    this.bar = function(x, y, width, height, fillPercent, backgroundColor, foregroundColor, text, textStyle, textColor) {
+        
+        var w;
+        
+        this.rect(x, y, width, height, backgroundColor);
+        this.rect(x + 1, y + 1, fillPercent * (width - 2), height - 2, foregroundColor);
+    
+        if (text) {
+        
+            w = this.ctx.measureText(text).width;
+        
+            this.text(x + width / 2 - w / 2, y + 8, text, textColor, textStyle);
+        
+        }
+    
     };
       
 }

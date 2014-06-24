@@ -156,7 +156,8 @@ var JRPG = {
     loop: function() {
     
         var ts = +new Date(), 
-            ticks = ts - (this.tsLastLoop || +new Date());
+            ticks = ts - (this.tsLastLoop || +new Date()), 
+            timer;
     
         if (!this.game) {
         
@@ -164,11 +165,15 @@ var JRPG = {
         
         }
     
-        if (ticks >= 33.33) {
+        if (ticks >= 16.6) {
         
             this.tsLastLoop = ts;
     
+            timer = +new Date();
+    
             this.game.loop(ticks);
+            
+            this.ePerfGameLoop.html(+new Date() - timer);
         
             this.lastCalcTime = +new Date() - ts;
         
@@ -204,6 +209,8 @@ var JRPG = {
     }, 
     
     startGame: function() {
+    
+        this.ePerfGameLoop = $('#jrpg_perf .gameloop');
     
         // we should derive the map from somewhere (dropdown, hero)
         var mapId = 'baaaab';
@@ -363,6 +370,12 @@ function _dist(x1, y1, x2, y2) {
     }
 
     return Math.sqrt((x2 - x1) * (x2 - x1) + (y2 - y1) * (y2 - y1));    
+
+}
+
+function _inRange(obj1, obj2, range) {
+
+    return _dist(obj1.x, obj1.y, obj2.x, obj2.y) <= range;
 
 }
 

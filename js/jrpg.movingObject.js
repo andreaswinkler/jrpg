@@ -91,7 +91,11 @@ JRPG.MovingObject = function(type, name, level, speed) {
        
     this.loop = function(ticks) {
     
-        this.movingObjectLoop(ticks);
+        if (!this.isDead()) {
+        
+            this.movingObjectLoop(ticks);
+        
+        }
     
     };
     

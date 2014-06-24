@@ -35,7 +35,7 @@ JRPG.Object = function(type, name, level) {
     // the time of death
     this.tsDeath = 0;
     // the attack target
-    this.target = null;
+    this.aggroTarget = null;
     // the owner of this object if any
     this.owner = null;
     // a flag if the object is on the dark side
@@ -52,6 +52,8 @@ JRPG.Object = function(type, name, level) {
     this.initObject = function(type, name, level) {
     
         var data = JRPG.Object.data[type] || {};
+    
+        this.initEventHandler();
     
         this.id = JRPG.id();
         
@@ -229,9 +231,33 @@ JRPG.Object = function(type, name, level) {
     
     this.loop = function(ticks) {
     
-        this.objectLoop(ticks);
+        if (!this.isDead()) {
+        
+            this.objectLoop(ticks);
+        
+        }
     
     };
+    
+    this.isDead = function() {
+    
+        var ts = +new Date();
+        
+        if (this.tsDeath > 0) {
+        
+            if (ts - this.tsDeath > 10000) {
+        
+                this.remove();
+                
+            }    
+            
+            return true;
+        
+        }
+        
+        return false;
+    
+    }
         
     /*
     ** handle everything a static object does in a single frame
@@ -279,25 +305,37 @@ JRPG.Object = function(type, name, level) {
             }    
         
         } 
-        // if we don't have a target, let's find one
-        else if (this.isEvil && this.target == null) {
+        // we are evil creatures, let's try to kill something
+        else if (this.isEvil) {
         
-            // check the distance between us and the hero
-            if (_dist(this, JRPG.hero) < this.attr('aggroRange')) {
+            // we don't have a target yet, let's check if we see
+            // the hero
+            if (this.aggroTarget == null) {
+            
+                // check the distance between us and the hero
+                if (_dist(this, JRPG.hero) < this.attr('aggroRange')) {
                 
-                this.aggroTarget = JRPG.hero;
+                    this.aggroTarget = JRPG.hero;
                 
+                }    
+            
+            }
+            
+            // ok, we have a target, let's see if we can attack it
+            // or if we have to move towards it
+            if (this.aggroTarget) {
+            
                 attack = this.chooseAttack();
                 
                 if (this.targetInRange(attack)) {
-                    
-                    this.attack(this.aggroTarget, attack);
+                
+                    this.attack(this.aggroTarget, attack);    
                 
                 } else {
                 
                     this.approachTarget();
                 
-                }
+                }    
             
             }               
         
@@ -308,7 +346,7 @@ JRPG.Object = function(type, name, level) {
     };
     
     /*
-    ** use a skil
+    ** use a skill
     */    
     this.useSkill = function(skill, target) {
 
@@ -336,7 +374,7 @@ JRPG.Object = function(type, name, level) {
 
         return _dist(this, this.aggroTarget) < attack.range;
     
-    };
+    };    
     
     /*
     ** a target was found and now we check if it's close enough
@@ -360,8 +398,8 @@ JRPG.Object = function(type, name, level) {
               src: this
             }, 
             dmg = this.randomDamage(), 
-            critChance = this.attr('critChance'), 
-            crushingBlowChance = this.attr('crushingBlow'),  
+            critChance = this.attr('critChance') / 100, 
+            crushingBlowChance = this.attr('crushingBlow') / 100,  
             r = Math.random();
         
         if (r <= crushingBlowChance) {
@@ -434,7 +472,9 @@ JRPG.Object = function(type, name, level) {
         // apply dodge chance
         if (r <= this.attr('dodgeChance')) {
         
-            result.dodged = true;  
+            result.dodged = true;
+            
+            JRPG.Renderer.write('dodged', 'dodged', this);
         
         } 
         // the damage was not dodged
@@ -458,6 +498,8 @@ JRPG.Object = function(type, name, level) {
                 result.lethal = true;
             
             } 
+            
+            JRPG.Renderer.write('damage-' + damage.rank, result.damage.toFixed(1), this);
         
         } 
         

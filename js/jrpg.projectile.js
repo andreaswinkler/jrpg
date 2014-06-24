@@ -3,19 +3,22 @@
 **
 ** target can be either a creature/object or a position
 */
-JRPG.Projectile = function(type, src, target, speed, range) {
+JRPG.Projectile = function(type, src, target, speed, range, width, height) {
 
     this.startX = 0;
     this.startY = 0;
     this.range = 0;
 
-    this.initProjectile = function(type, src, target, speed, range) {
+    this.initProjectile = function(type, src, target, speed, range, width, height) {
     
         this.initMovingObject(type, type, 0, speed);
         
         this.range = range;
         this.startX = src.x;
         this.startY = src.y;
+        
+        this.width = width;
+        this.height = height;
         
         this.owner = src;
         this.attributes.flying = true;
@@ -52,11 +55,13 @@ JRPG.Projectile = function(type, src, target, speed, range) {
         else {
         
             hit = JRPG.game.hitTest(this);
-            
+
             // we hit something, let's apply some damage!
             if (hit) {
             
-                JRPG.Skills.applyDamage(this.type, this.owner, hit);        
+                JRPG.Skills.applyDamage(this.type, this.owner, hit);
+                
+                this.remove();        
             
             }        
         
@@ -70,7 +75,7 @@ JRPG.Projectile = function(type, src, target, speed, range) {
     
     };
     
-    this.initProjectile(type, src, target, speed, range);               
+    this.initProjectile(type, src, target, speed, range, width, height);               
 
 }
 JRPG.Projectile.prototype = new JRPG.MovingObject();
