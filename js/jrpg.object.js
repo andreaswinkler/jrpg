@@ -28,6 +28,8 @@ JRPG.Object = function(type, name, level) {
     this.level = 0;
     // the objects attributes
     this.attributes = null;
+    // the cached object attributes
+    this.attributesCache = null; 
     // objects spawned by this object
     this.children = null;
     // changing values like life, mana
@@ -64,6 +66,7 @@ JRPG.Object = function(type, name, level) {
         this.supertype = JRPG.Object.getSupertype(type);
         
         this.attributes = {};
+        this.attributesCache = {};
         this.children = [];
         
         this.currentAttributeValues = {};
@@ -161,15 +164,15 @@ JRPG.Object = function(type, name, level) {
     
     };
     
-    this.changeCurrentAttributeValue = function(key, amount) {
+    this.changeCurrentAttributeValue = function(key, amount) { 
     
         if (amount < 0) {
         
-            this.attr(key + '-current', Math.max(0, this.attr(key + '-current') + amount));
+            this.currentAttributeValues[key] = Math.max(0, this.currentAttributeValues[key] + amount);
         
         } else {
         
-            this.attr(key + '-current', Math.min(this.attr(key), this.attr(key + '-current') + amount));
+            this.currentAttributeValues[key] = Math.min(this.attr(key), this.currentAttributeValues[key] + amount);
         
         }
     
@@ -177,7 +180,7 @@ JRPG.Object = function(type, name, level) {
     
     this.addLife = function(amount) {
     
-        var amount = amount || this.attr('life');
+        var amount = amount == undefined ? this.attr('life') : amount;
     
         this.changeCurrentAttributeValue('life', amount);
     
@@ -206,7 +209,7 @@ JRPG.Object = function(type, name, level) {
     
     this.addMana = function(amount) {
     
-        var amount = amount || this.attr('mana');
+        var amount = amount == undefined ? this.attr('mana') : amount;
     
         this.changeCurrentAttributeValue('mana', amount);    
     
@@ -265,7 +268,13 @@ JRPG.Object = function(type, name, level) {
     this.objectLoop = function(ticks) {
     
         var ts = +new Date(),
+            seconds = ticks / 1000, 
+            lifeGain = this.attr('lifePerSecond') * seconds, 
+            manaGain = this.attr('manaPerSecond') * seconds, 
             attack;
+    
+        this.addLife(lifeGain);
+        this.addMana(manaGain);
     
         if (this.channeling) {
         
@@ -304,10 +313,28 @@ JRPG.Object = function(type, name, level) {
             
             }    
         
-        } 
-        // we are evil creatures, let's try to kill something
-        else if (this.isEvil) {
+        } else {
         
+            // what to do?
+            this.decideOnNextAction();
+        
+        }
+        
+        _.invoke(this.children, 'loop', ticks);
+    
+    };
+    
+    this.decideOnNextAction = function() {
+    
+        var fleeRange, position;
+    
+        // the hero is controlled by the player
+        // all other creatures make their decisions on their own
+        if (!this.isHero) {
+        
+            // options: remain idle, walk somewhere, attack, approach a target, 
+            // flee from an attacker, ...
+            
             // we don't have a target yet, let's check if we see
             // the hero
             if (this.aggroTarget == null) {
@@ -321,27 +348,39 @@ JRPG.Object = function(type, name, level) {
             
             }
             
-            // ok, we have a target, let's see if we can attack it
-            // or if we have to move towards it
-            if (this.aggroTarget) {
+            fleeRange = this.attr('fleeRange');
             
-                attack = this.chooseAttack();
-                
-                if (this.targetInRange(attack)) {
-                
-                    this.attack(this.aggroTarget, attack);    
-                
-                } else {
-                
-                    this.approachTarget();
-                
-                }    
+            // we are too close to the hero, let's find a more
+            // comfortable place (somewhere in attack range)
+            if (fleeRange > 0 && _inRange(this, JRPG.hero, fleeRange)) {
             
-            }               
-        
+                position = _randomPositionAwayFrom(this.x, this.y, JRPG.hero.x, JRPG.hero.y, fleeRange, fleeRange + 500);
+
+                this.moveTo(position.x, position.y);      
+            
+            } else {
+            
+                // ok, we have a target, let's see if we can attack it
+                // or if we have to move towards it
+                if (this.aggroTarget) {
+                
+                    attack = this.chooseAttack();
+                    
+                    if (this.targetInRange(attack)) {
+                    
+                        this.attack(this.aggroTarget, attack);    
+                    
+                    } else {
+                    
+                        this.approachTarget();
+                    
+                    }    
+                
+                } 
+            
+            } 
+                    
         }
-        
-        _.invoke(this.children, 'loop', ticks);
     
     };
     
@@ -489,7 +528,7 @@ JRPG.Object = function(type, name, level) {
             }
             
             // apply reduction by armor
-            dmg -= this.attr('armor');
+            dmg -= dmg * this.damageReductionByArmor(damage.src.level);
             
             result.damage = dmg;
             
@@ -506,6 +545,21 @@ JRPG.Object = function(type, name, level) {
         return result;     
     
     };   
+    
+    /*
+    ** returns the current damage reduction from armor based on 
+    ** equipped items and the source of the incoming attack    
+    */    
+    this.damageReductionByArmor = function(damageSourceLevel) {
+    
+        var armor = this.attr('armor'), 
+            damageReduction = armor / (armor + 50 * damageSourceLevel);
+        
+        //console.log('damage reduction by armor (armor: ' + armor + ', srclvl: ' + damageSourceLevel + '): ' + (damageReduction * 100) + '%');
+        
+        return damageReduction;
+    
+    }    
     
     /*
     ** returns the display name of the object or creature
@@ -530,6 +584,12 @@ JRPG.Object = function(type, name, level) {
     
         // the value is not set so we want to GET the value
         if (value == undefined) {
+        
+            if (this.attributesCache[key] && this.attributesCache[key] != null) {
+            
+                return this.attributesCache[key];
+            
+            }
         
             // first let's check if we're asked for the current value of the
             // attribute
@@ -581,12 +641,14 @@ JRPG.Object = function(type, name, level) {
             
             }
             
+            this.attributesCache[key] = value;
+            
             return value;
         
         } 
         // we have a value, let's SET the attribute to this value
         else {
-        
+            
             // first let's check if we're asked to set the current value
             // of the attribute
             if (key.indexOf('-current') != -1) {
@@ -598,6 +660,8 @@ JRPG.Object = function(type, name, level) {
                 this.attributes[key] = value;
             
             }
+            
+            this.attributesCache[key] = null;
             
             this.emit('attributeChanged', { key: key, value: value });
             this.emit('attributeChanged_' + key, { value: value });

@@ -6,6 +6,10 @@ JRPG.MovingObject = function(type, name, level, speed) {
     // move vector and is used to guide creatures away
     // from each other
     this.drift = null;
+    
+    // has the object changed its position since 
+    // the last frame?
+    this.hasMoved = false;
 
     this.initMovingObject = function(type, name, level, speed) {
     
@@ -16,6 +20,8 @@ JRPG.MovingObject = function(type, name, level, speed) {
         this.initCurrentAttributeValue('speed');
         
         this.drift = { x: 0, y: 0 };  
+        
+        this.hasMoved = false;
     
     };
 
@@ -70,6 +76,8 @@ JRPG.MovingObject = function(type, name, level, speed) {
     this.movingObjectLoop = function(ticks) {
     
         this.objectLoop(ticks);
+        
+        this.hasMoved = false;
         
         // first let's check for a target
         if (this.target) {
@@ -163,6 +171,8 @@ JRPG.MovingObject = function(type, name, level, speed) {
             if (JRPG.game.map.canMoveTo(this, newX, newY)) {
         
                 this.updatePosition(newX, newY); 
+                
+                this.hasMoved = true;
                         
                 if (this.reachedTarget()) {
                 

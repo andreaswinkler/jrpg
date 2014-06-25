@@ -9,7 +9,7 @@ JRPG.Renderer = {
     
     layers: {},
     
-    hitAreas: null, 
+    hitAreasList: [],
 
     width: 0, 
     height: 0, 
@@ -17,6 +17,8 @@ JRPG.Renderer = {
     showDroppedItemTooltips: false, 
 
     messages: [], 
+    
+    mapRendered: false, 
 
     init: function() {
     
@@ -43,30 +45,32 @@ JRPG.Renderer = {
             $('#jrpg_game').append(i.e);    
         
         });
-        
-        this.hitAreas = new JRPG.RenderLayer(this.width, this.height);
     
     }, 
 
     update: function(map, stack) {
     
-        // reset the local root based on the current 
-        // character position
-        // it's always the hero position minus half the screen 
-        // width and height, as long as we don't implement a borderless
-        // map rendering
-        this.localRoot = { 
-            x: JRPG.hero.x - this.width / 2, 
-            y: JRPG.hero.y - this.height / 2
-        };
-    
-        // render the map centered around the hero
-        this.renderMap(map, JRPG.hero.x, JRPG.hero.y);
+        if (!this.mapRendered || JRPG.hero.hasMoved) {
+        
+            // reset the local root based on the current 
+            // character position
+            // it's always the hero position minus half the screen 
+            // width and height, as long as we don't implement a borderless
+            // map rendering
+            this.localRoot = { 
+                x: JRPG.hero.x - this.width / 2, 
+                y: JRPG.hero.y - this.height / 2
+            };
+        
+            // render the map centered around the hero
+            this.renderMap(map, JRPG.hero.x, JRPG.hero.y);
+        
+        }
         
         // clear the objects layer
         this.layers.objects.clear();
         // clear the hit areas
-        this.hitAreas.clear();
+        this.hitAreasList = [];
         
         // render the map objects
         _.each(stack, this.renderObject, this);
@@ -300,26 +304,28 @@ JRPG.Renderer = {
     
     drawHitArea: function(obj, x, y) {
     
-        var rgb = _int2Rgb(obj.id);
-    
-        this.hitAreas.rect(x, y, obj.width, obj.height, 'rgba(' + rgb.red + ',' + rgb.green + ',' + rgb.blue + ',1');
+        this.hitAreasList.push([x, y, x + obj.width, y + obj.height, obj.id]);
         
     }, 
 
     objectAtPosition: function(x, y) {
     
-        if (this.hitAreas == null) {
+        var id = 0;
+    
+        for (var i = 0; i < this.hitAreasList.length; i++) {
         
-            return null;
+            if (x >= this.hitAreasList[i][0] && x <= this.hitAreasList[i][2] && y >= this.hitAreasList[i][1] && y <= this.hitAreasList[i][3]) {
+            
+                id = this.hitAreasList[i][4];
+                break;
+            
+            }    
         
         }
         
-        var p = this.hitAreas.pixel(x, y), 
-            uid = _rgb2Int(p[0], p[1], p[2]);
+        if (id > 0) {
         
-        if (uid > 0) {
-        
-            return _.find(JRPG.game.stack, function(i) { return i.id == uid; });
+            return _.find(JRPG.game.stack, function(i) { return i.id == id; });
         
         }
         

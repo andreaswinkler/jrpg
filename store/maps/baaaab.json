@@ -1,7 +1,7 @@
-{"id":"baaaab","name":"Playground","theme":"grassland","size":"small","level":3,"width":100,"height":100,
+{"id":"baaaab","name":"Playground","theme":"grassland","size":"small","level":1,"width":100,"height":100,
 "objects":[
   {"type":"spawnpoint",
-  "settings":{"amount":2,"type":"hystrix"},"x":2000,"y":2000}
+  "settings":{"amount":4,"type":"hystrix"},"x":2000,"y":2000}
 ],"positions":[
   {"isDefault":true,"x":1000,"y":1000}
 ]}

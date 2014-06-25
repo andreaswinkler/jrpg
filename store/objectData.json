@@ -1,4 +1,4 @@
-{"hero":{"name":"The Hero","width":300,"height":300,"speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10}, 
+{"hero":{"name":"The Hero","width":300,"height":300,"speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10,"lifePerSecond":1, "manaPerSecond":1}, 
     "skills": ["weaponPrimary","weaponSecondary","fireball"],
     "levels": [0, 100, 300, 900, 2700, 8100, 24300]
     },
@@ -17,19 +17,20 @@
         "name": "Hystrix",
         "width": 96,
         "height": 90,  
-        "speed": 0.3,
+        "speed": 0.1,
         "skills": ["needle"],  
         "attributes": {
-            "life": 10, 
-            "mana": 10,  
-            "aggroRange": 700, 
-            "attackRange": 100, 
-            "attackSpeed": 0.05, 
+            "life": 5, 
+            "mana": 5,  
+            "aggroRange": 1000, 
+            "attackRange": 500, 
+            "attackSpeed": 0.25, 
             "minDmg": 1, 
             "maxDmg": 2, 
             "critChance": 0, 
             "crushingBlowChance": 0, 
-            "critDmg": 1
+            "critDmg": 1,
+            "fleeRange": 200
         }
     },
     "chest": {

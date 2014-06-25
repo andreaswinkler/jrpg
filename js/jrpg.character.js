@@ -179,13 +179,13 @@ JRPG.Character = function(type, name, level) {
     
         if (item instanceof JRPG.Gold) {
         
-            JRPG.UI.log('pickup', 'Hero picks up ' + item.amount + ' gold');
+            JRPG.UI.log('pickup', '<b>Hero</b> picks up <b>' + item.amount + '</b> gold');
         
             this.addGold(item.amount);
         
         } else {
         
-            JRPG.UI.log('pickup', 'Hero picks up ' + item.name);
+            JRPG.UI.log('pickup', '<b>Hero</b> picks up <b>' + item.name + '</b>');
         
             this.inventories.main.addItem(item);
         

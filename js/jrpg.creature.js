@@ -10,6 +10,7 @@ JRPG.Creature = function(type, name, level, rank) {
         // load creature's base settings
         var data = JRPG.Object.data[type] || {}, 
             speed = data.speed || 0, 
+            attributesAffectedByLevelMultiplier = ['life', 'mana', 'minDmg', 'maxDmg'],  
             equipmentItems;
         
         // initialize the moving object base type
@@ -38,8 +39,12 @@ JRPG.Creature = function(type, name, level, rank) {
         
             var levelMultiplier = 2;
         
-            value = value + value * (this.level - 1) * levelMultiplier; 
+            if (attributesAffectedByLevelMultiplier.indexOf(key) != -1) {
         
+                value = value + value * (this.level - 1) * levelMultiplier; 
+            
+            }
+            
             this.attr(key, value);
         
         }, this);

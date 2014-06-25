@@ -88,8 +88,14 @@ JRPG.Skills = {
             ts: +new Date(), 
         });
         
-        // remove
-        JRPG.UI.log('attack', src.name + ' attacks ' + target.name + ' for ' + damage.damage + ' damage' + (damage.rank == 1 ? ' (critical)' : (damage.rank == 2 ? ' (crushing blow)' : '')));
+        // remove        
+        JRPG.UI.log('attack', '<b>' + src.name + '</b> attacks <b>' + target.name + '</b> for <b>' + damage.damage + '</b> damage' + (damage.rank == 1 ? ' (critical)' : (damage.rank == 2 ? ' (crushing blow)' : '')));
+        
+        if (result.lethal) {
+        
+            JRPG.UI.log('kill', '<b>' + src.name + '</b> killed <b>' + target.name + '</b> with <b>' + skill + '</b>');
+        
+        }
         
         return id;
     

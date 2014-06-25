@@ -165,7 +165,7 @@ var JRPG = {
         
         }
     
-        if (ticks >= 16.6) {
+        if (ticks >= 25) {
         
             this.tsLastLoop = ts;
     
@@ -181,7 +181,7 @@ var JRPG = {
         
             if (this.game.active) {
             
-                this.rAF.call(window, $.proxy(this.loop, this));
+                this.rAF.call(window, function() { JRPG.loop(); }); //this.rAF.apply(this, this.loop); //call(window, $.proxy(this.loop, this));
             
             }
         
@@ -193,7 +193,7 @@ var JRPG = {
             
             }
         
-            this.rAF.call(window, $.proxy(this.loop, this));    
+            this.rAF.call(window, function() { JRPG.loop(); });
         
         }
     
@@ -401,6 +401,20 @@ function _randomPositionAround(x, y, maxDistance, minDistance) {
     } while (cnt < 1000 && (dist > maxDistance || dist < minDistance));
     
     return { x: x2, y: y2 };
+
+}
+
+function _randomPositionAwayFrom(x, y, avoidX, avoidY, minDistance, maxDistance) {
+
+    var nv = _normalVector(avoidY, avoidY, x, y),
+        distance = _dist(x, y, avoidX, avoidY),  
+        newDistance = _random(minDistance, maxDistance), 
+        diff = Math.max(0, newDistance - distance);
+    
+    return { 
+        x: x + nv.x * diff, 
+        y: y + nv.y * diff
+    };    
 
 }
 
