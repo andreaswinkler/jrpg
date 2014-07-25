@@ -1,8 +1,9 @@
-{"hero":{"name":"The Hero","width":300,"height":300,"speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10,"lifePerSecond":1, "manaPerSecond":1}, 
+{"hero": {
+    "name": "The Hero", "width":300,"height":300,"speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10,"lifePerSecond":1, "manaPerSecond":1}, 
     "skills": ["weaponPrimary","weaponSecondary","fireball"],
     "levels": [0, 100, 300, 900, 2700, 8100, 24300]
     },
-    "blacksmith": {
+  "blacksmith": {
         "name": "Blacksmith", 
         "levels": [0, 5, 10, 15, 20, 25, 30, 35, 40], 
         "upgradeCosts": [
@@ -12,35 +13,49 @@
             { "gold": 300 }, 
             { "gold": 500 }
         ]
-    },  
+    }, 
     "hystrix": {
-        "name": "Hystrix",
-        "width": 96,
-        "height": 90,  
-        "speed": 0.1,
-        "skills": ["needle"],  
-        "attributes": {
-            "life": 5, 
-            "mana": 5,  
-            "aggroRange": 1000, 
-            "attackRange": 500, 
-            "attackSpeed": 0.25, 
-            "minDmg": 1, 
-            "maxDmg": 2, 
-            "critChance": 0, 
-            "crushingBlowChance": 0, 
-            "critDmg": 1,
-            "fleeRange": 200
-        }
-    },
+      "name": "Hystrix",
+      "width": 96,
+      "height": 90, 
+      "type": "hystrix",  
+      "MoveComponent": { "speed": 0.1 }, 
+      "ManaComponent": { "total": 5 }, 
+      "HealthComponent": { "total": 5 }, 
+      "DamageComponent": { "minimumDamage": 1, "maximumDamage": 2 }, 
+      "AggroComponent": { "range": 1000 }, 
+      "BehaviorComponentFleeOnHit": { "range": 200 }, 
+      "AbilitiesComponent": { 
+        "speed": 0.25, 
+        "abilities": [
+            { "key": "single_projectile", "type": "projectile_hystrixneedle", "manaCost": 1, "range": 1000, "DamageComponent": { "multiplier": 0.75 }, "cooldown": 4000 }
+        ]
+      }
+    },   
     "chest": {
+        "type": "chest",
         "name": "Chest", 
         "width": 70,
         "height": 74
     }, 
     "grandchest": {
+        "type": "grandchest",
         "name": "Grand Chest", 
         "width": 90,
         "height": 97
+    },
+    "arenashrine": {
+        "name": "Arena Shrine",
+        "width": 90,
+        "height": 200,
+        "ClickBehaviorComponent": { "key": "startCurrentArena" }
+    },
+    "projectile_hystrixneedle": {
+        "name": "Hystrix Needle",
+        "width": 40,
+        "height": 15,
+        "MoveComponent": { "speed": 1, "range": 1000 },
+        "DamageComponent": { },
+        "HitTestComponent": { "types": ["hero"], "behaviors": ["applyDamage", "remove"] }
     }
 }

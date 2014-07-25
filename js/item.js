@@ -148,7 +148,7 @@ var Item = function(type, level, rank) {
     
     };  
 
-    var data = JRPG.Item.data[type] || {};
+    var data = Item.data[type] || {};
 
     // the owner of the item
     this.owner = null;
@@ -163,7 +163,7 @@ var Item = function(type, level, rank) {
     this.level = level;
     
     // the current jrpg version when the item is created
-    this.version = JRPG.version;
+    this.version = version;
     
     // the base type of the item (e.g. weapon, chestarmor, ruby, etc)
     this.baseType = data.baseType || 'unknown';
@@ -181,7 +181,7 @@ var Item = function(type, level, rank) {
     this.durability = data.durability != -1 ? _.random(8, 10) : -1;
     
     // the base attributes of the item (damage, armor)
-    this.attributes = JRPG.Item.attributesFromData(data);
+    this.attributes = Item.attributesFromData(data);
     
     // the modifiers of the item
     this.modifiers = data.modifiers || {}; 
@@ -208,7 +208,7 @@ var Item = function(type, level, rank) {
     
     // we want a legendary or set so we need to check if one exists for this 
     // type at all, if not we reduce the item rank to rare
-    if (this.rank == JRPG.Item.Rank.LEGENDARY) {
+    if (this.rank == Item.Rank.LEGENDARY) {
     
         var legendaries = data.legendaries ? data.legendaries.filter($.proxy(function(i) { return this.level >= i.minLevel; }, this)) : [];
     
@@ -222,13 +222,13 @@ var Item = function(type, level, rank) {
         
         } else {
         
-            this.rank = JRPG.Item.Rank.SET;
+            this.rank = Item.Rank.SET;
         
         }        
     
     }
     
-    if (this.rank == JRPG.Item.Rank.SET) {
+    if (this.rank == Item.Rank.SET) {
     
         var setPieces = data.setPieces ? data.setPieces.filter($.proxy(function(i) { return this.level >= i.minLevel; }, this)) : [];
         
@@ -243,7 +243,7 @@ var Item = function(type, level, rank) {
         
         } else {
         
-            this.rank = JRPG.Item.Rank.RARE;
+            this.rank = Item.Rank.RARE;
         
         }
     
@@ -252,37 +252,37 @@ var Item = function(type, level, rank) {
     // modify the item based on the rank
     switch (this.rank) {
     
-        case JRPG.Item.Rank.MAGIC: 
+        case Item.Rank.MAGIC: 
         
             var preOrSuffix = _.random(1, 3);
             
             // if we have a prefix or prefix AND suffix
             if (preOrSuffix == 1 || preOrSuffix == 3) {
             
-                JRPG.Item.addPrefix(this);
+                Item.addPrefix(this);
             
             }
             
             // if we have suffix or prefix AND suffix
             if (preOrSuffix == 2 || preOrSuffix == 3) {
             
-                JRPG.Item.addSuffix(this);
+                Item.addSuffix(this);
             
             }
         
             break;
         
-        case JRPG.Item.Rank.RARE:
+        case Item.Rank.RARE:
         
             var amount = _.random(3, 5);
             
-            JRPG.Item.addPreSuffixes(this, amount);
+            Item.addPreSuffixes(this, amount);
         
-            this.name = JRPG.Item.data[this.baseType].rareNames1.random() + ' ' + JRPG.Item.data[this.baseType].rareNames2.random();
+            this.name = Item.data[this.baseType].rareNames1.random() + ' ' + Item.data[this.baseType].rareNames2.random();
         
             break;
         
-        case JRPG.Item.Rank.NORMAL:
+        case Item.Rank.NORMAL:
         
             // some normal items have a chance to be etheral
             // which increases their base attributes
@@ -309,7 +309,7 @@ var Item = function(type, level, rank) {
 
 }
 
-JRPG.Item.Rank = {
+Item.Rank = {
 
     NORMAL: 0, 
     MAGIC: 1,
@@ -320,7 +320,7 @@ JRPG.Item.Rank = {
 
 }
 
-JRPG.Item.attributesFromData = function(data) {
+Item.attributesFromData = function(data) {
 
     var attributes = {}, 
         attrib, v;
@@ -341,9 +341,9 @@ JRPG.Item.attributesFromData = function(data) {
 
 }
 
-JRPG.Item.preSuffixesByLevel = function(itemBaseType, itemLevel, prefixes, suffixes) {
+Item.preSuffixesByLevel = function(itemBaseType, itemLevel, prefixes, suffixes) {
 
-    var d = JRPG.Item.data[itemBaseType], 
+    var d = Item.data[itemBaseType], 
         i, fix, list = [], src = [];
 
     if (d) {
@@ -378,9 +378,9 @@ JRPG.Item.preSuffixesByLevel = function(itemBaseType, itemLevel, prefixes, suffi
 
 }
 
-JRPG.Item.addPrefix = function(item) {
+Item.addPrefix = function(item) {
 
-    var prefix = JRPG.Item.preSuffixesByLevel(item.baseType, item.level, true, false).random();
+    var prefix = Item.preSuffixesByLevel(item.baseType, item.level, true, false).random();
     
     if (prefix != null) {
     
@@ -392,9 +392,9 @@ JRPG.Item.addPrefix = function(item) {
 
 }
 
-JRPG.Item.addSuffix = function(item) {
+Item.addSuffix = function(item) {
 
-    var suffix = JRPG.Item.preSuffixesByLevel(item.baseType, item.level, false, true).random();
+    var suffix = Item.preSuffixesByLevel(item.baseType, item.level, false, true).random();
     
     if (suffix != null) {
     
@@ -406,9 +406,9 @@ JRPG.Item.addSuffix = function(item) {
 
 }
 
-JRPG.Item.addPreSuffixes = function(item, amount) {
+Item.addPreSuffixes = function(item, amount) {
 
-    var preSuffixes = JRPG.Item.preSuffixesByLevel(item.baseType, item.level, true, true).random(amount), 
+    var preSuffixes = Item.preSuffixesByLevel(item.baseType, item.level, true, true).random(amount), 
         i;
     
     if (preSuffixes) {
@@ -423,4 +423,4 @@ JRPG.Item.addPreSuffixes = function(item, amount) {
 
 }
 
-JRPG.Item.data = null;
+Item.data = null;

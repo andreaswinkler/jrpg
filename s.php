@@ -116,9 +116,9 @@ switch ($_REQUEST["service"]) {
         $map = json_decode(_read("store/maps", $_POST["id"]));
     
         $map->positions = array((object)array("isDefault" => true, "x" => 1000, "y" => 1000));
-        $map->objects[] = (object)array("type" => "chest", "x" => 800, "y" => 800);
-        $map->objects[] = (object)array("type" => "chest", "x" => 1200, "y" => 1200);
-        $map->objects[] = (object)array("type" => "grandchest", "x" => 800, "y" => 1200);
+        $map->objects[] = (object)array("type" => "lootable", "settings" => (object)array("type" => "chest", "x" => 800, "y" => 800));
+        $map->objects[] = (object)array("type" => "lootable", "settings" => (object)array("type" => "chest", "x" => 1200, "y" => 1200));
+        $map->objects[] = (object)array("type" => "lootable", "settings" => (object)array("type" => "grandchest", "x" => 800, "y" => 1200));
         
         echo json_encode($map);
 
@@ -127,6 +127,21 @@ switch ($_REQUEST["service"]) {
     case "objectData.load":
     
         echo _read("store", "objectData");
+    
+        break;
+    
+    case "user.load":
+    
+        $user = (object)array(
+            "gold" => 100, 
+            "strength" => 20, 
+            "dexterity" => 20, 
+            "vitality" => 20, 
+            "intelligence" => 20, 
+            "experience" => 0
+        );
+        
+        echo json_encode($user);
     
         break;
     

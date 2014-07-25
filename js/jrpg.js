@@ -1,5 +1,189 @@
 var JRPG = {
 
+    version: 'alpha-1.1',
+    
+    // the logged in user
+    user: null, 
+
+    // timestamp of last loop
+    tsLastLoop: undefined, 
+    
+    // the request animation frame object
+    rAF: window.requestAnimationFrame || 
+         window.mozRequestAnimationFrame || 
+         window.webkitRequestAnimationFrame || 
+         window.msRequestAnimationFrame, 
+    
+    // make a json post request to the s gateway
+    request: function(key, data, success, context) {
+    
+        data.service = key;
+        
+        $.post('s.php?' + Math.random(), data, $.proxy(success, context), 'json').fail(function(t) {
+        
+            console.error('call <' + key + '> failed.'); 
+            console.dir(t);
+        
+        }); 
+            
+    
+    }, 
+    
+    // load all necessary stuff
+    load: function(success) {
+    
+        console.log('JRPG version <' + this.version + '>');
+
+        JRPG.request('itemTypes.list', {}, function(data) {
+        
+            Item.data = data;
+            
+            JRPG.request('dropTables.list', {}, function(data) {
+            
+                DropSystem.dropTables = data;
+                
+                JRPG.request('objectData.load', {}, function(data) {
+                
+                    EntityManager.blueprints = data;
+                    
+                    JRPG.request('user.load', { id: 1 }, function(data) {
+                    
+                        EntityManager.createHero(data);
+                        
+                        success();
+                    
+                    });
+                
+                });
+            
+            });
+        
+        });
+    
+    }, 
+    
+    // the game loop
+    loop: function() {
+    
+        var ts = +new Date(), 
+            ticks = ts - (this.tsLastLoop || +new Date());
+    
+        if (!Game.active) {
+        
+            return;
+        
+        }
+    
+        if (ticks >= 25) {
+        
+            this.tsLastLoop = ts;
+    
+            Game.loop(ticks);
+            
+            if (Game.active) {
+            
+                this.rAF.call(window, function() { JRPG.loop(); });
+            
+            }
+        
+        } else {
+        
+            if (!this.tsLastLoop) {
+            
+                this.tsLastLoop = +new Date();
+            
+            }
+        
+            this.rAF.call(window, function() { JRPG.loop(); });
+        
+        }
+    
+    },
+    
+    // restarts the game after the game was paused
+    restartGame: function() {
+    
+        Game.active = true;
+        
+        this.loop();
+    
+    }, 
+    
+    // start the game
+    startGame: function() {
+    
+        this.load($.proxy(function() {
+    
+            // derive from somewhere
+            var mapId = 'baaaab';
+        
+            Game.loadMap(mapId, $.proxy(function() {
+            
+                this.restartGame();
+            
+                EventManager.publish('gameStarted', this);    
+            
+            }, this));
+        
+        }, this));
+
+    }
+    
+}
+
+/*
+
+// TODO: load hero from somewhere
+                    JRPG.hero = new JRPG.Character('hero', 'Hero', 1);
+                    JRPG.hero.animation('move', new JRPG.Animation(JRPG.hero, 0, 0, 7, 'auto', true));
+                    
+                    ///lets give the hero a sword and shield to see
+                    what happens //
+                    JRPG.hero.equip(JRPG.DropFactory.createItem('smallsword', 1, 0, 0)); 
+                    JRPG.hero.equip(JRPG.DropFactory.createItem('smallshield', 1, 0, 0));
+
+                    // load all textures necessary to display the hero
+                    // the hero will then be accessible via the 
+                    // hero_complete texture
+                    JRPG.Textures.character(JRPG.hero, function() {
+                    
+                        loadingBar.refresh(4, 4);
+                    
+                        if (JRPG.onLoad) {
+                
+                            JRPG.onLoad.call();
+                        
+                        }
+                    
+                    }, loadingBar);
+                    
+                    
+    
+        this.ePerfGameLoop = $('#jrpg_perf .gameloop');
+    
+        // we should derive the map from somewhere (dropdown, hero)
+        var mapId = 'baaaab';
+        
+         _post('map.load', { id: mapId }, $.proxy(function(t) {
+         
+            // load all map textures
+            JRPG.Textures.map(t, $.proxy(function() {
+         
+                 JRPG.UI.init();
+         
+                // initialize a game with the newly loaded map
+                this.game = new JRPG.Game(t); 
+    
+                this.loop();
+            
+            }, this));
+         
+         }, this));
+*/
+
+
+/*var JRPG = {
+
     _id: 0, 
 
     DamageRank: {
@@ -125,8 +309,8 @@ var JRPG = {
                     JRPG.hero = new JRPG.Character('hero', 'Hero', 1);
                     JRPG.hero.animation('move', new JRPG.Animation(JRPG.hero, 0, 0, 7, 'auto', true));
                     
-                    /* lets give the hero a sword and shield to see
-                    what happens */
+                     lets give the hero a sword and shield to see
+                    what happens 
                     JRPG.hero.equip(JRPG.DropFactory.createItem('smallsword', 1, 0, 0)); 
                     JRPG.hero.equip(JRPG.DropFactory.createItem('smallshield', 1, 0, 0));
 
@@ -343,14 +527,6 @@ function _dlg(e) {
 
 }
 
-function _post(key, data, success) {
-
-    data.service = key;
-
-    $.post('s.php?' + Math.random(), data, success, 'json').fail(function(t) { console.error('call <' + key + '> failed.'); console.dir(t); });
-
-}
-
 function _rot(x1, y1, x2, y2) {
 
     var d = _dist(x1, y1, x2, y2), 
@@ -526,4 +702,4 @@ Array.prototype.random = function(amount) {
     
     return null;
 
-}
+}*/

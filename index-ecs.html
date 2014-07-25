@@ -1,0 +1,52 @@
+<!DOCTYPE HTML>
+<html>
+<head>
+<title>jrpg ecs</title>
+<script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
+<script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
+<script src="js/jrpg.js"></script>
+<script src="js/game.js"></script>
+<script src="js/prototypes.js"></script>
+<script src="js/eventManager.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/inventory.js"></script>
+<script src="js/dropSystem.js"></script>
+<script src="js/item.js"></script>
+<script src="js/entity.js"></script>
+<script src="js/moveComponent.js"></script>
+<script src="js/healthComponent.js"></script>
+<script src="js/manaComponent.js"></script>
+<script src="js/levelComponent.js"></script>
+<script src="js/goldComponent.js"></script>
+<script src="js/aggroComponent.js"></script>
+<script src="js/behaviorComponentFleeOnHit.js"></script>
+<script src="js/enrageComponent.js"></script>
+<script src="js/abilitiesComponent.js"></script>
+<script src="js/inventoryComponent.js"></script>
+<script src="js/equipmentComponent.js"></script>
+<script src="js/damageComponent.js"></script>
+<script src="js/statsComponent.js"></script>
+<script src="js/hitTestComponent.js"></script>
+<script src="js/entityManager.js"></script>
+<script src="js/textureSystem.js"></script>
+<script src="js/debugger.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/renderComponent.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/renderLayer.js"></script>
+<link rel="stylesheet" type="text/css" href="css/default.css" />
+</head>
+<body>
+
+<div id="jrpg_game"></div>
+
+<script type="text/javascript">
+
+EventManager.subscribe(null, 'entityCreated', Debugger.log, Debugger);
+
+JRPG.startGame();
+
+</script>
+
+</body>
+</html>
