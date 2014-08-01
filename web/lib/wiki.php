@@ -6,7 +6,7 @@ $sidebar = array(
         "items" => array(
             "hystrix" => (object)array(
                 "name" => "Hystrix", 
-                "content" => "<p>A small, slow creature which can be found on the shard of {SHARD_WESTERN_GOTHIC}.</p><p>It hates strangers and it's own kind alike and therefore wanders the fields and woods all by itself. It tries to flee if approached but will throw its razor-sharp spikes at anyone dumb enough to pursue it."
+                "content" => "<img src=\"{ROOT}img/hystrix.jpg\" /><p style=\"width:380px\">A small, slow creature which can be found on the shard of {SHARD_WESTERN_GOTHIC}.</p><p>It hates strangers and it's own kind alike and therefore wanders the fields and woods all by itself. It tries to flee if approached but will throw its razor-sharp spikes at anyone dumb enough to pursue it."
             )
         )
     ), 

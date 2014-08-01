@@ -1,3 +1,8 @@
+/*
+** ABILITIES COMPONENT
+**
+** handles the use of all skills and abilities
+*/
 var AbilitiesComponent = function(entity, settings) {
 
     this._e = entity;
@@ -23,6 +28,13 @@ var AbilitiesComponent = function(entity, settings) {
     };
     
     this.useAbility = function(ability, target) {
+        
+        // generally we can't move and use abilities at the same time
+        if (this._e.MoveComponent) {
+        
+            this._e.MoveComponent.stop();
+        
+        }
         
         this.active = ability;
         
@@ -63,24 +75,46 @@ var AbilitiesComponent = function(entity, settings) {
             if (this._e.AggroComponent && this._e.AggroComponent.target != null) {
             
                 // we have a target, let's see what skills we have 
-                // for the distance between us and our target
-                // also we check if we can afford the abilitiy and 
-                // the ability is not in cooldown
-                abilities = _.filter(this.abilities, function(i) { 
-                    
-                    return i.activeCooldown == 0 &&  
-                           i.range >= this._e.AggroComponent.distance && 
-                           i.manaCost <= this._e.ManaComponent.current;  
-                    
+                // to kill him from this distance
+                abilities = _.filter(this.abilities, function(i) {
+                
+                    return i.range >= this._e.AggroComponent.distance;
+                
                 }, this);
                 
-                ability = abilities.random();
+                // we could attack from here
+                if (abilities.length > 0) {
                 
-                if (ability != null) {
+                    // let's find all the abilties we could actually use
+                    // -> no coolodwn, effordable mana costs
+                    abilities = _.filter(abilities, function(i) {
+                    
+                        return i.activeCooldown == 0 && 
+                               i.manaCost <= this._e.ManaComponent.current;
+                    
+                    }, this);
+                    
+                    // let's get a random one
+                    // TODO: choose this by using some brain
+                    ability = abilities.random(); 
+                    
+                    if (ability != null) {
+                    
+                        this.useAbility(ability, this._e.AggroComponent.target);
+                    
+                    }               
                 
-                    this.useAbility(ability, this._e.AggroComponent.target);
+                }
+                // we are too far away, let's see if we could move close
+                else {
                 
-                } 
+                    if (this._e.MoveComponent) {
+                    
+                        this._e.MoveComponent.moveTo(this._e.AggroComponent.target.x, this._e.AggroComponent.target.y);
+                    
+                    }
+                
+                }
             
             }
 
@@ -98,16 +132,32 @@ var AbilitiesComponent = function(entity, settings) {
 
 }
 
+AbilitiesComponent.adjustDamage = function(settings, src) {
+
+    settings.DamageComponent.minimumDamage = src.DamageComponent.minimumDamage * settings.DamageComponent.multiplier || 1;
+    settings.DamageComponent.maximumDamage = src.DamageComponent.maximumDamage * settings.DamageComponent.multiplier || 1;        
+
+}
+
 AbilitiesComponent.abilities = {
 
     single_projectile: function(src, target, settings) {
     
-        settings.DamageComponent.minimumDamage = src.DamageComponent.minimumDamage * settings.DamageComponent.multiplier || 1;
-        settings.DamageComponent.maximumDamage = src.DamageComponent.maximumDamage * settings.DamageComponent.multiplier || 1;
+        AbilitiesComponent.adjustDamage(settings, src);
 
         var p = EntityManager.createByType(settings.type, settings);
         
+        p.updatePosition(src.x, src.y);
+        
+        console.log(src.toString() + ' launch single projectile on ' + src.x + '/' + src.y + ' -> ' + target.x + '/' + target.y);
+        
         p.MoveComponent.moveTo(target.x, target.y);          
+    
+    }, 
+    
+    bash: function(src, target, settings) {
+    
+        target.HealthComponent.applyDamage(src, settings.DamageComponent.multiplier);    
     
     }
 

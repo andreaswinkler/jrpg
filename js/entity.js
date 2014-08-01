@@ -28,6 +28,22 @@ var Entity = function(settings) {
     // is this a creature
     this.isCreature = false;
     
+    // recalculate all stats after equipment changes, etc.
+    this.refresh = function() {
+    
+        _.each(['StatsComponent', 'HealthComponent', 'ManaComponent', 'DamageComponent'], function(component) {
+        
+            if (this[component] && this[component].refresh) {
+            
+                this[component].refresh();
+            
+            }
+        
+        }, this);
+    
+    };
+    
+    // update the hitbox
     this.updateHitBox = function() {
     
         this.hitBox.x = parseInt(this.x - this.width / 2);
@@ -35,7 +51,7 @@ var Entity = function(settings) {
         this.hitBox.x2 = parseInt(this.x + this.width / 2);
         this.hitBox.y2 = parseInt(this.y);
     
-    }
+    };
     
     // updates the position 
     this.updatePosition = function(x, y) {
@@ -101,6 +117,14 @@ var Entity = function(settings) {
     
         return this.distance(otherBaseComponent.x, otherBaseComponent.y) <= range;
     
-    };  
+    };
+    
+    this.toString = function() {
+    
+        return '[' + this.name + '(#' + this._id + ')]: ';
+    
+    }
+    
+    this.updateHitBox();  
 
 }

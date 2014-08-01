@@ -1,6 +1,7 @@
 var HealthComponent = function(entity, settings) {
 
     this._e = entity;
+    this._settings = settings;
 
     // the maximum health
     this.total = settings.total || 0; 
@@ -17,6 +18,26 @@ var HealthComponent = function(entity, settings) {
     this.loop = function(ticks) {
     
         this.update(this.current + this.lifePerSecond * ticks / 1000); 
+    
+    };
+
+    this.refresh = function() {
+    
+        this.lifePerSecond = this._settings.lifePerSecond;
+        this.total = this._settings.total;
+        
+        if (this._e.EquipmentComponent) {
+        
+            this.lifePerSecond += this._e.EquipmentComponent.sum('lifePerSecond');
+            this.lifePerSecond *= 1 + this._e.EquipmentComponent.sum('lifePerSecondPercent');
+        
+        } 
+        
+        if (this._e.StatsComponent) {
+        
+            this.total = this._e.StatsComponent.vitality * 25;
+        
+        }   
     
     };
 
@@ -37,13 +58,17 @@ var HealthComponent = function(entity, settings) {
     };
     
     // apply damage from an entity
-    this.applyDamage = function(entity) {
+    this.applyDamage = function(entity, multiplier) {
     
-        var damage = entity.DamageComponent.randomDamage();
+        var damage = entity.DamageComponent.getDamage();
+    
+        damage.damage *= multiplier || 1;
+    
+        console.log(entity.name + ' applies ' + damage.damage + ' to <' + this._e.name + '>');
     
         // handle damage reduction
         
-        this.update(this.current - damage);
+        this.update(this.current - damage.damage);
     
     }
 

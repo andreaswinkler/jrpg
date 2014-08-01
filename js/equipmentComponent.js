@@ -93,13 +93,13 @@ var EquipmentComponent = function(entity, settings) {
         
         if (slot) {
         
-            if (this[slot] != null) {
+            if (this.slots[slot] != null) {
             
-                replacedItem = this[slot]; 
+                replacedItem = this.slots[slot]; 
             
             }
             
-            this[slot] = item;
+            this.slots[slot] = item;
             
             // set the owner of the item to the owner of the 
             // equipment
@@ -111,7 +111,23 @@ var EquipmentComponent = function(entity, settings) {
 
         return item;
     
-    };  
+    }; 
+    
+    this.sum = function(modifier) {
+    
+        return _.reduce(this.slots, function(memo, item) {
+        
+            if (item) {
+            
+                return memo + item.sum(modifier);
+            
+            }
+            
+            return memo;
+        
+        }, 0, this);
+    
+    }; 
     
     /*
     ** returns the corresponding slot for a given itemType

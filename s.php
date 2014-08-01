@@ -275,8 +275,8 @@ switch ($_REQUEST["service"]) {
                 "inventoryHeight" => 2,
                 "maxStackAmount" => 1,  
                 "attributes" => (object)array(
-                    "minDmg" => array(1, 1), 
-                    "maxDmg" => array(3, 3), 
+                    "minimumDamage" => array(1, 1), 
+                    "maximumDamage" => array(3, 3), 
                     "attackSpeed" => array(0.95, 0.95)
                 )  
             ),

@@ -1,5 +1,8 @@
 var ManaComponent = function(entity, settings) {
 
+    this._e = entity;
+    this._settings = settings;
+
     // the maximum mana
     this.total = settings.total || 0; 
     
@@ -12,6 +15,26 @@ var ManaComponent = function(entity, settings) {
     this.loop = function(ticks) {
     
         this.update(this.current + this.manaPerSecond * ticks / 1000); 
+    
+    };
+
+    this.refresh = function() {
+    
+        this.manaPerSecond = this._settings.manaPerSecond;
+        this.total = this._settings.total;
+        
+        if (this._e.EquipmentComponent) {
+        
+            this.manaPerSecond += this._e.EquipmentComponent.sum('manaPerSecond');
+            this.manaPerSecond *= 1 + this._e.EquipmentComponent.sum('manaPerSecondPercent');
+        
+        } 
+        
+        if (this._e.StatsComponent) {
+        
+            this.total = this._e.StatsComponent.intelligence * 10;
+        
+        }   
     
     };
 

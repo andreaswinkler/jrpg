@@ -13,6 +13,8 @@ var EntityManager = {
     // all currently active entities (within the current map)
     stack: [],
     
+    currentId: 0, 
+    
     // the order the components are asked during the entity loop
     entityLoopComponents: ['HealthComponent', 'ManaComponent', 'MoveComponent', 'AggroComponent', 'AbilitiesComponent', 'HitTestComponent'], 
     
@@ -34,7 +36,7 @@ var EntityManager = {
     
         this.stack.push(e);
         
-        e._id = this.stack.length;
+        e._id = ++this.currentId;
         
         // set the entities flags
         // creature?
@@ -63,10 +65,12 @@ var EntityManager = {
     
     createHero: function(data) {
     
-        this.create({ 
+        var hero = this.create({ 
             type: 'hero', 
             name: 'The Hero',
-            superType: 'hero',  
+            superType: 'hero',
+            width: 300,
+            height: 300,   
             MoveComponent: {
                 speed: data.speed
             }, 
@@ -100,10 +104,10 @@ var EntityManager = {
                 
             }, 
             StatsComponent: { 
-                vitality: data.vitality, 
-                strength: data.strength, 
-                dexterity: data.dexterity, 
-                intelligence: data.intelligence 
+                vitality: 5, 
+                strength: 4, 
+                dexterity: 3, 
+                intelligence: 2 
             },
             DamageComponent: {
             
@@ -112,8 +116,15 @@ var EntityManager = {
                 useMirroredSprites: true, 
                 drawHitArea: false, 
                 textureRowDead: 5
-            }
+            },
+            AbilitiesComponent: { }
         }); 
+        
+        hero.refresh();
+        
+        hero.EquipmentComponent.equip(DropSystem.createItem('smallsword', 1, 0, 0, 0));
+        
+        hero.refresh();
     
     }, 
     
@@ -158,7 +169,7 @@ var EntityManager = {
             
                 case 'spawnpoint':
                 
-                    this.spawnEntities(i.settings);
+                    this.spawnEntities(i, i.settings);
                     
                     break;
             
@@ -189,13 +200,13 @@ var EntityManager = {
     }, 
     
     // spawn some creatures based on modified blueprint
-    spawnEntities: function(settings) {
+    spawnEntities: function(spawnPoint, settings) {
     
         var blueprint = this.loadModifiedBlueprint(settings.type, settings),
             i;
         
-        blueprint.x = settings.x;
-        blueprint.y = settings.y;
+        blueprint.x = spawnPoint.x;
+        blueprint.y = spawnPoint.y;
         
         for (i = 0; i < settings.amount; i++) {
 
@@ -207,7 +218,7 @@ var EntityManager = {
     
     getAggroTargets: function(srcType) {
     
-        return _.filter(this.stack, function(i) { return i.type == 'hero'; });
+        return _.filter(this.stack, function(i) { return i.type == 'hero' && i.HealthComponent.tsDeath == undefined; });
     
     }, 
     
@@ -227,6 +238,21 @@ var EntityManager = {
             }, this);
         
         }, this);
+    
+    }, 
+    
+    // HELPER
+    printStack: function() {
+    
+        console.log('--------------S-T-A-C-K--------------');
+    
+        _.each(this.stack, function(i) {
+        
+            console.log(i.toString());
+        
+        }, this);
+        
+        console.log('-------------------------------------');
     
     }
 

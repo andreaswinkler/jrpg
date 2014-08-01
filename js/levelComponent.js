@@ -6,7 +6,7 @@ var LevelComponent = function(entity, settings) {
     this.experience = settings.experience || 0;
 
     // the current level
-    this.current = LevelComponent.getLevelByExperience(this.experience);
+    this.current = LevelComponent.getLevelByExperience(this._e.type, this.experience);
     
     // the experience threshold for the next level, if set to -1 
     // no level up occurs
@@ -53,15 +53,15 @@ LevelComponent.nextLevelExperienceThreshold = function(type, level) {
 
 };
 
-LevelComponent.getLevelByExperience = function(experience) {
+LevelComponent.getLevelByExperience = function(type, experience) {
 
     var i;
 
-    for (i = LevelComponent.experienceThresholds.length; i >= 0; i--) {
+    for (i = LevelComponent.experienceThresholds[type].length; i >= 0; i--) {
     
-        if (experience >= LevelComponent.experienceThresholds[i]) {
+        if (experience >= LevelComponent.experienceThresholds[type][i]) {
         
-            return i;
+            return i + 1;
         
         }
     

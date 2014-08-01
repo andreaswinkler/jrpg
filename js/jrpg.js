@@ -46,10 +46,10 @@ var JRPG = {
                 
                     EntityManager.blueprints = data;
                     
-                    JRPG.request('user.load', { id: 1 }, function(data) {
+                    JRPG.request('user.load', { id: 1 }, function(data) {        
                     
                         EntityManager.createHero(data);
-                        
+
                         success();
                     
                     });

@@ -1,6 +1,5 @@
 {"hero": {
-    "name": "The Hero", "width":300,"height":300,"speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10,"lifePerSecond":1, "manaPerSecond":1}, 
-    "skills": ["weaponPrimary","weaponSecondary","fireball"],
+    "name": "The Hero","speed":0.5,"attributes":{"life":50,"mana":50,"str":10,"dex":10,"vit":10,"int":10,"lifePerSecond":1, "manaPerSecond":1}, 
     "levels": [0, 100, 300, 900, 2700, 8100, 24300]
     },
   "blacksmith": {
@@ -19,11 +18,11 @@
       "width": 96,
       "height": 90, 
       "type": "hystrix",  
-      "MoveComponent": { "speed": 0.1 }, 
+      "MoveComponent": { "speed": 1 }, 
       "ManaComponent": { "total": 5 }, 
       "HealthComponent": { "total": 5 }, 
-      "DamageComponent": { "minimumDamage": 1, "maximumDamage": 2 }, 
-      "AggroComponent": { "range": 1000 }, 
+      "DamageComponent": { "minimumDamage": 2, "maximumDamage": 4 }, 
+      "AggroComponent": { "range": 5000 }, 
       "BehaviorComponentFleeOnHit": { "range": 200 }, 
       "AbilitiesComponent": { 
         "speed": 0.25, 

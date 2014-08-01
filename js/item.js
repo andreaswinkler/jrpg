@@ -18,6 +18,27 @@ var Gold = function(amount) {
 */
 var Item = function(type, level, rank) {
 
+    this.sum = function(modifier) {
+    
+        var value = 0;
+    
+        // check modifiers and sockets
+        if (this.modifiers[modifier]) {
+        
+            value += this.modifiers[modifier];
+        
+        }
+        
+        if (this.attributes[modifier]) {
+        
+            value += this.attributes[modifier];
+        
+        }
+        
+        return value;
+    
+    };
+
     /*
     ** calculates the value of an attribute (key) using the attribute 
     ** modifiers of the equipped item
@@ -163,7 +184,7 @@ var Item = function(type, level, rank) {
     this.level = level;
     
     // the current jrpg version when the item is created
-    this.version = version;
+    //this.version = version;
     
     // the base type of the item (e.g. weapon, chestarmor, ruby, etc)
     this.baseType = data.baseType || 'unknown';

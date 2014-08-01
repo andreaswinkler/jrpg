@@ -33,6 +33,8 @@ var MoveComponent = function(entity, settings) {
     */    
     this.moveTo = function(x, y) {
     
+        console.log(this._e.name + ' move to ' + x + '/' + y);
+    
         // calculate the distance between the current and target
         // position
         var dist = this._e.distance(x, y);
@@ -94,7 +96,7 @@ var MoveComponent = function(entity, settings) {
                     
                     if (this.range == 0) {
                     
-                        EntityManger.stack.remove(this);
+                        EntityManager.stack.remove(this);
                     
                     }    
                 
