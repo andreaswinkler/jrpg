@@ -1,259 +1,288 @@
-/*
-** Entity manager class
-** composes entities, retrieves components for given entities
-*/
-var EntityManager = {
+"use strict";
 
-    // private members
-    _hero: null, 
+(function() {
 
-    // all the blueprints
-    blueprints: null, 
-
-    // all currently active entities (within the current map)
-    stack: [],
+    if (typeof _ === 'undefined' && typeof require !== 'undefined') {
     
-    currentId: 0, 
-    
-    // the order the components are asked during the entity loop
-    entityLoopComponents: ['HealthComponent', 'ManaComponent', 'MoveComponent', 'AggroComponent', 'AbilitiesComponent', 'HitTestComponent'], 
-    
-    create: function(blueprint) {
-    
-        console.log('EntityManager.create <' + blueprint.type + '>');
-    
-        var e = new Entity(blueprint);
-        
-        _.each(blueprint, function(value, key) {
-            
-            if (key.indexOf('Component') !== -1) {
-
-                e[key] = new window[key](e, value);
-            
-            }
-        
-        }, this);
-    
-        this.stack.push(e);
-        
-        e._id = ++this.currentId;
-        
-        // set the entities flags
-        // creature?
-        if (e.HealthComponent && e.type != 'hero') {
-        
-            e.isCreature = true;
-        
-        }
-        
-        EventManager.subscribe(e, 'entityDestroyed', function(ev) {
-        
-            // this was the last enemy
-            if (this.stack.filter(function(i) { return i.isCreature; }).length < 2) {
-            
-                EventManager.publish('lastCreatureKilled', this);
-            
-            }
-        
-        }, this);
-        
-        EventManager.publish('entityCreated', this, { newEntity: e });
-        
-        return e;
-    
-    }, 
-    
-    createHero: function(data) {
-    
-        var hero = this.create({ 
-            type: 'hero', 
-            name: 'The Hero',
-            superType: 'hero',
-            width: 300,
-            height: 300,   
-            MoveComponent: {
-                speed: data.speed
-            }, 
-            HealthComponent: {
-                total: data.vitality * 10, 
-                lifePerSecond: 1 + data.vitality / 100
-            },
-            LevelComponent: {
-                experience: data.experience
-            },
-            ManaComponent: {
-                total: data.intelligence * 2, 
-                manaPerSecond: 1 + data.intelligence / 10
-            }, 
-            GoldComponent: { 
-                amount: data.gold 
-            }, 
-            InventoryComponent: { 
-                inventories: { 
-                    main: { 
-                        width: 16, 
-                        height: 10 
-                    }, 
-                    stash0: { 
-                        width: 16, 
-                        height: 16 
-                    } 
-                } 
-            },
-            EquipmentComponent: {
-                
-            }, 
-            StatsComponent: { 
-                vitality: 5, 
-                strength: 4, 
-                dexterity: 3, 
-                intelligence: 2 
-            },
-            DamageComponent: {
-            
-            }, 
-            RenderComponent: {
-                useMirroredSprites: true, 
-                drawHitArea: false, 
-                textureRowDead: 5
-            },
-            AbilitiesComponent: { }
-        }); 
-        
-        hero.refresh();
-        
-        hero.EquipmentComponent.equip(DropSystem.createItem('smallsword', 1, 0, 0, 0));
-        
-        hero.refresh();
-    
-    }, 
-    
-    // lazy-load the hero from the stack
-    hero: function() {
-    
-        if (!this._hero) {
-        
-            this._hero = _.find(this.stack, function(i) { return i.type == 'hero' });
-        
-        }  
-        
-        return this._hero;  
-    
-    }, 
-    
-    // returns the current stack without the hero
-    suspendStack: function() {
-    
-        return this.stack.filter(function(i) { return i.type != 'hero'; });
-    
-    }, 
-    
-    loadSuspendedStack: function(stack) {
-    
-        // get the hero from the active stack
-        var hero = this.hero();
-        
-        // replace the stack with the new one
-        this.stack = stack;
-        
-        // add the hero to the new stack
-        this.stack.push(hero);
-    
-    }, 
-    
-    loadStackFromMap: function(list) {
-    
-        _.each(list, function(i) {
-
-            switch (i.type) {
-            
-                case 'spawnpoint':
-                
-                    this.spawnEntities(i, i.settings);
-                    
-                    break;
-            
-                default:
-                
-                    this.createByType(i.settings.type, i.settings);
-
-                    break;
-            
-            }        
-        
-        }, this);
-    
-    }, 
-    
-    createByType: function(type, settings) {
-    
-        return this.create(this.loadModifiedBlueprint(type, settings));
-    
-    },
-    
-    loadModifiedBlueprint: function(type, settings) {
-    
-        var blueprint = $.extend(this.blueprints[type], settings);
-        
-        return blueprint;    
-    
-    }, 
-    
-    // spawn some creatures based on modified blueprint
-    spawnEntities: function(spawnPoint, settings) {
-    
-        var blueprint = this.loadModifiedBlueprint(settings.type, settings),
-            i;
-        
-        blueprint.x = spawnPoint.x;
-        blueprint.y = spawnPoint.y;
-        
-        for (i = 0; i < settings.amount; i++) {
-
-            this.create(blueprint);
-        
-        }            
-    
-    },
-    
-    getAggroTargets: function(srcType) {
-    
-        return _.filter(this.stack, function(i) { return i.type == 'hero' && i.HealthComponent.tsDeath == undefined; });
-    
-    }, 
-    
-    // process all entities each frame
-    loop: function(ticks) {
-    
-        _.each(this.stack, function(i) {
-        
-            _.each(this.entityLoopComponents, function(c) {
-            
-                if (i[c]) {
-                
-                    i[c].loop(ticks);
-                
-                }
-            
-            }, this);
-        
-        }, this);
-    
-    }, 
-    
-    // HELPER
-    printStack: function() {
-    
-        console.log('--------------S-T-A-C-K--------------');
-    
-        _.each(this.stack, function(i) {
-        
-            console.log(i.toString());
-        
-        }, this);
-        
-        console.log('-------------------------------------');
+        var _ = require('../js/underscore/underscore.min.js');
     
     }
 
-}
+    var EntityManager = {
+
+        blueprints: null, 
+
+        loop: function(e, ticks) {
+        
+            // move stuff
+            if (e.speed > 0 && e.target) {
+            
+                this.move(e, ticks);
+            
+            }
+            
+            // life per second
+            if (e.lps > 0 && this.life_c < this.life) {
+            
+                this.life_c = Math.min(this.life_c + this.lps / 1000 * ticks, this.life);
+            
+            }
+            
+            // mana per second
+            if (e.mps > 0 && this.mana_c < this.mana) {
+            
+                this.mana_c = Math.min(this.mana_c + this.mps / 1000 * ticks, this.mana);
+            
+            }
+        
+        },
+        
+        moveTo: function(e, x, y) {
+        
+            var distance = this.distance(e.x, e.y, x, y);
+            
+            e.target = { 
+                x: x, 
+                y: y, 
+                dx: (x - e.x) / distance, 
+                dy: (y - e.y) / distance 
+            };
+            
+            this.updateRotation(e, x, y);
+            
+            console.dir('move to ' + x + '/' + y);
+        
+        }, 
+        
+        move: function(e, ticks) {
+        
+            var speed_c = e.speed * ticks, 
+                nx = (e.x + e.target.dx * speed_c),
+                ny = (e.y + e.target.dy * speed_c);
+            
+            // let's try to update our position to the new coordinates
+            if (this.updatePosition(e, nx, ny)) {
+            
+                // if we are in range of 50px of the target we stop
+                if (this.inRange(e, e.target, 50)) {
+                
+                    this.target = null;
+                
+                }
+                
+            } 
+            // we could not update our position, because we hit a wall or 
+            // the end of the world or something
+            else {
+            
+                this.target = null;
+            
+            }   
+        
+        },  
+
+        refresh: function(e) {
+        
+            // calculate all dependend values
+            e.life = (e.vit || 0) * 10;
+            e.mana = (e.int || 0) * 5;
+            
+            e.life_c = Math.min(e.life_c || e.life, e.life);
+            e.mana_c = Math.min(e.mana_c || e.mana, e.mana);
+            
+            this.refreshHitBox(e);
+        
+        },
+        
+        refreshHitBox: function(e) {
+        
+            e.hb[0] = parseInt(e.x - e.w / 2);
+            e.hb[1] = parseInt(e.y - e.h);
+            e.hb[2] = parseInt(e.x + e.w / 2);
+            e.hb[3] = parseInt(e.y);
+        
+        }, 
+        
+        updatePosition: function(e, x, y) {
+        
+            // TODO: we need a check against the map here, if we 
+            // can reach this position
+        
+            e.x = x;
+            e.y = y;
+            
+            this.refreshHitBox(e);
+            
+            return true;
+        
+        }, 
+        
+        // updates the rotation attribute of the position component by 
+        // calculating the vector between its position and given x/y coordinates
+        updateRotation: function(e, x, y) {
+        
+            e.rotation = this.direction(e.x, e.y, x, y);
+        
+        },
+        
+        // check if the current position equals a given one
+        atPosition: function(e, x, y) {
+        
+            return e.x == x && e.y == y;
+        
+        },  
+        
+        hitTest: function(e, x, y) {
+        
+            return e.hb[0] <= x && e.hb[2] >= x && e.hb[1] <= y && e.hb[3] >= y;    
+        
+        }, 
+        
+        // rect is [x, y, x2, y2]
+        hitTestRect: function(e, rect) {
+        
+            return e.hb[0] < rect[2] && e.hb[2] > rect[0] && e.hb[1] < rect[3] && e.hb[3] > rect[1];    
+        
+        }, 
+        
+        distance: function(x, y, x2, y2) {
+        
+            return Math.sqrt((x2 - x) * (x2 - x) + (y2 - y) * (y2 - y));  
+        
+        }, 
+        
+        direction: function(x, y, x2, y2) {
+        
+            var ax = (x2 - x) / this.distance(x, y, x2, y2);
+            
+            return y2 - y > 0 ? Math.cos(ax) - Math.PI : Math.acos(ax * -1);
+        
+        },
+        
+        inRange: function(e1, e2, range) {
+        
+            var found, i;
+        
+            if (e2 instanceof Array) {
+            
+                found = false;
+            
+                for (var i = 0; i < e2.length; i++) {
+                
+                    if (this.inRange(e1, e2[i], range)) {
+                    
+                        found = true;
+                        break;
+                    
+                    }
+                
+                }
+                
+                return found;
+            
+            }
+        
+            return this.distance(e1.x, e1.y, e2.x, e2.y) <= range;
+        
+        },
+
+        create: function(type, settings) {
+    
+            var blueprint = this.blueprints[type],     
+                e = {
+                    t: settings.t || blueprint.t || '', 
+                    n: settings.n || blueprint.n || '', 
+                    w: settings.w || blueprint.w || 0, 
+                    h: settings.h || blueprint.h || 0, 
+                    x: 0, 
+                    y: 0, 
+                    z: 0,
+                    hb: [0, 0, 0, 0],
+                    r: 0,
+                    speed: settings.speed || blueprint.speed || 0,
+                    life: 0,
+                    lps: settings.lps || blueprint.lps || 0,
+                    mana: 0,
+                    mps: settings.mps || blueprint.mps || 0,
+                    xp: settings.xp || blueprint.xp || 0,
+                    gold: settings.gold || blueprint.gold || 0,
+                    vit: settings.vit || blueprint.vit || 0,
+                    str: settings.str || blueprint.str || 0,
+                    int: settings.int || blueprint.int || 0,
+                    dex: settings.dex || blueprint.dex || 0
+                };
+            
+            if (blueprint.mirrorSprites) {
+            
+                e.mirrorSprites = true;
+            
+            }
+            
+            if (blueprint.textureRowDead != 'undefined') {
+            
+                e.textureRowDead = blueprint.textureRowDead;
+            
+            }
+            
+            this.refresh(e);
+    
+            return e;  
+             
+        },
+        
+        findAtPosition: function(stack, x, y) {
+        
+            var i;
+            
+            for (i = 0; i < stack.length; i++) {
+            
+                if (this.hitTest(stack[i], x, y)) {
+                
+                    return stack[i];
+                
+                }
+            
+            }
+            
+            return null;
+        
+        }, 
+        
+        processActions: function(actions, e, stack) {
+        
+            var i, target;
+            
+            for (i = 0; i < actions.length; i++) {
+            
+                switch (actions[i][0]) {
+                
+                    case 'moveTo':
+                    
+                        target = this.findAtPosition(actions[i][1], actions[i][2]);
+                        
+                        // check if target is in range or an interactable
+                        // etc.
+                        
+                        this.moveTo(e, actions[i][1], actions[i][2]);
+                    
+                        break;
+                
+                }
+            
+            }
+        
+        }
+    
+    };
+
+    if (typeof module !== 'undefined') {
+    
+        module.exports = EntityManager;
+    
+    } else {
+    
+        window.EntityManager = EntityManager;
+    
+    }
+
+}).call(this);

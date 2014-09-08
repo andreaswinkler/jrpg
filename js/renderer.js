@@ -5,8 +5,6 @@ var Renderer = {
     tileWidthHalf: 32, 
     tileHeightHalf: 16, 
 
-    hero: null, 
-
     mapCache: null, 
     
     layers: null,
@@ -43,12 +41,23 @@ var Renderer = {
             info: new RenderLayer(this.width, this.height)
         };
         
+        $('#jrpg_game').html('');
+        
         // add all canvas elements to dom
         _.each(this.layers, function(i) {
         
             $('#jrpg_game').append(i.e);    
         
         });
+    
+    }, 
+    
+    initMap: function(map) {
+    
+        // prerender the new map
+        this.prerenderMap(map);
+        
+        // init the minimap
     
     }, 
 
@@ -59,15 +68,8 @@ var Renderer = {
             this.init();
         
         }
-        
-        // get the hero reference
-        if (this.hero == null) {
-        
-            this.hero = EntityManager.hero();
-        
-        }
     
-        if (!this.mapRendered || this.hero.MoveComponent.hasMoved) {
+        if (!this.mapRendered) {
         
             // reset the local root based on the current 
             // character position
@@ -75,22 +77,20 @@ var Renderer = {
             // width and height, as long as we don't implement a borderless
             // map rendering
             this.localRoot = { 
-                x: this.hero.x - this.width / 2, 
-                y: this.hero.y - this.height / 2
+                x: JRPG.hero.x - this.width / 2, 
+                y: JRPG.hero.y - this.height / 2
             };
         
             // render the map centered around the hero
-            this.renderMap(Game.map, this.hero.x, this.hero.y);
+            this.renderMap(JRPG.map, JRPG.hero.x, JRPG.hero.y);
         
         }
         
         // clear the objects layer
         this.layers.objects.clear();
-        // clear the hit areas
-        this.hitAreasList = [];
-        
+
         // render the map objects
-        _.each(EntityManager.stack, this.renderEntity, this);
+        _.each(JRPG.map.stack, this.renderEntity, this);
         
         // render doged/damage info
         this.renderMessages();
@@ -227,7 +227,7 @@ var Renderer = {
 
     renderMap: function(map, gCenterX, gCenterY) {
     
-        var sx = gCenterX - this.width / 2, 
+        /*var sx = gCenterX - this.width / 2, 
             sy = gCenterY - this.height / 2;
     
         if (this.mapCache == null) {
@@ -240,108 +240,109 @@ var Renderer = {
         // centered around the character
         this.layers.map.clear();
         
-        this.layers.map.ctx.drawImage(this.mapCache[0], sx, sy, this.width, this.height, 0, 0, this.width, this.height);
+        this.layers.map.ctx.drawImage(this.mapCache[0], sx, sy, this.width, this.height, 0, 0, this.width, this.height);*/
     
     },
     
+    rotationToTextureRow: function(r) {
+
+        var rotDeg = r * (180 / Math.PI),  
+            texRow = 0;
+
+        rotDeg = rotDeg < 0 ? rotDeg * -1 : 180 + (180 - rotDeg);
+    
+        if (rotDeg > 337.5 || rotDeg < 22.5) {
+            texRow = 2;
+        } else if (rotDeg < 67.5) {
+            texRow = 1;
+        } else if (rotDeg < 112.5) {
+            texRow = 0;
+        } else if (rotDeg < 157.5) {
+            texRow = 7;
+        } else if (rotDeg < 202.5) {
+            texRow = 6;
+        } else if (rotDeg < 247.5) {
+            texRow = 5;
+        } else if (rotDeg < 292.5) {
+            texRow = 4;        
+        } else if (rotDeg < 337.5) {
+            texRow = 3;
+        } 
+    
+        return texRow;         
+
+    },       
+    
+    renderInfo: function(e) {
+    
+        var info = {
+            x: e.x - this.localRoot.x - e.w / 2,
+            y: e.y - this.localRoot.y - e.h,
+            ox: 0, 
+            oy: this.rotationToTextureRow(e.r) * e.h,
+            tex: e.t 
+        };
+        
+        return info;
+    
+    }, 
+    
     renderEntity: function(e) {
+    
+        var layer = this.layers.objects, 
+            ri = this.renderInfo(e),
+            c = e.t == 'hero' ? 'rgba(255,255,255,.5)' : 'rgba(210,0,0,.8)'; 
 
-        if (!e.RenderComponent) {
-        
-            return;
-        
-        }
+        console.log(e.t + ': ' + ri.x + '/' + ri.y);
 
-        var layer = this.layers[e.RenderComponent.layer];
-
-        // set all position values based on the current 
-        // rendered map part root
-        e.RenderComponent.localize(this.localRoot);
+        layer.rect(ri.x, ri.y, e.w, e.h, c, '#fff');
         
-        if (TextureSystem.textures[e.RenderComponent.texture]) {
+        /*if (TextureSystem.textures[ri.tex]) {
         
             layer.ctx.drawImage(
                 // texture
-                TextureSystem.textures[e.RenderComponent.texture], 
+                TextureSystem.textures[ri.tex], 
                 // texture offset x
-                e.RenderComponent.offsetX, 
+                ri.ox, 
                 // texture offset y
-                e.RenderComponent.offsetY, 
+                ri.oy, 
                 // target width
-                e.width, 
+                e.w, 
                 // target height
-                e.heigth, 
+                e.h, 
                 // position x
-                e.RenderComponent.x, 
+                ri.x, 
                 // position y
-                e.RenderComponent.y, 
+                ri.y, 
                 // source width
-                e.width, 
+                e.w, 
                 // source height
-                e.height
+                e.h
             );
         
         } else {
         
-            TextureSystem.load(e.RenderComponent.texture, 'tex/' + e.RenderComponent.texture + '.png', e.RenderComponent.useMirroredSprites);    
-        
-        }
-        
-        // hit areas
-        if (e.RenderComponent.drawHitArea) {
-        
-            this.drawHitArea(e._id, e.RenderComponent.hitArea);    
+            TextureSystem.load(ri.tex, 'tex/' + ri.tex + '.png', e.mirrorSprites);    
         
         }
         
         // health bars
-        if (this.drawHealthbars && e.HealthComponent) {
+        if (this.drawHealthbars && e.life) {
         
             l.bar(
-                e.RenderComponent.x - 50, 
-                e.RenderComponent.y, 
+                ri.x - 50, 
+                ri.y, 
                 100, 
                 10, 
-                e.HealthComponent.current / e.HealthComponent.total, 
+                e.life_c / e.life, 
                 'rgba(0,0,0,0.75)', 
                 'rgba(200,0,0,1)', 
-                Math.floor(e.HealthComponent.current) + '/' + Math.floor(e.HealthComponent.total), 
+                Math.floor(e.life_c) + '/' + Math.floor(e.life), 
                 'Arial 6px', 
                 '#fff'
             );    
         
-        }
-    
-    }, 
-    
-    drawHitArea: function(id, hitArea) {
-    
-        this.hitAreasList.push([hitArea.x, hitArea.y, hitArea.x2, hitArea.y2, id]);
-        
-    }, 
-
-    objectAtPosition: function(x, y) {
-    
-        var id = 0;
-    
-        for (var i = 0; i < this.hitAreasList.length; i++) {
-        
-            if (x >= this.hitAreasList[i][0] && x <= this.hitAreasList[i][2] && y >= this.hitAreasList[i][1] && y <= this.hitAreasList[i][3]) {
-            
-                id = this.hitAreasList[i][4];
-                break;
-            
-            }    
-        
-        }
-        
-        if (id > 0) {
-        
-            return _.find(game.stack, function(i) { return i.id == id; });
-        
-        }
-        
-        return null;
+        }*/
     
     }, 
     

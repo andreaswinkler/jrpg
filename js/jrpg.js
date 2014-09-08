@@ -2,65 +2,30 @@ var JRPG = {
 
     version: 'alpha-1.1',
     
+    socket: null, 
+    
     // the logged in user
     user: null, 
+    
+    // the users character
+    hero: null, 
+    
+    // the current map (including the stack)
+    map: null, 
 
     // timestamp of last loop
-    tsLastLoop: undefined, 
+    tsLastLoop: undefined,
+    
+    // holds the user inputs since the last game loop
+    currentInputs: [],  
     
     // the request animation frame object
     rAF: window.requestAnimationFrame || 
          window.mozRequestAnimationFrame || 
          window.webkitRequestAnimationFrame || 
-         window.msRequestAnimationFrame, 
+         window.msRequestAnimationFrame,  
     
-    // make a json post request to the s gateway
-    request: function(key, data, success, context) {
-    
-        data.service = key;
-        
-        $.post('s.php?' + Math.random(), data, $.proxy(success, context), 'json').fail(function(t) {
-        
-            console.error('call <' + key + '> failed.'); 
-            console.dir(t);
-        
-        }); 
-            
-    
-    }, 
-    
-    // load all necessary stuff
-    load: function(success) {
-    
-        console.log('JRPG version <' + this.version + '>');
-
-        JRPG.request('itemTypes.list', {}, function(data) {
-        
-            Item.data = data;
-            
-            JRPG.request('dropTables.list', {}, function(data) {
-            
-                DropSystem.dropTables = data;
-                
-                JRPG.request('objectData.load', {}, function(data) {
-                
-                    EntityManager.blueprints = data;
-                    
-                    JRPG.request('user.load', { id: 1 }, function(data) {        
-                    
-                        EntityManager.createHero(data);
-
-                        success();
-                    
-                    });
-                
-                });
-            
-            });
-        
-        });
-    
-    }, 
+    eGame: null, 
     
     // the game loop
     loop: function() {
@@ -68,23 +33,13 @@ var JRPG = {
         var ts = +new Date(), 
             ticks = ts - (this.tsLastLoop || +new Date());
     
-        if (!Game.active) {
-        
-            return;
-        
-        }
-    
         if (ticks >= 25) {
         
             this.tsLastLoop = ts;
     
-            Game.loop(ticks);
+            this.gameLoop(ticks);
             
-            if (Game.active) {
-            
-                this.rAF.call(window, function() { JRPG.loop(); });
-            
-            }
+            this.rAF.call(window, function() { JRPG.loop(); });
         
         } else {
         
@@ -100,33 +55,236 @@ var JRPG = {
     
     },
     
-    // restarts the game after the game was paused
-    restartGame: function() {
+    gameLoop: function(ticks) {
     
-        Game.active = true;
+        // handle current inputs
+        var actions = InputSystem.processInputs(this.currentInputs), 
+            i;
         
-        this.loop();
+        EntityManager.processActions(actions, JRPG.hero, JRPG.map.stack);
+
+        // clear current inputs
+        this.currentInputs = [];
+        
+        // call the loop method for all entities in the stack
+        for (i = 0; i < this.map.stack.length; i++) {
+        
+            EntityManager.loop(this.map.stack[i], ticks);
+        
+        }
+        
+        Renderer.update();
     
     }, 
     
-    // start the game
-    startGame: function() {
+    init: function() {
     
-        this.load($.proxy(function() {
+        JRPG.connect();        
     
-            // derive from somewhere
-            var mapId = 'baaaab';
+        UI.init();
+    
+    },
+    
+    authenticate: function(devkey) {
+    
+        if (this.socket.socket.connected) {
+    
+            this.socket.emit('auth', { username: devkey, password: '' });
         
-            Game.loadMap(mapId, $.proxy(function() {
+        } else {
+        
+            this.onConnectionError();
+        
+        }   
+    
+    }, 
+    
+    // start an arena game by passing in the selected
+    // arenaId
+    startArenaGame: function(arenaId) {
+    
+        this.socket.emit('startArenaGame', { arenaId: arenaId });
+    
+    }, 
+    
+    // join a public game
+    joinPublicGame: function(gameId) {
+    
+        this.socket.emit('joinPublicGame', { gameId: gameId });
+    
+    }, 
+    
+    handleInput: function(key, shifted) {
+    
+        var input = InputSystem.input(key, shifted);
+    
+        this.currentInputs.push(input);
+    
+        this.socket.emit('input', input);
+    
+    }, 
+    
+    registerUserInputHandlers: function() {
+    
+        this.eGame.unbind().click($.proxy(function(ev) {
+        
+            this.handleInput(-2, ev.shiftKey);    
+        
+        }, this)).bind('contextmenu', $.proxy(function(ev) {
+        
+            this.handleInput(-1, ev.shiftKey);
             
-                this.restartGame();
+            ev.preventDefault();
             
-                EventManager.publish('gameStarted', this);    
-            
-            }, this));
+            return false;
+        
+        }, this)).mousemove($.proxy(function(ev) {
+        
+            InputSystem.mouseX = ev.pageX;
+            InputSystem.mouseY = ev.pageY;
         
         }, this));
+        
+        $(document).keydown($.proxy(function(ev) {
+        
+            this.handleInput(ev.keyCode, ev.shiftKey);
+        
+        }, this)).keyup($.proxy(function(ev) {
+        
+            InputSystem.keyUp(ev.keyCode);
+        
+        }, this));
+    
+    }, 
+    
+    onConnectionError: function() {
+    
+        UI.loginScreen();
+            
+        UI.messageWindow('Could not establish connection to server. (Error: 0)');
+        
+        this.connect();    
+    
+    }, 
+    
+    // connect to the server
+    connect: function() {
+    
+        this.eGame = $('#jrpg_game');
+    
+        Renderer.localRoot = { x: 0, y: 0 };
+    
+        console.log('Try to connect to server.');
+    
+        this.socket = io.connect('http://localhost:1337'); 
+        
+        this.socket.on('error', $.proxy(this.onConnectionError, this));
+        
+        // the server greeted us, let's authenticate
+        this.socket.on('handshake', $.proxy(function(data) {
+        
+            console.log('Connected to JRPG Server <' + data.version + '>');
+            
+            UI.loginScreen();
+        
+        }, this));
+        
+        // we got an auth result
+        // let's check if it was successful and if so, load the other
+        // stuff
+        this.socket.on('authResult', $.proxy(function(data) {
+      
+            UI.startScreen();
+        
+            JRPG.user = data.user;
+            JRPG.hero = data.hero;
 
+            EventManager.publish('arenasLoaded', this, data.arenas);
+            
+            this.socket.emit('publicGameList');
+        
+        }, this));
+        
+        // we got an error on authentication
+        this.socket.on('authError', $.proxy(function(data) {
+        
+            UI.loginScreen();
+            
+            UI.messageWindow('Invalid username or password. (Error: 1)');
+        
+        }, this));
+        
+        this.socket.on('publicGameList', $.proxy(function(data) {
+            
+            console.log('public game list loaded');
+            
+            EventManager.publish('publicGameListLoaded', this, data);
+            
+        }, this));
+        
+        // we got disconnected from the server
+        // let's try to reconnect
+        this.socket.on('disconnect', function() {
+        
+            console.warn('Disconnected from JRPG Server. Try to reconnect.');
+            
+            setTimeout(JRPG.connect, 2000);
+        
+        });
+        
+        // the server sent us a new map object
+        // we show a loading screen, set everything up and once we finished
+        // we remove the loading screen and tell the server we want to play
+        this.socket.on('map', $.proxy(function(map) {
+        
+            console.log('Map loaded. <' + map.name + '>');
+        
+            JRPG.map = map;
+        
+            EventManager.publish('map', this, map);
+            
+            // load all necessary textures
+            TextureSystem.loadMapTextures(map, $.proxy(function() {
+            
+                // all necessary textures are available
+                // let's setup minimap and the renderer
+                Renderer.initMap(map);
+                
+                // the map is now pre-rendered and the minimap is setup
+                // let's tell everyone we're finished
+                EventManager.publish('mapSetup', this, map);    
+                
+                // let's tell the server we are ready to play
+                this.socket.emit('ready');
+                
+                // let's register the event handlers
+                this.registerUserInputHandlers();
+                
+                // start the game
+                this.loop();
+            
+            }, this));   
+        
+        }, this)); 
+        
+        // the server sent us a new stack object
+        // let's update ours
+        this.socket.on('stack', $.proxy(function(stack) {
+        
+            console.log('Stack loaded. <' + stack.length + '>');
+            
+            this.map.stack = stack;
+        
+        }, this)); 
+        
+        this.socket.on('update', $.proxy(function(data) {
+        
+            console.log('lpi: ' + data.n);
+        
+            this.map.stack = data.stack;
+        
+        }, this));   
+    
     }
     
 }

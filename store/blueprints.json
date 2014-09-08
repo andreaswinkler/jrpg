@@ -1,0 +1,40 @@
+{
+    "hero": {
+        "t": "hero",
+        "n": "The Hero",
+        "w": 300,
+        "h": 300,
+        "speed": 1,
+        "life": 0,
+        "lps": 1,
+        "xp": 0,
+        "mana": 0,
+        "mps": 1,
+        "gold": 0,
+        "vit": 10,
+        "str": 10,
+        "int": 10,
+        "dex": 10,
+        "mirrorSprites": true,
+        "textureRowDead": 5
+    }, 
+    "hystrix": {
+        "t": "hystrix",
+        "n": "Hystrix",
+        "w": 200,
+        "h": 200,
+        "speed": 0.5,
+        "life": 0,
+        "lps": 0,
+        "xp": 0,
+        "mana": 0,
+        "mps": 0,
+        "gold": 0,
+        "vit": 10,
+        "str": 5,
+        "int": 0,
+        "dex": 0,
+        "mirrorSprites": true,
+        "textureRowDead": 5
+    }
+}  

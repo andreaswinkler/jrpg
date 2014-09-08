@@ -84,7 +84,7 @@ var TextureSystem = {
         
         }
         
-        _.each(map.objects, function(i) {
+        _.each(map.stack, function(i) {
         
             if (i.type == 'lootable' && !this.textures[i.settings.type] && keys.indexOf(i.settings.type) == -1) {
             

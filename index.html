@@ -1,116 +1,56 @@
 <!DOCTYPE HTML>
 <html>
 <head>
-<title>jrpg</title>
+<title>jrpg ecs</title>
 <script src="//ajax.googleapis.com/ajax/libs/jquery/1.10.2/jquery.min.js"></script>
 <script src="//cdnjs.cloudflare.com/ajax/libs/underscore.js/1.5.2/underscore-min.js"></script>
 <script src="js/jrpg.js"></script>
-<script src="js/jrpg.game.js"></script>
-<script src="js/jrpg.map.js"></script>
-<script src="js/jrpg.ui.js"></script> 
-<script src="js/jrpg.ui.dialog.js"></script>
-<script src="js/jrpg.ui.window.js"></script>
-<script src="js/jrpg.ui.progressbar.js"></script>
-<script src="js/jrpg.ui.item.js"></script>
-<script src="js/jrpg.ui.inventory.js"></script>
-<script src="js/jrpg.ui.equipment.js"></script>
-<script src="js/jrpg.ui.blacksmith.js"></script>
-<script src="js/jrpg.ui.jeweller.js"></script>
-<script src="js/jrpg.ui.character.js"></script>
-<script src="js/jrpg.ui.sphere.js"></script>
-<script src="js/jrpg.ui.controls.js"></script>
-<script src="js/jrpg.behaviors.js"></script>
-<script src="js/jrpg.animation.js"></script>
-<script src="js/jrpg.eventHandler.js"></script>
-<script src="js/jrpg.renderer.js"></script>
-<script src="js/jrpg.item.js"></script>
-<script src="js/jrpg.hitBox.js"></script>
-<script src="js/jrpg.dropFactory.js"></script>
-<script src="js/jrpg.object.js"></script>
-<script src="js/jrpg.movingObject.js"></script>
-<script src="js/jrpg.creature.js"></script>
-<script src="js/jrpg.character.js"></script>
-<script src="js/jrpg.equipment.js"></script>
-<script src="js/jrpg.inventory.js"></script>
-<script src="js/jrpg.projectile.js"></script>
-<script src="js/jrpg.skills.js"></script>
-<script src="js/jrpg.renderLayer.js"></script>
-<script src="js/jrpg.textures.js"></script>
-<script src="js/jrpg.ui.minimap.js"></script>
+<script src="js/game.js"></script>
+<script src="js/prototypes.js"></script>
+<script src="js/eventManager.js"></script>
+<script src="js/timer.js"></script>
+<script src="js/inventory.js"></script>
+<script src="js/dropSystem.js"></script>
+<script src="js/item.js"></script>
+<script src="js/entity.js"></script>
+<script src="js/moveComponent.js"></script>
+<script src="js/healthComponent.js"></script>
+<script src="js/manaComponent.js"></script>
+<script src="js/levelComponent.js"></script>
+<script src="js/goldComponent.js"></script>
+<script src="js/aggroComponent.js"></script>
+<script src="js/behaviorComponentFleeOnHit.js"></script>
+<script src="js/enrageComponent.js"></script>
+<script src="js/abilitiesComponent.js"></script>
+<script src="js/inventoryComponent.js"></script>
+<script src="js/equipmentComponent.js"></script>
+<script src="js/damageComponent.js"></script>
+<script src="js/statsComponent.js"></script>
+<script src="js/hitTestComponent.js"></script>
+<script src="js/entityManager.js"></script>
+<script src="js/textureSystem.js"></script>
+<script src="js/debugger.js"></script>
+<script src="js/ui.js"></script>
+<script src="js/renderComponent.js"></script>
+<script src="js/renderer.js"></script>
+<script src="js/renderLayer.js"></script>
+<script src="js/inputSystem.js"></script>
+<script type="text/javascript" src="js/socket.io/socket.io.min.js"></script>
 <link rel="stylesheet" type="text/css" href="css/default.css" />
 </head>
 <body>
 
-<div id="content">
-
-<img src="img/jrpg.jpg" class="logo" />
-
+<div id="jrpg_game" class="login">
 </div>
-
-<div id="jrpg_ui_infobox">Calc: <span class="calc"></span><br />Stack: <span class="stack"></span></div>
 
 <script type="text/javascript">
 
-/* Szenario a
-   create hero, create creature with attack bash
-   let the hero walk towards the creature
-   
-   expected outcome: the creature attacks the hero and eventually kills him
-*/
-function _scenarioA() {
+JRPG.init();
 
-    /*console.log('start scenario A');
+//EventManager.subscribe(null, 'entityCreated', Debugger.log, Debugger);
+//JRPG.startGame();
 
-    JRPG.hero.moveTo(1000, 1000, null, function() {
-    
-        console.log('hero reached its target');
-        
-        JRPG.hero.moveTo(2000, 2000, null, function() {
-        
-            console.log('hero reached its second target');
-            
-        });
-    
-    });*/    
-
-}
-
-$(document).ready(function() {
-    
-    JRPG.onLoad = function() {
-    
-        if (JRPG.isAuthenticated()) {
-    
-            JRPG.UI.module('startscreen')
-        
-        } else {
-        
-            JRPG.UI.module('login');
-        
-        }        
-        
-    };
-    
-    //$('body').append('<div id="jrpg_game"></div><div id="jrpg_ui"></div>');
-    
-    JRPG.load();
-    
-    /*_post('itemTypes.list', {}, function(data) {
-        
-        JRPG.Item.data = data;
-
-        JRPG.Object.data = { hero: {} };
-        JRPG.hero = new JRPG.Character('hero', 'Hero', 1);
-        
-        JRPG.hero.equip(JRPG.DropFactory.createItem('smallsword', 1, 0, 0)); 
-        JRPG.hero.equip(JRPG.DropFactory.createItem('smallshield', 1, 0, 0));
-        
-        JRPG.UI.init();
-        JRPG.UI.characterWindow.toggle();
-    
-    });*/ 
-    
-});
 </script>
+
 </body>
 </html>

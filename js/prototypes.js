@@ -54,3 +54,21 @@ Array.prototype.random = function(amount) {
     return null;
 
 }
+
+Array.prototype.hitTest = function(x, y, exclude) {
+
+    var i;
+    
+    for (i = 0; i < this.length; i++) {
+    
+        if (exclude.indexOf(this[i]) == -1 && this[i].hitTest(x, y)) {
+        
+            return this[i];
+        
+        }
+    
+    }
+    
+    return null;
+
+}

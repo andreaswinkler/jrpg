@@ -87,9 +87,15 @@ var Entity = function(settings) {
     };
     
     // make a hittest against an entity
-    this.hitTest = function(entity) {
+    this.hitTestEntity = function(entity) {
     
         return this.hitBox.x < entity.hitBox.x2 && this.hitBox.x2 > entity.hitBox.x && this.hitBox.y < entity.hitBox.y2 && this.hitBox.y2 > entity.hitBox.y;
+    
+    };
+    
+    this.hitTest = function(x, y) {
+    
+        return this.hitBox.x <= x && this.hitBox.x2 >= x && this.hitBox.y <= y && this.hitBox.y2 >= y;
     
     };
     
