@@ -279,9 +279,31 @@ var JRPG = {
         
         this.socket.on('update', $.proxy(function(data) {
         
-            console.log('lpi: ' + data.n);
-        
-            this.map.stack = data.stack;
+            var i, j;
+            
+            // we got a full stack update, let's update everything
+            if (data.stack) {
+            
+                this.map.stack = data.stack;
+            
+            } else {
+            
+                for (i = 0; i < data.updates.length; i++) {
+                
+                    for (j = 0; j < this.map.stack.length; j++) {
+                    
+                        if (this.map.stack[j].id == data.updates[i].id) {
+                        
+                            this.map.stack[j].x = data.updates[i].x;
+                            this.map.stack[j].y = data.updates[j].y;    
+                        
+                        }
+                    
+                    }
+                
+                }
+            
+            }
         
         }, this));   
     

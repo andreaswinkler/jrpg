@@ -293,8 +293,6 @@ var Renderer = {
             ri = this.renderInfo(e),
             c = e.t == 'hero' ? 'rgba(255,255,255,.5)' : 'rgba(210,0,0,.8)'; 
 
-        console.log(e.t + ': ' + ri.x + '/' + ri.y);
-
         layer.rect(ri.x, ri.y, e.w, e.h, c, '#fff');
         
         /*if (TextureSystem.textures[ri.tex]) {

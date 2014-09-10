@@ -10,6 +10,8 @@
 
     var EntityManager = {
 
+        index: 0, 
+
         blueprints: null, 
 
         loop: function(e, ticks) {
@@ -47,16 +49,15 @@
                 dx: (x - e.x) / distance, 
                 dy: (y - e.y) / distance 
             };
-            
+
             this.updateRotation(e, x, y);
-            
-            console.dir('move to ' + x + '/' + y);
         
         }, 
         
         move: function(e, ticks) {
         
-            var speed_c = e.speed * ticks, 
+            // speed = 1 means 100px/sec
+            var speed_c = e.speed * ticks / 10, 
                 nx = (e.x + e.target.dx * speed_c),
                 ny = (e.y + e.target.dy * speed_c);
             
@@ -66,7 +67,7 @@
                 // if we are in range of 50px of the target we stop
                 if (this.inRange(e, e.target, 50)) {
                 
-                    this.target = null;
+                    e.target = null;
                 
                 }
                 
@@ -75,7 +76,7 @@
             // the end of the world or something
             else {
             
-                this.target = null;
+                e.target = null;
             
             }   
         
@@ -190,6 +191,7 @@
     
             var blueprint = this.blueprints[type],     
                 e = {
+                    id: ++this.index, 
                     t: settings.t || blueprint.t || '', 
                     n: settings.n || blueprint.n || '', 
                     w: settings.w || blueprint.w || 0, 

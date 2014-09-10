@@ -183,6 +183,7 @@ module.exports = {
     gameLoop: function(g, ticks) {
     
         var now = +new Date(), 
+            fullStackUpdate = false, 
             i, j, lastInput, m, p, s, actions;
         
         // loop through all maps in this game
@@ -205,8 +206,6 @@ module.exports = {
                         // process all inputs for the player
                         actions = this._is.processInputs(s.inputs);
                         
-                        console.dir(actions);
-                        
                         this._em.processActions(actions, s.hero, m.stack);
                         
                         lastInput = s.inputs.pop();
@@ -220,23 +219,26 @@ module.exports = {
                 }
             
                 // process all proxies
+
                 for (j = 0; j < m.proxies.length; j++) {
                 
                     p = m.proxies[j];
-                    
+
                     if (!p.active && p.range && this._em.inRange(p, m.heroes, p.range)) {
                     
                         p.active = true;
                     
                     }
                     
-                    if (p.active && p.stack.length > 0) {
+                    if (p.active && p.stacks.length > 0) {
                     
-                        m.stack = m.stack.concat(p.stack.shift());
+                        m.stack = m.stack.concat(p.stacks.shift());
+                        
+                        fullStackUpdate = true;
                     
                     }
                     
-                    if (p.stack && p.stack.length == 0) {
+                    if (p.stacks && p.stacks.length == 0) {
                     
                         m.proxies.splice(i, 1);
                         i--;
@@ -256,13 +258,21 @@ module.exports = {
                 
                     s = m.players[j].socket;
                     
+                    if (fullStackUpdate) {
+                    
+                        s.emit('update', {
+                            stack: m.stack
+                        });
+                    
+                    }
+                    
                     if (now - s.tsLastUpdate > this.msUpdate) {
                     
                         s.tsLastUpdate = now;
                     
                         s.emit('update', {
                             n: s.lastProcessedInputNo,
-                            stack: m.stack        
+                            updates: this.updates(m)
                         });
                     
                     }
@@ -272,6 +282,21 @@ module.exports = {
             }
         
         }
+    
+    }, 
+    
+    updates: function(map) {
+    
+        var list = [], 
+            i;
+        
+        for (i = 0; i < map.stack.length; i++) {
+        
+            list.push({ id: map.stack[i].id, x: map.stack[i].x, y: map.stack[i].y });
+        
+        }    
+        
+        return list;
     
     }, 
     
@@ -333,15 +358,8 @@ module.exports = {
             
                 case 'spawnpoint':
                 
-                    p = { x: o.x, y: o.y, stacks: [], o.range || 0, active: false };
-                
-                    m.proxies.push({
-                        x: o.x,
-                        y: o.y,
-                        stacks: []
-                    });
-                
-                    m.stacks.push([]);
+                    p = { x: o.x, y: o.y, stacks: [], range: o.range || 0, active: false };                
+                    p.stacks.push([]);
                 
                     for (j = 0; j < o.settings.amount; j++) {
                     
@@ -349,9 +367,11 @@ module.exports = {
                     
                         this._em.updatePosition(e, o.x, o.y);
                         
-                        m.stacks[0].push(e);
+                        p.stacks[0].push(e);
                     
                     }
+                    
+                    map.proxies.push(p);
                 
                     break;
                 

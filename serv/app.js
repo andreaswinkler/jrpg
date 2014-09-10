@@ -87,6 +87,7 @@ io.sockets.on('connection', function (socket) {
         // client tells us that the player is ready, let's add
         // the character to the stack of its current map
         socket.map.stack.push(socket.hero);
+        socket.map.heroes.push(socket.hero);
         
         if (!socket.game.running) {
         
