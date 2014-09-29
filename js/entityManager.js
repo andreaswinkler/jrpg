@@ -14,19 +14,40 @@
 
         blueprints: null, 
         
-        status: {
-            IDLE: 0,
-            ATTACKING: 1
-        }, 
-
+        stack: null, 
+        
         loop: function(e, ticks, stack) {
+
+            // death check -> dead entities don't do anything
+            if (e.tsDeath > 0) {
+            
+                return;
+            
+            }
+
+            // filter the stack to only contain enemies :)
+            this.stack = _.filter(stack, function(i) {
+            
+                return i !== e && ((e.type == 'hero' && i.type != 'hero') || (e.type != 'hero' && i.type == 'hero'));
+            
+            }, this);
 
             // handle aggro stuff
             if (e.aggroRange) {
             
-                this.aggro(e, stack);
+                this.aggro(e);
             
             }
+            
+            // handle attack timers
+            if (e.attack) {
+            
+                this.performAttack(e);
+            
+            }
+            
+            // can we attack the next frame?
+            e.canAttack = this.canAttack(e);
 
             // move stuff
             if (e.speed > 0 && e.target) {
@@ -51,8 +72,164 @@
         
         },
         
+        // the attack is already configured, let's handle all steps
+        // until the attack ends
+        performAttack: function(e) {
+        
+            // we are in pre-animation stage, let's tick down until
+            // the animation ends, if so -> deal the damage!
+            if (e.attack.preAnimationTicks > 0) {
+                
+                e.attack.preAnimationTicks -= ticks;
+                
+                if (e.attack.preAnimationTicks <= 0) {
+                
+                    switch (e.attack.type) {
+                    
+                        // instant damage, we apply damage to a specific
+                        // entity which we derive from the position the 
+                        // attack is targeted to
+                        case 'instant':
+                        
+                            this.dealDamageToPosition([e.attack.x, e.attack.y], e.attack, e);
+                        
+                            break;
+                    
+                    }            
+                
+                }
+            
+            } 
+            // we are in the post-animation stage, let's tick down 
+            // untile the animation ends and finally remove the attack
+            // object
+            else if (e.attack.postAnimationTicks > 0) {
+            
+                e.attack.postAnimationTicks -= ticks;
+                
+                if (e.attack.postAnimationTicks <= 0) {
+                
+                    e.attack = null;
+                
+                }
+            
+            }
+        
+        }, 
+        
+        // instant damage is applied to a specific position
+        // 1) find a valid target by the position + range
+        // 2) apply the damage to the target (if any)
+        dealDamageToPosition: function(position, attack, source) {
+        
+            var rect = this.expandPosition(position, 50), 
+                target = this.findByRect(rect);
+            
+            if (target) {
+            
+                this.dealDamage(attack, target, source);
+            
+            }      
+        
+        },
+        
+        // instant damage is applied to a specific entity
+        // 1) is damage avoided by dodge or block?
+        // 2) amplify damage by target type (e.g. damage against elites)
+        // 3) reduce damage by target shields/armor/res, etc (DMG - DMG_REDUCTION - ABSORB - BLOCK - ARMOR - RES)
+        // 4) apply damage
+        // 5) death check         
+        dealDamage: function(attack, target, source) {
+        
+            var dmg = attack.damage.dmg;
+            
+            if (!(target.dodgeChance && target.dodgeChance >= Math.random()) &&
+                !(target.blockChance && target.blockChance >= Math.random())) 
+            {
+            
+                // TODO amplify damage based on target type
+                dmg += dmg * 0;
+                
+                // target has a shield, damage is reduced by the shield amount
+                if (target.shield) {
+                
+                    dmg -= target.shield.amount;
+                
+                }  
+                
+                // reduce damage by type
+                
+                // reduce damage by armor
+                if (target.armor) {
+                
+                    dmg -= target.armor / (target.armor + 50 * source.level);    
+                                       
+                }
+                
+                // there's still some damage left
+                if (dmg > 0) {
+                
+                    // TODO emit damage info for overlays
+                
+                    target.life_c -= dmg;  
+                    
+                    if (target.life_c <= 0) {
+                    
+                        // TODO emit death event for display
+                    
+                        target.tsDeath = +new Date();
+                    
+                    }  
+                
+                }
+            
+            }    
+        
+        },    
+        
+        // expand a position in form [x,y] to a rect [x1,y1,x2,y2] by a 
+        // margin in all directions
+        expandPosition: function(position, margin) {
+        
+            return [position[0] - margin, position[1] - margin, position[0] + margin, position[1] + margin];
+        
+        }, 
+      
+        // find first target within area
+        findByRect: function(rect) {
+        
+            return _.find(this.stack, function(i) { return this.hitTestRect(i, rect); }, this);
+        
+        }, 
+        
+        // check if the entity can attack something in this frame
+        // here we handle 
+        // - active attacks
+        // - the time elapsed since the last attack
+        // - stun/frozen effects, etc.
+        canAttack: function(e) {
+        
+            if (e.attack) {
+            
+                return false;
+            
+            } else {
+            
+                return +new Date() - (e.tsLastAttack || 5000) > (1 / this.attackSpeed(e) * 1000);
+            
+            }
+        
+        },
+        
+        // get the current attack speed of the entity
+        attackSpeed: function(e) {
+        
+            return e.attackSpeed;
+        
+        },  
+        
         // handle aggro target
-        aggro: function(e, stack) {
+        aggro: function(e) {
         
             var i;
         
@@ -71,23 +248,13 @@
             // we don't have an aggro target, let's check if we can find one
             if (e.aggroTarget == null) {
                 
-                for (i = 0; i < stack.length; i++) {
-                
-                    if (stack[i].t == 'hero' && this.inRange(e, stack[i], e.aggroRange)) {
-                    
-                        e.aggroTarget = stack[i];
-                        
-                        break;
-                    
-                    }
-                
-                }        
+                e.aggroTarget = _.find(this.stack, function(i) { return this.inRange(e, i, e.aggroRange); }, this);    
             
             }
             
             // we have an aggro target and nothing else to do, 
             // let's try to attack it
-            if (e.aggroTarget && e.status == this.status.IDLE) {
+            if (e.aggroTarget && this.canAttack(e)) {
 
                 this.attack(e, e.aggroTarget);
             
@@ -97,14 +264,24 @@
         
         attack: function(e, target, attack) {
         
-            var attack = attack || this.selectAttack(e, target);
+            var attack = attack || this.selectAttack(e, target), 
+                attackSpeed;
 
             // if we are in range, we attack the bastard
             if (attack && this.inRange(e, target, attack.range)) {
                 
-                e.status = this.status.ATTACKING;
-                    
-                // do attacking
+                // let's get the current attack speed
+                attackSpeed = this.attackSpeed(e);
+                
+                // set the timestamp of this attack
+                e.tsLastAttack = +new Date();
+                
+                e.attack = {
+                    type: attack.type, 
+                    damage: this.damage(e), 
+                    preAnimationTicks: attack.preAnimationTicks / attackSpeed, 
+                    postAnimationTicks: attack.postAnimationTicks / attackSpeed                
+                };
             
             } 
             // otherwise we try to move closer (if we can move at all)
@@ -113,6 +290,38 @@
                 this.moveTo(e, target.x, target.y);
             
             }    
+        
+        }, 
+        
+        // get the damage and damage type from an entity
+        damage: function(e) {
+        
+            var damage = { 
+                    amount: 0,
+                    type: 0 
+                }, 
+                r = Math.random();
+        
+            // we have a sophisticated entity here, let's check the 
+            // equipment for the weapon damage to start with
+            if (e.equipment) {
+            
+                // TODO: calculate weapon damage
+            
+            } else if (e.minDmg) {
+            
+                damage.amount = this.random(e.minDmg, e.maxDmg);   
+            
+            }
+            
+            if (e.critChance >= r) {
+            
+                damage.amount += damage.amount * (1 + e.critDamage);
+                damage.type = 1;
+            
+            }
+            
+            return damage;
         
         }, 
         
@@ -264,6 +473,12 @@
         
         },
         
+        random: function(min, max) {
+        
+            return Math.random() * (max - min) + min;
+        
+        }, 
+        
         inRange: function(e1, e2, range) {
         
             var found, i;
@@ -319,7 +534,9 @@
                     aggroRange: blueprint.aggroRange || 0, 
                     skills: blueprint.skills || [],
                     aggroTarget: null, 
-                    status: this.status.IDLE
+                    attackSpeed: blueprint.attackSpeed || 1,
+                    minDmg: blueprint.minDmg || 0, 
+                    maxDmg: blueprint.maxDmg || 0
                 };
                 
             if (blueprint.mirrorSprites) {

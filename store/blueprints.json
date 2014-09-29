@@ -34,10 +34,13 @@
         "str": 5,
         "int": 0,
         "dex": 0,
-        "aggroRange": 1000,
+        "aggroRange": 1000, 
+        "attackSpeed": 1, 
+        "minDmg": 1, 
+        "maxDmg": 2, 
         "skills": [
-            { "type" : "projectile", "projectile" : "hystrix_needle", "range": 500, "damage": 1, "speed": 1, "manaCost": 0 },
-            { "type" : "bash", "damage": 3, "range": 100, "manaCost": 0 }
+            { "type" : "projectile", "projectile" : "hystrix_needle", "range": 500, "damage": 1, "speed": 1, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 },
+            { "type" : "bash", "damage": 3, "range": 100, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 }
         ],
         "mirrorSprites": true,
         "textureRowDead": 5

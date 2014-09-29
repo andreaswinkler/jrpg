@@ -259,7 +259,7 @@ module.exports = {
                     s = m.players[j].socket;
                     
                     if (fullStackUpdate) {
-                    
+
                         s.emit('update', {
                             stack: m.stack
                         });
