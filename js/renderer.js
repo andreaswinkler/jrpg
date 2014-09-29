@@ -227,7 +227,7 @@ var Renderer = {
 
     renderMap: function(map, gCenterX, gCenterY) {
     
-        /*var sx = gCenterX - this.width / 2, 
+        var sx = gCenterX - this.width / 2, 
             sy = gCenterY - this.height / 2;
     
         if (this.mapCache == null) {
@@ -240,7 +240,7 @@ var Renderer = {
         // centered around the character
         this.layers.map.clear();
         
-        this.layers.map.ctx.drawImage(this.mapCache[0], sx, sy, this.width, this.height, 0, 0, this.width, this.height);*/
+        this.layers.map.ctx.drawImage(this.mapCache[0], sx, sy, this.width, this.height, 0, 0, this.width, this.height);
     
     },
     
@@ -293,9 +293,7 @@ var Renderer = {
             ri = this.renderInfo(e),
             c = e.t == 'hero' ? 'rgba(255,255,255,.5)' : 'rgba(210,0,0,.8)'; 
 
-        layer.rect(ri.x, ri.y, e.w, e.h, c, '#fff');
-        
-        /*if (TextureSystem.textures[ri.tex]) {
+        if (TextureSystem.textures[ri.tex]) {
         
             layer.ctx.drawImage(
                 // texture
@@ -340,7 +338,7 @@ var Renderer = {
                 '#fff'
             );    
         
-        }*/
+        }
     
     }, 
     

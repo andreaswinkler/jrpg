@@ -13,12 +13,24 @@
         index: 0, 
 
         blueprints: null, 
-
-        loop: function(e, ticks) {
         
+        status: {
+            IDLE: 0,
+            ATTACKING: 1
+        }, 
+
+        loop: function(e, ticks, stack) {
+
+            // handle aggro stuff
+            if (e.aggroRange) {
+            
+                this.aggro(e, stack);
+            
+            }
+
             // move stuff
             if (e.speed > 0 && e.target) {
-            
+                
                 this.move(e, ticks);
             
             }
@@ -39,6 +51,98 @@
         
         },
         
+        // handle aggro target
+        aggro: function(e, stack) {
+        
+            var i;
+        
+            // we have an aggro target, let's check if we are still in range
+            if (e.aggroTarget) {
+            
+                // we are out of range, let's forget about it
+                if (!this.inRange(e, e.aggroTarget, e.aggroRange)) {
+                
+                    e.aggroTarget = null;    
+                
+                } 
+            
+            }
+            
+            // we don't have an aggro target, let's check if we can find one
+            if (e.aggroTarget == null) {
+                
+                for (i = 0; i < stack.length; i++) {
+                
+                    if (stack[i].t == 'hero' && this.inRange(e, stack[i], e.aggroRange)) {
+                    
+                        e.aggroTarget = stack[i];
+                        
+                        break;
+                    
+                    }
+                
+                }        
+            
+            }
+            
+            // we have an aggro target and nothing else to do, 
+            // let's try to attack it
+            if (e.aggroTarget && e.status == this.status.IDLE) {
+
+                this.attack(e, e.aggroTarget);
+            
+            }
+        
+        }, 
+        
+        attack: function(e, target, attack) {
+        
+            var attack = attack || this.selectAttack(e, target);
+
+            // if we are in range, we attack the bastard
+            if (attack && this.inRange(e, target, attack.range)) {
+                
+                e.status = this.status.ATTACKING;
+                    
+                // do attacking
+            
+            } 
+            // otherwise we try to move closer (if we can move at all)
+            else if (e.speed > 0) {
+            
+                this.moveTo(e, target.x, target.y);
+            
+            }    
+        
+        }, 
+        
+        selectAttack: function(e, target) {
+        
+            var distance = this.distance(e.x, e.y, target.x, target.y), 
+                attacks = [], 
+                i;
+            
+            for (i = 0; i < e.skills.length; i++) {
+            
+                if (e.skills[i].manaCost <= e.mana_c && 
+                    distance <= e.skills[i].range) {
+                    
+                    attacks.push(e.skills[i]);    
+                
+                }
+            
+            }
+            
+            if (attacks.length > 0) {
+            
+                return attacks[0];
+            
+            }
+            
+            return null;
+        
+        }, 
+        
         moveTo: function(e, x, y) {
         
             var distance = this.distance(e.x, e.y, x, y);
@@ -55,12 +159,12 @@
         }, 
         
         move: function(e, ticks) {
-        
-            // speed = 1 means 100px/sec
+            
+            // speed = 1 means 1px/ms
             var speed_c = e.speed * ticks / 10, 
                 nx = (e.x + e.target.dx * speed_c),
                 ny = (e.y + e.target.dy * speed_c);
-            
+
             // let's try to update our position to the new coordinates
             if (this.updatePosition(e, nx, ny)) {
             
@@ -168,7 +272,7 @@
             
                 found = false;
             
-                for (var i = 0; i < e2.length; i++) {
+                for (i = 0; i < e2.length; i++) {
                 
                     if (this.inRange(e1, e2[i], range)) {
                     
@@ -211,9 +315,13 @@
                     vit: settings.vit || blueprint.vit || 0,
                     str: settings.str || blueprint.str || 0,
                     int: settings.int || blueprint.int || 0,
-                    dex: settings.dex || blueprint.dex || 0
+                    dex: settings.dex || blueprint.dex || 0,
+                    aggroRange: blueprint.aggroRange || 0, 
+                    skills: blueprint.skills || [],
+                    aggroTarget: null, 
+                    status: this.status.IDLE
                 };
-            
+                
             if (blueprint.mirrorSprites) {
             
                 e.mirrorSprites = true;
@@ -261,7 +369,6 @@
                     case 'moveTo':
                     
                         target = this.findAtPosition(actions[i][1], actions[i][2]);
-                        
                         // check if target is in range or an interactable
                         // etc.
                         

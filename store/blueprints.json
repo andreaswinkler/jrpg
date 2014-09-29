@@ -34,6 +34,11 @@
         "str": 5,
         "int": 0,
         "dex": 0,
+        "aggroRange": 1000,
+        "skills": [
+            { "type" : "projectile", "projectile" : "hystrix_needle", "range": 500, "damage": 1, "speed": 1, "manaCost": 0 },
+            { "type" : "bash", "damage": 3, "range": 100, "manaCost": 0 }
+        ],
         "mirrorSprites": true,
         "textureRowDead": 5
     }

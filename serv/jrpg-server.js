@@ -250,7 +250,7 @@ module.exports = {
                 // process all living game objects
                 for (j = 0; j < m.stack.length; j++) {
                 
-                    this._em.loop(m.stack[j], ticks);                
+                    this._em.loop(m.stack[j], ticks, m.stack);                
                 
                 }
                 

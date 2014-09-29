@@ -33,7 +33,7 @@ var JRPG = {
         var ts = +new Date(), 
             ticks = ts - (this.tsLastLoop || +new Date());
     
-        if (ticks >= 25) {
+        if (ticks >= 16.6) {
         
             this.tsLastLoop = ts;
     
@@ -60,7 +60,7 @@ var JRPG = {
         // handle current inputs
         var actions = InputSystem.processInputs(this.currentInputs), 
             i;
-        
+
         EntityManager.processActions(actions, JRPG.hero, JRPG.map.stack);
 
         // clear current inputs
@@ -69,7 +69,7 @@ var JRPG = {
         // call the loop method for all entities in the stack
         for (i = 0; i < this.map.stack.length; i++) {
         
-            EntityManager.loop(this.map.stack[i], ticks);
+            EntityManager.loop(this.map.stack[i], ticks, this.map.stack);
         
         }
         
@@ -104,6 +104,8 @@ var JRPG = {
     startArenaGame: function(arenaId) {
     
         this.socket.emit('startArenaGame', { arenaId: arenaId });
+        
+        this.loop();
     
     }, 
     
@@ -273,7 +275,7 @@ var JRPG = {
         
             console.log('Stack loaded. <' + stack.length + '>');
             
-            this.map.stack = stack;
+            this.updateStack(stack);
         
         }, this)); 
         
@@ -284,11 +286,11 @@ var JRPG = {
             // we got a full stack update, let's update everything
             if (data.stack) {
             
-                this.map.stack = data.stack;
+                this.updateStack(data.stack);
             
             } else {
             
-                for (i = 0; i < data.updates.length; i++) {
+                /*for (i = 0; i < data.updates.length; i++) {
                 
                     for (j = 0; j < this.map.stack.length; j++) {
                     
@@ -301,11 +303,48 @@ var JRPG = {
                     
                     }
                 
-                }
+                }*/
             
             }
         
         }, this));   
+    
+    },
+    
+    entityById: function(id) {
+    
+        return _.find(this.map.stack, function(i) { return i.id == id; }, this);
+    
+    }, 
+    
+    updateStack: function(newStack) {
+    
+        // we can't just replace the stack because we would loose all
+        // entity references (hero, aggroTarget, etc)
+        _.each(newStack, function(i) {
+        
+            var e = this.entityById(i.id);
+            
+            if (e) {
+            
+                // we know the entity already, let's update it
+                $.extend(e, i);
+                
+                if (e.id == JRPG.hero.id) {
+                
+                    JRPG.hero = e;
+                
+                }
+            
+            } else {
+            
+                // we don't know the entity yet, let's add it to the
+                // stack
+                this.map.stack.push(i);
+            
+            }
+        
+        }, this);
     
     }
     
