@@ -104,8 +104,6 @@ var JRPG = {
     startArenaGame: function(arenaId) {
     
         this.socket.emit('startArenaGame', { arenaId: arenaId });
-        
-        this.loop();
     
     }, 
     

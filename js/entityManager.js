@@ -2,12 +2,20 @@
 
 (function() {
 
-    if (typeof _ === 'undefined' && typeof require !== 'undefined') {
+    if (typeof _ === 'undefined') {
     
-        var _ = require('../js/underscore/underscore.min.js');
+        if (typeof require !== 'undefined') {
     
-    }
-
+            var _ = require('../js/underscore/underscore.min.js');
+        
+        } else if (this._) {
+        
+            var _ = this._;
+        
+        }
+    
+    } 
+    
     var EntityManager = {
 
         index: 0, 

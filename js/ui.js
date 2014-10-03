@@ -112,14 +112,19 @@ var UI = {
     
     onMapLoaded: function() {
     
-        this.e.html('<h1>loading some stuff</h1>');
+        this.loadingScreen();
     
     },
     
     onMapSetup: function() {
     
-    }
+    }, 
     
+    loadingScreen: function() {
+    
+        this.e.html('<div class="loading"></div>');
+    
+    }    
     
 
 }
