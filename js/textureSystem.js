@@ -7,6 +7,7 @@ var TextureSystem = {
         hero: { 
             settings: {
                 frameCount: 17, 
+                mirrorSprites: true,  
                 animations: {
                     death: {
                         offset: 0, 
@@ -31,7 +32,8 @@ var TextureSystem = {
         },
         hystrix: {
             settings: {
-                frameCount: 1, 
+                frameCount: 1,
+                mirrorSprites: true,  
                 animations: {
                     death: {
                         offset: 0, 
@@ -48,15 +50,41 @@ var TextureSystem = {
                 }
             }
         }    
-    }, 
+    },
+    
+    loaded: [],  
     
     // for right side of character                                                                                           
     // this is flipped for down-left, left and up-left
     equipmentTexturesOrder: ['offhand1', 'weapon1'],
 
-    load: function(key, path, createMirrors, callback, args) {
+    settings: function(key) {
     
-        if (key != 'undefined') {
+        if (this.textures[key] && this.textures[key].settings) {
+        
+            return this.textures[key].settings;
+        
+        }
+        
+        return null;
+    
+    }, 
+
+    load: function(key, path, callback, args) {
+    
+        var img;
+    
+        if (this.loaded.indexOf(key) !== -1) {
+            
+            console.log('texture <' + key + '> already loaded.');
+            
+            if (callback) {
+                
+                callback.apply(this, args);
+            
+            }
+                
+        } else if (key != 'undefined') {
     
             if (key.indexOf('_complete') !== -1) {
             
@@ -68,31 +96,36 @@ var TextureSystem = {
             
             } else {
     
-                console.log('load texture <' + key + '> from <' + path + '>. create mirrors: ' + (createMirrors ? 'yes' : 'no'));
+                console.log('load texture <' + key + '> from <' + path + '>');
             
-                var img = new Image();
+                this.loaded.push(key);
+            
+                if (!TextureSystem.textures[key]) {
+                    
+                    TextureSystem.textures[key] = {};    
+                    
+                }
+            
+                img = new Image();
                 img.key = key;
                 img.callback = callback;
                 img.args = args;
-                img.createMirrors = createMirrors;
                 img.onload = function() {
         
+                    var texture = TextureSystem.textures[this.key], 
+                        settings = texture.settings, 
+                        mirrorSprites = settings && settings.mirrorSprites,  
+                        canvas, ctx, rowHeight, frameCount, colWidth, i, j;
+  
                     console.log('texture <' + this.key + '> loaded.');
-        
-                    if (!TextureSystem.textures[this.key]) {
+
+                    if (mirrorSprites) {
                     
-                        TextureSystem.textures[this.key] = {};    
-                    
-                    }
-        
-                    if (this.createMirrors) {
-                    
-                        var canvas = document.createElement('canvas'), 
-                            ctx = canvas.getContext('2d'), 
-                            rowHeight = this.height / 5,
-                            frameCount = TextureSystem.textures[this.key].settings.frameCount, 
-                            colWidth = this.width / frameCount, 
-                            i, j;
+                        canvas = document.createElement('canvas'); 
+                        ctx = canvas.getContext('2d'); 
+                        rowHeight = this.height / 6;
+                        frameCount = settings.frameCount; 
+                        colWidth = this.width / frameCount; 
                         
                         canvas.width = this.width;
                         canvas.height = this.height + rowHeight * 3;
@@ -101,7 +134,7 @@ var TextureSystem = {
                         ctx.translate(this.width, 0);
                         ctx.scale(-1, 1);
                         
-                        for (i = 3, j = 0; i > 0; i--, j++) {
+                        for (i = 3, j = 1; i > 0; i--, j++) {
                         
                             for (k = 0; k < frameCount; k++) {
                             
@@ -111,15 +144,11 @@ var TextureSystem = {
                         
                         }
                         
-                        //ctx.drawImage(this, 0, 3 * rowHeight, this.width, rowHeight, 0, this.height, this.width, rowHeight);
-                        //ctx.drawImage(this, 0, 2 * rowHeight, this.width, rowHeight, 0, this.height + rowHeight, this.width, rowHeight);
-                        //ctx.drawImage(this, 0, rowHeight, this.width, rowHeight, 0, this.height + 2 * rowHeight, this.width, rowHeight);
-                        
-                        TextureSystem.textures[this.key].c = canvas;
+                        texture.c = canvas;
                     
                     } else {
                     
-                        TextureSystem.textures[this.key].c = this;
+                        texture.c = this;
                     
                     }
                     
@@ -138,38 +167,12 @@ var TextureSystem = {
     
     }, 
     
-    loadMapTextures: function(map, callback) {
+    loadTextures: function(list, callback) {
     
-        var keys = [], 
-            key;
+        var key = list.shift(), 
+            next = list.length > 0 ? $.proxy(this.loadMapTextures, this) : callback;
         
-        if (!this.textures[map.theme]) {
-        
-            keys.push(map.theme);
-        
-        }
-        
-        _.each(map.stack, function(i) {
-        
-            if (i.type == 'lootable' && !this.textures[i.settings.type] && keys.indexOf(i.settings.type) == -1) {
-            
-                keys.push(i.settings.type);
-            
-            }    
-        
-        }, this);
-    
-        if (keys.length > 0) {
-        
-            key = keys.shift();
-            
-            this.load(key, 'tex/' + key + '.png', false, $.proxy(this.loadMapTextures, this), [map, callback]);
-        
-        } else {
-        
-            callback();
-        
-        }  
+        this.load(key, 'tex/' + key + '.png', next, [list, callback]);   
     
     }, 
     

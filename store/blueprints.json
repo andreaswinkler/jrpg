@@ -14,15 +14,13 @@
         "vit": 10,
         "str": 10,
         "int": 10,
-        "dex": 10,
-        "mirrorSprites": true,
-        "textureRowDead": 5
+        "dex": 10
     }, 
     "hystrix": {
         "t": "hystrix",
         "n": "Hystrix",
-        "w": 200,
-        "h": 200,
+        "w": 100,
+        "h": 105,
         "speed": 0.5,
         "life": 0,
         "lps": 0,
@@ -41,8 +39,6 @@
         "skills": [
             { "type" : "projectile", "projectile" : "hystrix_needle", "range": 500, "damage": 1, "speed": 1, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 },
             { "type" : "bash", "damage": 3, "range": 100, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 }
-        ],
-        "mirrorSprites": true,
-        "textureRowDead": 5
+        ]
     }
 }  

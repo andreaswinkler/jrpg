@@ -22,9 +22,29 @@
 
         blueprints: null, 
         
-        stack: null, 
+        stack: null,
+        
+        fullStack: null, 
+        
+        ticks: 0,  
         
         loop: function(e, ticks, stack) {
+
+            this.fullStack = stack;
+            this.ticks = ticks;
+
+            // check time-to-live
+            if (e.ttl) {
+            
+                e.ttl -= ticks;
+                
+                if (e.ttl <= 0) {
+                
+                    this.remove(e);
+                
+                }
+            
+            }
 
             // death check -> dead entities don't do anything
             if (e.tsDeath > 0) {
@@ -36,7 +56,7 @@
             // filter the stack to only contain enemies :)
             this.stack = _.filter(stack, function(i) {
             
-                return i !== e && ((e.type == 'hero' && i.type != 'hero') || (e.type != 'hero' && i.type == 'hero'));
+                return i !== e && ((e.t == 'hero' && i.t != 'hero') || (e.t != 'hero' && i.t == 'hero'));
             
             }, this);
 
@@ -54,6 +74,8 @@
             
             }
             
+            this.hitTestStack(e);
+            
             // can we attack the next frame?
             e.canAttack = this.canAttack(e);
 
@@ -63,7 +85,7 @@
             // move stuff
             if (e.speed_c > 0 && e.target) {
                 
-                this.move(e, ticks);
+                this.move(e);
             
             }
             
@@ -83,15 +105,53 @@
         
         },
         
+        remove: function(e) {
+        
+            this.fullStack.splice(this.fullStack.indexOf(e), 1);
+        
+        }, 
+        
+        hitTestStack: function(e) {
+        
+            var ht = _.find(this.stack, function(i) { return this.hitTestRect(e, i.hb); }, this), 
+                i;
+            
+            // we hit something
+            if (ht && e.hitBehaviors) {
+            
+                for (i = 0; i < e.hitBehaviors.length; i++) {
+                
+                    switch (e.hitBehaviors[i]) {
+                    
+                        case 'applyDamage':
+                        
+                            this.dealDamage(e, ht, e.source);
+                        
+                            break;
+                        
+                        case 'destroy':
+                        
+                            this.remove(e);
+                            
+                            break;
+                    
+                    }
+                    
+                }
+            
+            }
+        
+        }, 
+        
         // the attack is already configured, let's handle all steps
         // until the attack ends
         performAttack: function(e) {
         
             // we are in pre-animation stage, let's tick down until
             // the animation ends, if so -> deal the damage!
-            if (e.attack.preAnimationTicks > 0) {
+            if (e.attack.preAnimationTicks >= 0) {
                 
-                e.attack.preAnimationTicks -= ticks;
+                e.attack.preAnimationTicks -= this.ticks;
                 
                 if (e.attack.preAnimationTicks <= 0) {
                 
@@ -105,6 +165,13 @@
                             this.dealDamageToPosition([e.attack.x, e.attack.y], e.attack, e);
                         
                             break;
+                        
+                        // send something towards a target
+                        case 'projectile':
+                        
+                            this.launchProjectile(e.attack, e);
+                        
+                            break;
                     
                     }            
                 
@@ -114,9 +181,9 @@
             // we are in the post-animation stage, let's tick down 
             // untile the animation ends and finally remove the attack
             // object
-            else if (e.attack.postAnimationTicks > 0) {
+            else if (e.attack.postAnimationTicks >= 0) {
             
-                e.attack.postAnimationTicks -= ticks;
+                e.attack.postAnimationTicks -= this.ticks;
                 
                 if (e.attack.postAnimationTicks <= 0) {
                 
@@ -144,6 +211,35 @@
         
         },
         
+        // launch a projectile targeted to the attack target
+        launchProjectile: function(attack, source) {
+        
+            var projectile = this.createBasic(attack.projectile, {
+                    x: source.x, 
+                    y: source.y, 
+                    speed: attack.speed, 
+                    r: this.direction(source.x, source.y, attack.x, attack.y),
+                    w: attack.width, 
+                    h: attack.height
+                });
+        
+            projectile.damage = attack.damage;
+            projectile.source = source;
+            projectile.hitBehaviors = ['applyDamage', 'destroy'];
+        
+            if (attack.ttl) {
+            
+                projectile.ttl = attack.ttl;
+            
+            }
+        
+            // send the projectile on its way
+            this.moveTo(projectile, attack.x, attack.y, true);
+        
+            this.fullStack.push(projectile);
+        
+        }, 
+        
         // instant damage is applied to a specific entity
         // 1) is damage avoided by dodge or block?
         // 2) amplify damage by target type (e.g. damage against elites)
@@ -152,7 +248,7 @@
         // 5) death check         
         dealDamage: function(attack, target, source) {
         
-            var dmg = attack.damage.dmg;
+            var dmg = attack.damage.amount;
             
             if (!(target.dodgeChance && target.dodgeChance >= Math.random()) &&
                 !(target.blockChance && target.blockChance >= Math.random())) 
@@ -162,29 +258,29 @@
                 dmg += dmg * 0;
                 
                 // target has a shield, damage is reduced by the shield amount
-                if (target.shield) {
+                /*if (target.shield) {
                 
                     dmg -= target.shield.amount;
                 
-                }  
+                }*/  
                 
                 // reduce damage by type
                 
                 // reduce damage by armor
-                if (target.armor) {
+                /*if (target.armor) {
                 
                     dmg -= target.armor / (target.armor + 50 * source.level);    
                                        
-                }
+                }*/
                 
                 // there's still some damage left
                 if (dmg > 0) {
                 
                     // TODO emit damage info for overlays
                 
-                    target.life_c -= dmg;  
+                    target.life_c = Math.max(0, target.life_c - dmg);  
                     
-                    if (target.life_c <= 0) {
+                    if (target.life_c == 0) {
                     
                         // TODO emit death event for display
                     
@@ -222,13 +318,19 @@
         
             if (e.attack) {
             
-                return false;
+                e.canAttack = false;
+            
+            } else if (e.tsLastAttack) {
+            
+                e.canAttack = +new Date() - e.tsLastAttack > (1 / this.attackSpeed(e) * 1000);
             
             } else {
             
-                return +new Date() - (e.tsLastAttack || 5000) > (1 / this.attackSpeed(e) * 1000);
+                e.canAttack = true;
             
             }
+            
+            return e.canAttack;
         
         },
         
@@ -257,7 +359,7 @@
             }
             
             // we don't have an aggro target, let's check if we can find one
-            if (e.aggroTarget == null) {
+            if (!e.aggroTarget) {
                 
                 e.aggroTarget = _.find(this.stack, function(i) { return this.inRange(e, i, e.aggroRange); }, this);    
             
@@ -265,8 +367,8 @@
             
             // we have an aggro target and nothing else to do, 
             // let's try to attack it
-            if (e.aggroTarget && this.canAttack(e)) {
-
+            if (e.aggroTarget && e.canAttack) {
+                
                 this.attack(e, e.aggroTarget);
             
             }
@@ -276,10 +378,13 @@
         attack: function(e, target, attack) {
         
             var attack = attack || this.selectAttack(e, target), 
-                attackSpeed;
+                attackSpeed, damage;
 
             // if we are in range, we attack the bastard
             if (attack && this.inRange(e, target, attack.range)) {
+                
+                // we stop moving
+                this.stop(e);
                 
                 // let's get the current attack speed
                 attackSpeed = this.attackSpeed(e);
@@ -287,12 +392,25 @@
                 // set the timestamp of this attack
                 e.tsLastAttack = +new Date();
                 
+                // get the damage
+                damage = this.damage(e);
+                
+                // modify damage based on skill
+                damage.amount *= attack.damage || 1;
+                
                 e.attack = {
-                    type: attack.type, 
-                    damage: this.damage(e), 
+                    type: attack.type,
+                    projectile: attack.projectile,  
+                    damage: damage, 
                     preAnimationTicks: attack.preAnimationTicks / attackSpeed, 
                     postAnimationTicks: attack.postAnimationTicks / attackSpeed,
-                    tsStart: +new Date()                
+                    speed: attack.speed, 
+                    tsStart: +new Date(),
+                    x: target.x, 
+                    y: target.y, 
+                    width: 40, 
+                    height: 5,
+                    ttl: 5000                 
                 };
             
             } 
@@ -366,7 +484,7 @@
         
         // move an entity to a specific position described as global x/y
         // coordinates
-        moveTo: function(e, x, y) {
+        moveTo: function(e, x, y, infinite) {
         
             var distance = this.distance(e.x, e.y, x, y);
             
@@ -375,26 +493,34 @@
                 y: y, 
                 dx: (x - e.x) / distance, 
                 dy: (y - e.y) / distance,
-                tsStart: +new Date() 
+                tsStart: +new Date(), 
+                infinite: infinite 
             };
 
             this.updateRotation(e, x, y);
         
         }, 
         
+        // stops an entity
+        stop: function(e) {
+        
+            e.target = null;
+        
+        }, 
+        
         // each frame move functionality
-        move: function(e, ticks) {
+        move: function(e) {
             
             // speed = 1 means 1px/ms
-            var speed_c = e.speed_c * ticks / 10, 
+            var speed_c = e.speed_c * this.ticks / 10, 
                 nx = e.x + e.target.dx * speed_c,
                 ny = e.y + e.target.dy * speed_c;
 
             // let's try to update our position to the new coordinates
             if (this.updatePosition(e, nx, ny)) {
             
-                // if we are in range of 50px of the target we stop
-                if (this.inRange(e, e.target, 50)) {
+                // if we are in range of 20px of the target we stop
+                if (!e.target.infinite && this.inRange(e, e.target, 20)) {
                 
                     e.target = null;
                 
@@ -528,50 +654,48 @@
         
         },
 
-        create: function(type, settings) {
-    
-            var blueprint = this.blueprints[type],     
+        createBasic: function(type, settings, blueprint) {
+        
+            var blueprint = blueprint || {}, 
                 e = {
-                    id: ++this.index, 
-                    t: settings.t || blueprint.t || '', 
+                    id: ++this.index,
+                    t: type,  
                     n: settings.n || blueprint.n || '', 
                     w: settings.w || blueprint.w || 0, 
                     h: settings.h || blueprint.h || 0, 
-                    x: 0, 
-                    y: 0, 
-                    z: 0,
-                    hb: [0, 0, 0, 0],
-                    r: 0,
-                    speed: settings.speed || blueprint.speed || 0,
-                    life: 0,
-                    lps: settings.lps || blueprint.lps || 0,
-                    mana: 0,
-                    mps: settings.mps || blueprint.mps || 0,
-                    xp: settings.xp || blueprint.xp || 0,
-                    gold: settings.gold || blueprint.gold || 0,
-                    vit: settings.vit || blueprint.vit || 0,
-                    str: settings.str || blueprint.str || 0,
-                    int: settings.int || blueprint.int || 0,
-                    dex: settings.dex || blueprint.dex || 0,
-                    aggroRange: blueprint.aggroRange || 0, 
-                    skills: blueprint.skills || [],
-                    aggroTarget: null, 
-                    attackSpeed: blueprint.attackSpeed || 1,
-                    minDmg: blueprint.minDmg || 0, 
-                    maxDmg: blueprint.maxDmg || 0
+                    x: settings.x || 0, 
+                    y: settings.y || 0, 
+                    z: settings.z || 0, 
+                    hb: [0, 0, 0, 0], 
+                    r: settings.r || 0,
+                    speed: settings.speed || blueprint.speed || 0
                 };
-                
-            if (blueprint.mirrorSprites) {
             
-                e.mirrorSprites = true;
-            
-            }
-            
-            if (blueprint.textureRowDead != 'undefined') {
-            
-                e.textureRowDead = blueprint.textureRowDead;
-            
-            }
+            return e;    
+        
+        }, 
+
+        create: function(type, settings) {
+    
+            var blueprint = this.blueprints[type],     
+                e = this.createBasic(type, settings, blueprint); 
+
+            e.life = 0;
+            e.lps = settings.lps || blueprint.lps || 0;
+            e.mana = 0;
+            e.mps = settings.mps || blueprint.mps || 0;
+            e.xp = settings.xp || blueprint.xp || 0;
+            e.gold = settings.gold || blueprint.gold || 0;
+            e.vit = settings.vit || blueprint.vit || 0;
+            e.str = settings.str || blueprint.str || 0;
+            e.int = settings.int || blueprint.int || 0;
+            e.dex = settings.dex || blueprint.dex || 0;
+            e.aggroRange = blueprint.aggroRange || 0;
+            e.skills = blueprint.skills || [];
+            e.aggroTarget = null;
+            e.attackSpeed = blueprint.attackSpeed || 1;
+            e.minDmg = blueprint.minDmg || 0;
+            e.maxDmg = blueprint.maxDmg || 0
             
             this.refresh(e);
     

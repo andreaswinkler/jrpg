@@ -112,5 +112,13 @@ var RenderLayer = function(width, height) {
         }
     
     };
+    
+    this.rotate = function(x, y, r) {
+    
+        this.ctx.save();
+        this.ctx.translate(x, y);
+        this.ctx.rotate(r);
+    
+    };
       
 }

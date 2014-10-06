@@ -248,9 +248,9 @@ var JRPG = {
             JRPG.map = map;
         
             EventManager.publish('map', this, map);
-            
+
             // load all necessary textures
-            TextureSystem.loadMapTextures(map, $.proxy(function() {
+            TextureSystem.loadTextures([map.theme].concat(_.pluck(map.stack, 't')), $.proxy(function() {
             
                 // all necessary textures are available
                 // let's setup minimap and the renderer

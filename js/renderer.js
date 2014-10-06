@@ -20,7 +20,7 @@ var Renderer = {
     
     mapRendered: false,
     
-    drawHealthBars: false,  
+    drawHealthBars: true,  
 
     init: function() {
     
@@ -247,29 +247,36 @@ var Renderer = {
     // converts a rotation value to the corresponding row in the sprite 
     // sheet. The sheet contains rotations in the following order:
     // up, up-right, right, down-right, down, down-left, left, up-left
-    rotationToTextureRow: function(r, hero) {
+    rotationToTextureRow: function(e) {
 
-        var rotDeg = r * (180 / Math.PI),  
-            texRow = 0;
+        var settings = TextureSystem.settings(e.t), 
+            texRow = 0, 
+            rotDeg;
 
-        if (rotDeg > 337.5 || rotDeg < 22.5) {
-            texRow = 2;
-        } else if (rotDeg < 67.5) {
-            texRow = 1;
-        } else if (rotDeg < 112.5) {
-            texRow = 0;
-        } else if (rotDeg < 157.5) {
-            texRow = 7;
-        } else if (rotDeg < 202.5) {
-            texRow = 6;
-        } else if (rotDeg < 247.5) {
-            texRow = 5;
-        } else if (rotDeg < 292.5) {
-            texRow = 4;        
-        } else if (rotDeg < 337.5) {
-            texRow = 3;
-        } 
-    
+        if (settings) {
+
+            rotDeg = e.r * (180 / Math.PI);
+
+            if (rotDeg > 337.5 || rotDeg < 22.5) {
+                texRow = 2;
+            } else if (rotDeg < 67.5) {
+                texRow = 1;
+            } else if (rotDeg < 112.5) {
+                texRow = 0;
+            } else if (rotDeg < 157.5) {
+                texRow = 8;
+            } else if (rotDeg < 202.5) {
+                texRow = 7;
+            } else if (rotDeg < 247.5) {
+                texRow = 6;
+            } else if (rotDeg < 292.5) {
+                texRow = 4;        
+            } else if (rotDeg < 337.5) {
+                texRow = 3;
+            } 
+        
+        }
+        
         return texRow;         
 
     },  
@@ -301,10 +308,18 @@ var Renderer = {
     animationToTextureCol: function(e) {
     
         var now = +new Date(), 
-            ts = TextureSystem.textures[e.t].settings, 
+            ts = TextureSystem.settings(e.t), 
             af = 0, 
             duration = 0,  
             as, asDuration;
+    
+        // if we don't have texture settings, we can't process
+        // animations
+        if (!ts) {
+        
+            return af;
+        
+        }
     
         // the entity is dead, let's play the death animation 
         if (e.tsDeath) {
@@ -386,7 +401,7 @@ var Renderer = {
             x: e.x - this.localRoot.x - e.w / 2,
             y: e.y - this.localRoot.y - e.h,
             ox: this.animationToTextureCol(e) * e.w, 
-            oy: (e.tsDeath ? 8 : this.rotationToTextureRow(e.r, e.t == 'hero')) * e.h,
+            oy: (e.tsDeath ? 5 : this.rotationToTextureRow(e)) * e.h,
             tex: e.t 
         };
         
@@ -402,6 +417,17 @@ var Renderer = {
             c = e.t == 'hero' ? 'rgba(255,255,255,.5)' : 'rgba(210,0,0,.8)'; 
 
         if (texture && texture.c) {
+          
+            if (!texture.settings) {
+            
+                layer.rotate(ri.x, ri.y, e.r);
+                
+                // we translated the canvas already so we draw at this
+                // location
+                ri.x = 0;
+                ri.y = 0;
+                
+            }
         
             layer.ctx.drawImage(
                 // texture
@@ -423,20 +449,33 @@ var Renderer = {
                 // source height
                 e.h
             );
+            
+            if (!texture.settings) {
+            
+                layer.ctx.restore();
+                
+            }
         
         } else {
         
-            TextureSystem.load(ri.tex, 'tex/' + ri.tex + '.png', e.mirrorSprites);    
+            TextureSystem.load(ri.tex, 'tex/' + ri.tex + '.png');    
+        
+        }
+        
+        // aggro range
+        if (e.aggroRange) {
+        
+            layer.circle(ri.x, ri.y, e.aggroRange, 'rgba(210,210,0,0.1)', 'rgba(210,210,0,0.5)');
         
         }
         
         // health bars
-        if (this.drawHealthbars && e.life) {
+        if (this.drawHealthBars && e.life) {
         
-            l.bar(
-                ri.x - 50, 
+            layer.bar(
+                ri.x, 
                 ri.y, 
-                100, 
+                e.w, 
                 10, 
                 e.life_c / e.life, 
                 'rgba(0,0,0,0.75)', 

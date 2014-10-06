@@ -27,7 +27,10 @@ var UI = {
         
             JRPG.startArenaGame(this.e.find('.arenas').val());
         
-        }, this));    
+        }, this));
+        
+        // shortcut start arena game
+        JRPG.startArenaGame(1);    
     
     },
     
@@ -75,7 +78,7 @@ var UI = {
         
         this.e.html('');
         
-        this.e.append('<input type="password" class="login-box" placeholder="dev key" />'); 
+        /*this.e.append('<input type="password" class="login-box" placeholder="dev key" />'); 
         
         this.e.find('.login-box').keydown(function(ev) {
         
@@ -87,7 +90,10 @@ var UI = {
             
             }
         
-        });  
+        });*/  
+        
+        // shortcut auto-login
+        JRPG.authenticate('1983');
     
     }, 
     
