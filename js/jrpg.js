@@ -25,7 +25,9 @@ var JRPG = {
          window.webkitRequestAnimationFrame || 
          window.msRequestAnimationFrame,  
     
-    eGame: null, 
+    eGame: null,
+    
+    paused: false,  
     
     // the game loop
     loop: function() {
@@ -37,7 +39,11 @@ var JRPG = {
         
             this.tsLastLoop = ts;
     
-            this.gameLoop(ticks);
+            if (!this.paused) {
+            
+                this.gameLoop(ticks);
+            
+            }
             
             this.rAF.call(window, function() { JRPG.loop(); });
         

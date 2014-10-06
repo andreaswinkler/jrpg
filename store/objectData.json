@@ -15,8 +15,8 @@
     }, 
     "hystrix": {
       "name": "Hystrix",
-      "width": 96,
-      "height": 90, 
+      "width": 100,
+      "height": 105, 
       "type": "hystrix",  
       "MoveComponent": { "speed": 1 }, 
       "ManaComponent": { "total": 5 }, 

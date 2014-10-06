@@ -247,13 +247,11 @@ var Renderer = {
     // converts a rotation value to the corresponding row in the sprite 
     // sheet. The sheet contains rotations in the following order:
     // up, up-right, right, down-right, down, down-left, left, up-left
-    rotationToTextureRow: function(r) {
+    rotationToTextureRow: function(r, hero) {
 
         var rotDeg = r * (180 / Math.PI),  
             texRow = 0;
 
-        rotDeg = rotDeg < 0 ? rotDeg * -1 : 180 + (180 - rotDeg);
-    
         if (rotDeg > 337.5 || rotDeg < 22.5) {
             texRow = 2;
         } else if (rotDeg < 67.5) {
@@ -324,12 +322,13 @@ var Renderer = {
         
         } 
         // the entity is moving, let's play the move animation
-        else if (e.tsMoveStart) {
+        else if (e.target) {
         
             as = ts.animations.move;
-            tsStart = e.tsMoveStart;   
+            tsStart = e.target.tsStart;   
         
         }
+        
         
         // we could determine an animation settings object
         if (as) {
@@ -350,7 +349,7 @@ var Renderer = {
             else if (as.durationAttribute && e[as.durationAttribute] != 0) {
             
                 duration = 1 / e[as.durationAttribute];
-            
+
             } 
             // the animation settings specify a method of the entity 
             // which can be used to determine the animation duration 
@@ -372,9 +371,9 @@ var Renderer = {
                 }
             
             }
-        
+
             af = this.getAnimationFrame(tsStart, as.offset, as.frameCount, duration, as.loop);
-        
+
         }
         
         return af;
@@ -387,7 +386,7 @@ var Renderer = {
             x: e.x - this.localRoot.x - e.w / 2,
             y: e.y - this.localRoot.y - e.h,
             ox: this.animationToTextureCol(e) * e.w, 
-            oy: (e.tsDeath ? 8 : this.rotationToTextureRow(e.r)) * e.h,
+            oy: (e.tsDeath ? 8 : this.rotationToTextureRow(e.r, e.t == 'hero')) * e.h,
             tex: e.t 
         };
         

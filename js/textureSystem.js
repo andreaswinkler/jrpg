@@ -6,6 +6,7 @@ var TextureSystem = {
     textures: {
         hero: { 
             settings: {
+                frameCount: 17, 
                 animations: {
                     death: {
                         offset: 0, 
@@ -14,14 +15,14 @@ var TextureSystem = {
                         loop: false
                     },
                     move: {
-                        offset: 1,
-                        frameCount: 12,
+                        offset: 0,
+                        frameCount: 8,
                         durationAttribute: 'speed_c',
                         loop: true 
                     },
                     bash: {
-                        offset: 14, 
-                        frameCount: 8,
+                        offset: 8, 
+                        frameCount: 9,
                         durationMethod: 'attackSpeed',
                         loop: false
                     }
@@ -30,6 +31,7 @@ var TextureSystem = {
         },
         hystrix: {
             settings: {
+                frameCount: 1, 
                 animations: {
                     death: {
                         offset: 0, 
@@ -48,7 +50,7 @@ var TextureSystem = {
         }    
     }, 
     
-    // for right side of character
+    // for right side of character                                                                                           
     // this is flipped for down-left, left and up-left
     equipmentTexturesOrder: ['offhand1', 'weapon1'],
 
@@ -87,7 +89,10 @@ var TextureSystem = {
                     
                         var canvas = document.createElement('canvas'), 
                             ctx = canvas.getContext('2d'), 
-                            rowHeight = this.height / 5;
+                            rowHeight = this.height / 5,
+                            frameCount = TextureSystem.textures[this.key].settings.frameCount, 
+                            colWidth = this.width / frameCount, 
+                            i, j;
                         
                         canvas.width = this.width;
                         canvas.height = this.height + rowHeight * 3;
@@ -95,9 +100,20 @@ var TextureSystem = {
                         ctx.drawImage(this, 0, 0);
                         ctx.translate(this.width, 0);
                         ctx.scale(-1, 1);
-                        ctx.drawImage(this, 0, 3 * rowHeight, this.width, rowHeight, 0, this.height, this.width, rowHeight);
-                        ctx.drawImage(this, 0, 2 * rowHeight, this.width, rowHeight, 0, this.height + rowHeight, this.width, rowHeight);
-                        ctx.drawImage(this, 0, rowHeight, this.width, rowHeight, 0, this.height + 2 * rowHeight, this.width, rowHeight);
+                        
+                        for (i = 3, j = 0; i > 0; i--, j++) {
+                        
+                            for (k = 0; k < frameCount; k++) {
+                            
+                                ctx.drawImage(this, k * colWidth, i * rowHeight, colWidth, rowHeight, this.width - (k + 1) * colWidth, this.height + j * rowHeight, colWidth, rowHeight);
+                            
+                            }
+                        
+                        }
+                        
+                        //ctx.drawImage(this, 0, 3 * rowHeight, this.width, rowHeight, 0, this.height, this.width, rowHeight);
+                        //ctx.drawImage(this, 0, 2 * rowHeight, this.width, rowHeight, 0, this.height + rowHeight, this.width, rowHeight);
+                        //ctx.drawImage(this, 0, rowHeight, this.width, rowHeight, 0, this.height + 2 * rowHeight, this.width, rowHeight);
                         
                         TextureSystem.textures[this.key].c = canvas;
                     

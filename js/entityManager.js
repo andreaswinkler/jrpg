@@ -57,8 +57,11 @@
             // can we attack the next frame?
             e.canAttack = this.canAttack(e);
 
+            // speed
+            e.speed_c = e.speed;
+
             // move stuff
-            if (e.speed > 0 && e.target) {
+            if (e.speed_c > 0 && e.target) {
                 
                 this.move(e, ticks);
             
@@ -67,14 +70,14 @@
             // life per second
             if (e.lps > 0 && this.life_c < this.life) {
             
-                this.life_c = Math.min(this.life_c + this.lps / 1000 * ticks, this.life);
+                e.life_c = Math.min(e.life_c + e.lps / 1000 * ticks, e.life);
             
             }
             
             // mana per second
             if (e.mps > 0 && this.mana_c < this.mana) {
             
-                this.mana_c = Math.min(this.mana_c + this.mps / 1000 * ticks, this.mana);
+                e.mana_c = Math.min(e.mana_c + e.mps / 1000 * ticks, e.mana);
             
             }
         
@@ -294,7 +297,7 @@
             
             } 
             // otherwise we try to move closer (if we can move at all)
-            else if (e.speed > 0) {
+            else if (e.speed_c > 0) {
             
                 this.moveTo(e, target.x, target.y);
             
@@ -361,6 +364,8 @@
         
         }, 
         
+        // move an entity to a specific position described as global x/y
+        // coordinates
         moveTo: function(e, x, y) {
         
             var distance = this.distance(e.x, e.y, x, y);
@@ -369,19 +374,21 @@
                 x: x, 
                 y: y, 
                 dx: (x - e.x) / distance, 
-                dy: (y - e.y) / distance 
+                dy: (y - e.y) / distance,
+                tsStart: +new Date() 
             };
 
             this.updateRotation(e, x, y);
         
         }, 
         
+        // each frame move functionality
         move: function(e, ticks) {
             
             // speed = 1 means 1px/ms
-            var speed_c = e.speed * ticks / 10, 
-                nx = (e.x + e.target.dx * speed_c),
-                ny = (e.y + e.target.dy * speed_c);
+            var speed_c = e.speed_c * ticks / 10, 
+                nx = e.x + e.target.dx * speed_c,
+                ny = e.y + e.target.dy * speed_c;
 
             // let's try to update our position to the new coordinates
             if (this.updatePosition(e, nx, ny)) {
@@ -444,7 +451,7 @@
         // calculating the vector between its position and given x/y coordinates
         updateRotation: function(e, x, y) {
         
-            e.rotation = this.direction(e.x, e.y, x, y);
+            e.r = this.direction(e.x, e.y, x, y);
         
         },
         
@@ -476,9 +483,15 @@
         
         direction: function(x, y, x2, y2) {
         
-            var ax = (x2 - x) / this.distance(x, y, x2, y2);
+            var theta = Math.atan2((y2 - y) * -1, x2 - x);
             
-            return y2 - y > 0 ? Math.cos(ax) - Math.PI : Math.acos(ax * -1);
+            if (theta < 0) {
+            
+                theta += 2 * Math.PI;
+            
+            }
+            
+            return theta;
         
         },
         

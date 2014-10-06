@@ -59,8 +59,6 @@
             
             }
             
-            console.dir(input);
-            
             return input;        
 
         },
