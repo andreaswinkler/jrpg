@@ -189,7 +189,7 @@ var Renderer = {
             shardSize = 6400, 
             shardTilesH = shardSize / this.tileWidth, 
             shardTilesV = shardSize / this.tileHeightHalf,
-            texture = TextureSystem.textures[map.theme],   
+            texture = TextureSystem.textures[map.theme].c,   
             tilesH, tilesV, i, j, k, c, ctx;
         
         this.mapCache = [];
@@ -244,6 +244,9 @@ var Renderer = {
     
     },
     
+    // converts a rotation value to the corresponding row in the sprite 
+    // sheet. The sheet contains rotations in the following order:
+    // up, up-right, right, down-right, down, down-left, left, up-left
     rotationToTextureRow: function(r) {
 
         var rotDeg = r * (180 / Math.PI),  
@@ -271,15 +274,120 @@ var Renderer = {
     
         return texRow;         
 
-    },       
+    },  
+    
+    // returns the correct frame within an animation based on the 
+    // length of the animation and the elapsed time
+    // also handles looping animations
+    getAnimationFrame: function(tsStart, offset, frameCount, duration, loop) {
+    
+        var loop = loop || false, 
+            ticks = +new Date() - tsStart, 
+            animationTicks = duration * 1000,  
+            ticksPerFrame = animationTicks / frameCount;
+        
+        // we don't loop and the animation has already passed
+        // -> return the last frame
+        if (!loop && ticks > animationTicks) {
+        
+            return offset + frameCount;
+        
+        }
+        
+        return offset + (Math.floor(ticks / ticksPerFrame) % frameCount);
+    
+    }, 
+    
+    // get the correct animation frame based on the current animation 
+    // status of the entity
+    animationToTextureCol: function(e) {
+    
+        var now = +new Date(), 
+            ts = TextureSystem.textures[e.t].settings, 
+            af = 0, 
+            duration = 0,  
+            as, asDuration;
+    
+        // the entity is dead, let's play the death animation 
+        if (e.tsDeath) {
+        
+            as = ts.animations.death;
+            tsStart = e.tsDeath;
+        
+        } 
+        // the entity is attacking, let's play the corresponding attack 
+        // animation
+        else if (e.attack) {
+        
+            as = ts.animations[e.attack.type];
+            tsStart = e.attack.tsStart;
+        
+        } 
+        // the entity is moving, let's play the move animation
+        else if (e.tsMoveStart) {
+        
+            as = ts.animations.move;
+            tsStart = e.tsMoveStart;   
+        
+        }
+        
+        // we could determine an animation settings object
+        if (as) {
+        
+            // the animation settings describe a fixed value for the 
+            // animation duration in seconds            
+            if (as.duration) {
+            
+                duration = as.duration;
+                                            
+            } 
+            // the animation settings specify an attribute of the entity 
+            // which can be used to determine the animation duration
+            // it is assumed that the mentioned attribute holds a speed 
+            // value, therefore we calculate the duration: 1/x
+            // e.g.: Speed = 2 (means two walk cycles per second), therefore 
+            // the duration = 1/2 => 0,5s
+            else if (as.durationAttribute && e[as.durationAttribute] != 0) {
+            
+                duration = 1 / e[as.durationAttribute];
+            
+            } 
+            // the animation settings specify a method of the entity 
+            // which can be used to determine the animation duration 
+            // it is assumed that the mentioned attribute holds a speed 
+            // value, therefore we calculate the duration: 1/x
+            // e.g.: AttackSpeed = 2 (means 2 attacks per second), therefore 
+            // the duration = 1/2 => 0,5s
+            //
+            // HINT: because this is the most expensive method to calculate the 
+            // animation duration we should probably find another way
+            else if (as.durationMethod) {
+            
+                asDuration = e[as.durationMethod].call(e);
+            
+                if (asDuration != 0) {
+                
+                    duration = 1 / e[as.durationMethod].call(e);
+                
+                }
+            
+            }
+        
+            af = this.getAnimationFrame(tsStart, as.offset, as.frameCount, duration, as.loop);
+        
+        }
+        
+        return af;
+    
+    },      
     
     renderInfo: function(e) {
     
         var info = {
             x: e.x - this.localRoot.x - e.w / 2,
             y: e.y - this.localRoot.y - e.h,
-            ox: 0, 
-            oy: this.rotationToTextureRow(e.r) * e.h,
+            ox: this.animationToTextureCol(e) * e.w, 
+            oy: (e.tsDeath ? 8 : this.rotationToTextureRow(e.r)) * e.h,
             tex: e.t 
         };
         
@@ -291,13 +399,14 @@ var Renderer = {
     
         var layer = this.layers.objects, 
             ri = this.renderInfo(e),
+            texture = TextureSystem.textures[ri.tex], 
             c = e.t == 'hero' ? 'rgba(255,255,255,.5)' : 'rgba(210,0,0,.8)'; 
 
-        if (TextureSystem.textures[ri.tex]) {
+        if (texture && texture.c) {
         
             layer.ctx.drawImage(
                 // texture
-                TextureSystem.textures[ri.tex], 
+                texture.c, 
                 // texture offset x
                 ri.ox, 
                 // texture offset y

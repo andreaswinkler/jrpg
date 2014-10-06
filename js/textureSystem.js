@@ -3,7 +3,50 @@
 */
 var TextureSystem = {
 
-    textures: {}, 
+    textures: {
+        hero: { 
+            settings: {
+                animations: {
+                    death: {
+                        offset: 0, 
+                        frameCount: 6, 
+                        duration: 2,
+                        loop: false
+                    },
+                    move: {
+                        offset: 1,
+                        frameCount: 12,
+                        durationAttribute: 'speed_c',
+                        loop: true 
+                    },
+                    bash: {
+                        offset: 14, 
+                        frameCount: 8,
+                        durationMethod: 'attackSpeed',
+                        loop: false
+                    }
+                }
+            }
+        },
+        hystrix: {
+            settings: {
+                animations: {
+                    death: {
+                        offset: 0, 
+                        frameCount: 6, 
+                        duration: 2,
+                        loop: false    
+                    },
+                    move: {
+                        offset: 1,
+                        frameCount: 12,
+                        durationAttribute: 'speed_c',
+                        loop: true     
+                    }
+                }
+            }
+        }    
+    }, 
     
     // for right side of character
     // this is flipped for down-left, left and up-left
@@ -34,6 +77,12 @@ var TextureSystem = {
         
                     console.log('texture <' + this.key + '> loaded.');
         
+                    if (!TextureSystem.textures[this.key]) {
+                    
+                        TextureSystem.textures[this.key] = {};    
+                    
+                    }
+        
                     if (this.createMirrors) {
                     
                         var canvas = document.createElement('canvas'), 
@@ -50,11 +99,11 @@ var TextureSystem = {
                         ctx.drawImage(this, 0, 2 * rowHeight, this.width, rowHeight, 0, this.height + rowHeight, this.width, rowHeight);
                         ctx.drawImage(this, 0, rowHeight, this.width, rowHeight, 0, this.height + 2 * rowHeight, this.width, rowHeight);
                         
-                        TextureSystem.textures[this.key] = canvas;
+                        TextureSystem.textures[this.key].c = canvas;
                     
                     } else {
                     
-                        TextureSystem.textures[this.key] = this;
+                        TextureSystem.textures[this.key].c = this;
                     
                     }
                     

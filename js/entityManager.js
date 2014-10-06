@@ -288,7 +288,8 @@
                     type: attack.type, 
                     damage: this.damage(e), 
                     preAnimationTicks: attack.preAnimationTicks / attackSpeed, 
-                    postAnimationTicks: attack.postAnimationTicks / attackSpeed                
+                    postAnimationTicks: attack.postAnimationTicks / attackSpeed,
+                    tsStart: +new Date()                
                 };
             
             } 
