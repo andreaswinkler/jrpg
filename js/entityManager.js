@@ -49,6 +49,13 @@
             // death check -> dead entities don't do anything
             if (e.tsDeath > 0) {
             
+                // after 1 minute we remove dead things
+                if (e.t != 'hero' && +new Date() - e.tsDeath > 60000) {
+                
+                    this.remove(e);
+                
+                }
+            
                 return;
             
             }
@@ -56,7 +63,7 @@
             // filter the stack to only contain enemies :)
             this.stack = _.filter(stack, function(i) {
             
-                return i !== e && ((e.t == 'hero' && i.t != 'hero') || (e.t != 'hero' && i.t == 'hero'));
+                return i !== e && !i.tsDeath && ((e.t == 'hero' && i.t != 'hero') || (e.t != 'hero' && i.t == 'hero'));
             
             }, this);
 
@@ -276,15 +283,15 @@
                 // there's still some damage left
                 if (dmg > 0) {
                 
-                    // TODO emit damage info for overlays
-                
                     target.life_c = Math.max(0, target.life_c - dmg);  
                     
+                    this.note(target, 'damageTaken', { amount: dmg, type: attack.damage.type });
+                    
                     if (target.life_c == 0) {
-                    
-                        // TODO emit death event for display
-                    
+
                         target.tsDeath = +new Date();
+                        
+                        this.note(target, 'death');
                     
                     }  
                 
@@ -293,6 +300,22 @@
             }    
         
         },    
+        
+        note: function(e, type, data) {
+        
+            var data = data || {};
+            
+            data.t = type;
+            
+            if (!e.notes) {
+            
+                e.notes = [];
+            
+            }
+            
+            e.notes.push(data);
+        
+        }, 
         
         // expand a position in form [x,y] to a rect [x1,y1,x2,y2] by a 
         // margin in all directions
@@ -349,8 +372,9 @@
             // we have an aggro target, let's check if we are still in range
             if (e.aggroTarget) {
             
+                // the aggro target died or 
                 // we are out of range, let's forget about it
-                if (!this.inRange(e, e.aggroTarget, e.aggroRange)) {
+                if (e.aggroTarget.tsDeath || !this.inRange(e, e.aggroTarget, e.aggroRange)) {
                 
                     e.aggroTarget = null;    
                 

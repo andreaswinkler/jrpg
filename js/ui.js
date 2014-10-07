@@ -69,8 +69,23 @@ var UI = {
         EventManager.subscribe(null, 'publicGameListLoaded', UI.publicGameList, UI);
         EventManager.subscribe(null, 'map', UI.onMapLoaded, UI);
         EventManager.subscribe(null, 'mapSetup', UI.onMapSetup, UI);
+        EventManager.subscribe(null, 'entityDeath', UI.onEntityDeath, UI);
     
     },
+    
+    onEntityDeath: function(e) {
+    
+        if (e === JRPG.hero) {
+        
+            this.e.append('<div class="death"><span>You died.</span><input type="button" value="resurrect" /></div>');    
+        
+        } else {
+        
+            console.log('<' + e.t + ' #' + e.id + '> died.');
+        
+        }
+    
+    }, 
     
     loginScreen: function() {
     

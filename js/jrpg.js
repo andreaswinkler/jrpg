@@ -33,7 +33,7 @@ var JRPG = {
     loop: function() {
     
         var ts = +new Date(), 
-            ticks = ts - (this.tsLastLoop || +new Date());
+            ticks = ts - (this.tsLastLoop || ts);
     
         if (ticks >= 16.6) {
         
@@ -51,7 +51,7 @@ var JRPG = {
         
             if (!this.tsLastLoop) {
             
-                this.tsLastLoop = +new Date();
+                this.tsLastLoop = ts;
             
             }
         
@@ -78,6 +78,13 @@ var JRPG = {
             EntityManager.loop(this.map.stack[i], ticks, this.map.stack);
         
         }
+        
+        for (i = 0; i < this.map.stack.length; i++) {
+        
+            this.map.stack[i].notes = [];
+        
+        }
+        
         
         Renderer.update();
     
@@ -311,7 +318,27 @@ var JRPG = {
             
             }
         
-        }, this));   
+        }, this));  
+        
+        this.socket.on('deaths', $.proxy(function(data) {
+        
+            var i, e;
+            
+            console.dir(data);
+        
+            for (i = 0; i < data.deaths.length; i++) {
+            
+                e = this.entityById(data.deaths[i]);
+            
+                if (e) {
+            
+                    EventManager.publish('entityDeath', this, e);
+                
+                }
+            
+            }    
+        
+        }, this)); 
     
     },
     

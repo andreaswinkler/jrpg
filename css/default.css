@@ -55,7 +55,10 @@ body { overflow: hidden; width: 100%; height: 100%; }
 #jrpg_object_info.rank-1 { color: #1973d8; text-shadow: 1px 1px 5px #eee; }
 #jrpg_object_info.rank-2 { color: #eedc15; }
 
-#jrpg_gameover { background: #c10000; color: #fff; text-align: center; display: none; width: 100%; height: 100%; z-index: 1000; position: absolute; top: 0; left: 0; }
+.death { background: rgba(50,50,50,.8); color: #fff; text-align: center; display: block; width: 100%; height: 100%; z-index: 1000; position: absolute; top: 0; left: 0; }
+.death span { font-size: 32px; }
+.death input { margin: 400px 0px 0px 0px; }
+
 
 #jrpg_game { width: 100%; height: 100%; position: absolute; top: 0; left: 0; display: block; min-width: 100%; min-height: 100%; }
 #jrpg_game.login { background: url(../img/jrpg.jpg) center center no-repeat; }

@@ -4,6 +4,7 @@ module.exports = {
 
     _em: require('../js/entityManager.js'),
     _is: require('../js/inputSystem.js'),
+    _: require('../js/underscore/underscore.min.js'),
 
     version: '1.0',
     
@@ -19,7 +20,7 @@ module.exports = {
     
     tsLastLoop: 0, 
     
-    msFrame: 1000, 
+    msFrame: 16.6, 
     
     msUpdate: 2000,
     
@@ -184,7 +185,7 @@ module.exports = {
     
         var now = +new Date(), 
             fullStackUpdate = false, 
-            i, j, lastInput, m, p, s, actions;
+            i, j, k, lastInput, m, p, s, actions, deaths;
         
         // loop through all maps in this game
         for (i = 0; i < g.maps.length; i++) {
@@ -254,6 +255,30 @@ module.exports = {
                 
                 }
                 
+                // grab all deaths
+                deaths = [];
+                
+                for (j = 0; j < m.stack.length; j++) {
+                
+                    if (m.stack[j].notes) {
+                        
+                        for (k = 0; k < m.stack[j].notes.length; k++) {
+                            console.log(m.stack[j].notes[k].t);
+                            if (m.stack[j].notes[k].t == 'death') {
+                            
+                                deaths.push(m.stack[j].id);
+                            
+                            }
+                        
+                        }
+                    
+                    }
+                    
+                    // reset notes
+                    m.stack[j].notes = [];
+                
+                }
+                
                 for (j = 0; j < m.players.length; j++) {
                 
                     s = m.players[j].socket;
@@ -270,9 +295,17 @@ module.exports = {
                     
                         s.tsLastUpdate = now;
                     
-                        s.emit('update', {
+                        /*s.emit('update', {
                             n: s.lastProcessedInputNo,
                             updates: this.updates(m)
+                        });*/
+                    
+                    }
+                    
+                    if (deaths.length > 0) {
+                    
+                        s.emit('deaths', {
+                            deaths: deaths
                         });
                     
                     }
