@@ -185,12 +185,14 @@ module.exports = {
     
         var now = +new Date(), 
             fullStackUpdate = false, 
-            i, j, k, lastInput, m, p, s, actions, deaths;
+            i, j, k, lastInput, m, p, s, actions;
         
         // loop through all maps in this game
         for (i = 0; i < g.maps.length; i++) {
         
             m = g.maps[i];
+        
+            this._em.frameUpdates = null;
         
             // we process the stack only if there are players on this map
             if (m.players.length > 0) {
@@ -233,6 +235,8 @@ module.exports = {
                     
                     if (p.active && p.stacks.length > 0) {
                     
+                        this._em.frameUpdate('global', ['create', p.stacks[0]]);
+                    
                         m.stack = m.stack.concat(p.stacks.shift());
                         
                         fullStackUpdate = true;
@@ -255,27 +259,25 @@ module.exports = {
                 
                 }
                 
-                // grab all deaths
-                deaths = [];
+                if (this._em.frameUpdates) {
                 
-                for (j = 0; j < m.stack.length; j++) {
-                
-                    if (m.stack[j].notes) {
+                    this._.each(this._em.frameUpdates, function(value, key) {
+                    
+                        var e;
+                    
+                        if (key != 'global') {
                         
-                        for (k = 0; k < m.stack[j].notes.length; k++) {
-                            console.log(m.stack[j].notes[k].t);
-                            if (m.stack[j].notes[k].t == 'death') {
-                            
-                                deaths.push(m.stack[j].id);
-                            
+                            e = value.shift();
+                        
+                            if (e.x >= 0 && e.y >= 0) {
+                                value.unshift(['u', e.x, e.y, e.life_c]);
                             }
+                        
+                            this._em.frameUpdates[key] = value;    
                         
                         }
                     
-                    }
-                    
-                    // reset notes
-                    m.stack[j].notes = [];
+                    }, this);
                 
                 }
                 
@@ -302,11 +304,9 @@ module.exports = {
                     
                     }
                     
-                    if (deaths.length > 0) {
+                    if (this._em.frameUpdates) {
                     
-                        s.emit('deaths', {
-                            deaths: deaths
-                        });
+                        s.emit('u', this._em.frameUpdates);
                     
                     }
                 

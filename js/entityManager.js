@@ -28,11 +28,89 @@
         
         ticks: 0,  
         
-        loop: function(e, ticks, stack) {
+        isServer: false, 
+        
+        frameUpdates: null, 
+        
+        frameUpdate: function(e, data) {
+        
+            var key = e === 'global' ? e : e.id;
+        
+            // we store frame updates only on the client
+            if (this.isServer) {
+            
+                if (!this.frameUpdates) {
+                
+                    this.frameUpdates = {};
+                
+                }
+            
+                if (!this.frameUpdates[key]) {
+                    
+                    this.frameUpdates[key] = [];
+                
+                }
+                
+                if (key != 'global') {
+                
+                    this.frameUpdates[key].push(e);
+                
+                }
+                
+                this.frameUpdates[key].push(data);
+            
+            }
+        
+        }, 
+        
+        // process the frame updates, only happens on the client
+        processFrameUpdates: function(e) {
+        
+            var i, u;
+            
+            for (i = 0; i < e.frameUpdates.length; i++) {
+            
+                u = e.frameUpdates[i];
+            
+                switch (u[0]) {
+                
+                    // we only update the provided attributes
+                    // [x, y, life_c]
+                    case 'u':
+                    
+                        this.updatePosition(e, u[1], u[2]);
+                        this.life_c = u[3];
+                        
+                        if (e.life_c == 0) {
+                        
+                            e.tsDeath = +new Date();
+                        
+                        } 
+                        
+                        break;
+                    
+                    // we remove the entity
+                    case 'remove':
+                    
+                        this.remove(e);
+                        
+                        break;
+                    
+                    // we move to a position
+                    case 'moveTo':
+                    
+                        this.moveTo(e, u[1], u[2]);
+                        
+                        break;
 
-            this.fullStack = stack;
-            this.ticks = ticks;
-
+                }
+            
+            }
+        
+        }, 
+        
+        serverLoop: function(e, ticks) {
+        
             // check time-to-live
             if (e.ttl) {
             
@@ -45,7 +123,7 @@
                 }
             
             }
-
+            
             // death check -> dead entities don't do anything
             if (e.tsDeath > 0) {
             
@@ -59,14 +137,7 @@
                 return;
             
             }
-
-            // filter the stack to only contain enemies :)
-            this.stack = _.filter(stack, function(i) {
             
-                return i !== e && !i.tsDeath && ((e.t == 'hero' && i.t != 'hero') || (e.t != 'hero' && i.t == 'hero'));
-            
-            }, this);
-
             // handle aggro stuff
             if (e.aggroRange) {
             
@@ -74,17 +145,39 @@
             
             }
             
+            this.hitTestStack(e);
+            
+            // can we attack the next frame?
+            e.canAttack = this.canAttack(e); 
+            
+               
+        
+        }, 
+        
+        loop: function(e, ticks, stack) {
+
+            this.fullStack = stack;
+            this.ticks = ticks;
+            
+            // filter the stack to only contain enemies :)
+            this.stack = _.filter(stack, function(i) {
+            
+                return i !== e && !i.tsDeath && ((e.t == 'hero' && i.t != 'hero') || (e.t != 'hero' && i.t == 'hero'));
+            
+            }, this);
+
+            if (this.isServer) {
+            
+                this.serverLoop(e, ticks);
+            
+            }
+
             // handle attack timers
             if (e.attack) {
             
                 this.performAttack(e);
             
             }
-            
-            this.hitTestStack(e);
-            
-            // can we attack the next frame?
-            e.canAttack = this.canAttack(e);
 
             // speed
             e.speed_c = e.speed;
@@ -115,6 +208,8 @@
         remove: function(e) {
         
             this.fullStack.splice(this.fullStack.indexOf(e), 1);
+            
+            this.frameUpdate(e, ['remove']);
         
         }, 
         
@@ -243,7 +338,18 @@
             // send the projectile on its way
             this.moveTo(projectile, attack.x, attack.y, true);
         
+            this.add(projectile);
+        
             this.fullStack.push(projectile);
+        
+        }, 
+        
+        // adds a new entity to the stack
+        add: function(e) {
+        
+            this.fullStack.push(projectile);
+            
+            this.frameUpdate('global', ['create', projectile]);
         
         }, 
         
@@ -285,14 +391,10 @@
                 
                     target.life_c = Math.max(0, target.life_c - dmg);  
                     
-                    this.note(target, 'damageTaken', { amount: dmg, type: attack.damage.type });
-                    
                     if (target.life_c == 0) {
 
                         target.tsDeath = +new Date();
-                        
-                        this.note(target, 'death');
-                    
+
                     }  
                 
                 }
@@ -300,22 +402,6 @@
             }    
         
         },    
-        
-        note: function(e, type, data) {
-        
-            var data = data || {};
-            
-            data.t = type;
-            
-            if (!e.notes) {
-            
-                e.notes = [];
-            
-            }
-            
-            e.notes.push(data);
-        
-        }, 
         
         // expand a position in form [x,y] to a rect [x1,y1,x2,y2] by a 
         // margin in all directions
@@ -522,6 +608,8 @@
             };
 
             this.updateRotation(e, x, y);
+            
+            this.frameUpdate(e, ['moveTo', x, y]);
         
         }, 
         

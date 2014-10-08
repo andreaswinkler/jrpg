@@ -72,19 +72,27 @@ var JRPG = {
         // clear current inputs
         this.currentInputs = [];
         
+        EntityManager.fullStack = this.map.stack;
+        
+        // process all frame updates
+        for (i = 0; i < this.map.stack.length; i++) {
+        
+            if (this.map.stack[i].frameUpdates) {
+            
+                EntityManager.processFrameUpdates(this.map.stack[i]);
+            
+                this.map.stack[i].frameUpdates = null;
+            
+            }
+        
+        }
+        
         // call the loop method for all entities in the stack
         for (i = 0; i < this.map.stack.length; i++) {
         
             EntityManager.loop(this.map.stack[i], ticks, this.map.stack);
         
         }
-        
-        for (i = 0; i < this.map.stack.length; i++) {
-        
-            this.map.stack[i].notes = [];
-        
-        }
-        
         
         Renderer.update();
     
@@ -290,7 +298,51 @@ var JRPG = {
         
         }, this)); 
         
-        this.socket.on('update', $.proxy(function(data) {
+        this.socket.on('u', $.proxy(function(frameUpdates) {
+        
+            console.log('FrameUpdateReceived');
+            console.dir(frameUpdates);
+            
+            var i, u;
+            
+            // do we have global updates (e.g. create an entity)?
+            if (frameUpdates.global) {
+            
+                for (i = 0; i < frameUpdates.global.length; i++) {
+                
+                    u = frameUpdates.global[i];
+                    
+                    switch (u[0]) {
+                    
+                        case 'create':
+                        
+                            this.map.stack = this.map.stack.concat(u[1]);
+                        
+                            break;
+                    
+                    }  
+                
+                }
+            
+            }
+            
+            _.each(frameUpdates, function(value, key) {
+            
+                var e;
+            
+                if (key != 'global') {
+                
+                    e = this.entityById(key);
+                    
+                    e.frameUpdates = value;
+                
+                }
+            
+            }, this);
+        
+        }, this));
+        
+        /*this.socket.on('update', $.proxy(function(data) {
         
             var i, j;
             
@@ -316,11 +368,11 @@ var JRPG = {
                 
                 }*/
             
-            }
+            /*}
         
-        }, this));  
+        }, this));*/  
         
-        this.socket.on('deaths', $.proxy(function(data) {
+        /*this.socket.on('deaths', $.proxy(function(data) {
         
             var i, e;
             
@@ -338,7 +390,7 @@ var JRPG = {
             
             }    
         
-        }, this)); 
+        }, this));*/ 
     
     },
     

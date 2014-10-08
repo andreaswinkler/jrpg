@@ -126,5 +126,6 @@ io.sockets.on('connection', function (socket) {
 });
 
 em.blueprints = require('../store/blueprints.json');
+em.isServer = true;
 
 js.loop();

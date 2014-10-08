@@ -32,7 +32,7 @@
         "str": 5,
         "int": 0,
         "dex": 0,
-        "aggroRange": 1000, 
+        "aggroRange": 2000, 
         "attackSpeed": 1, 
         "minDmg": 1, 
         "maxDmg": 2, 
