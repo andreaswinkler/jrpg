@@ -49,6 +49,8 @@ var Renderer = {
             $('#jrpg_game').append(i.e);    
         
         });
+        
+        EventManager.publish('rendererInitialized', this, null);
     
     }, 
     
@@ -69,7 +71,7 @@ var Renderer = {
         
         }
     
-        if (!this.mapRendered) {
+        //if (!this.mapRendered) {
         
             // reset the local root based on the current 
             // character position
@@ -84,7 +86,7 @@ var Renderer = {
             // render the map centered around the hero
             this.renderMap(JRPG.map, JRPG.hero.x, JRPG.hero.y);
         
-        }
+        //}
         
         // clear the objects layer
         this.layers.objects.clear();
@@ -348,6 +350,14 @@ var Renderer = {
         // we could determine an animation settings object
         if (as) {
         
+            // in case the animation has no length we just return the first
+            // frame
+            if (as.frameCount == 0) {
+            
+                return as.offset;
+            
+            }
+        
             // the animation settings describe a fixed value for the 
             // animation duration in seconds            
             if (as.duration) {
@@ -394,6 +404,31 @@ var Renderer = {
         return af;
     
     },      
+    
+    localize: function(arr) {
+    
+        // rect
+        if (arr.length == 4) {
+        
+            return [
+                arr[0] - this.localRoot.x, 
+                arr[1] - this.localRoot.y, 
+                arr[2] - this.localRoot.x, 
+                arr[3] - this.localRoot.y 
+            ];
+        
+        }
+        // position
+        else {
+        
+            return [
+                arr[0] - this.localRoot.x,
+                arr[1] - this.localRoot.y
+            ]    
+        
+        }
+    
+    }, 
     
     renderInfo: function(e) {
     
@@ -471,6 +506,21 @@ var Renderer = {
         
         // health bars
         if (this.drawHealthBars && e.life) {
+        
+            if (e.hb) {
+            
+                var localRect = this.localize(e.hb);
+
+                layer.rect(
+                    localRect[0], 
+                    localRect[1], 
+                    localRect[2] - localRect[0], 
+                    localRect[3] - localRect[1], 
+                    'rgba(50,99,188,0.3)', 
+                    'rgba(50,99,188,0.8)'
+                );
+            
+            }
         
             layer.bar(
                 ri.x, 

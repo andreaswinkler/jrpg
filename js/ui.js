@@ -68,16 +68,28 @@ var UI = {
         EventManager.subscribe(null, 'arenasLoaded', UI.arenaSelection, UI);
         EventManager.subscribe(null, 'publicGameListLoaded', UI.publicGameList, UI);
         EventManager.subscribe(null, 'map', UI.onMapLoaded, UI);
-        EventManager.subscribe(null, 'mapSetup', UI.onMapSetup, UI);
+        EventManager.subscribe(null, 'rendererInitialized', UI.inGameUI, UI);
         EventManager.subscribe(null, 'entityDeath', UI.onEntityDeath, UI);
     
     },
     
     onEntityDeath: function(e) {
     
-        if (e === JRPG.hero) {
+        if (e.id == JRPG.hero.id) {
         
-            this.e.append('<div class="death"><span>You died.</span><input type="button" value="resurrect" /></div>');    
+            this.e.append('<div class="death"><span>You died.</span><input type="button" value="resurrect" class="resurrect" /></div>');
+            
+            this.e.find('.resurrect').click($.proxy(function(ev) {
+            
+                JRPG.resurrect('corpse');
+                
+                this.e.find('.death').remove();
+                
+                ev.preventDefault();
+                
+                return false;
+            
+            }, this));    
         
         } else {
         
@@ -137,13 +149,36 @@ var UI = {
     
     },
     
-    onMapSetup: function() {
+    inGameUI: function() {
+        
+        // init the in-game ui
+        // controls
+        this.eControls = $('<div class="controls"></div>');
+        this.eHealthBar = $('<div class="health resource"><div class="current"></div><span class="value"></span></div>');
+        this.eManaBar = $('<div class="mana resource"><div class="current"></div><span class="value"></span></div>');
+        
+        this.eControls.append(this.eHealthBar);
+        this.eControls.append(this.eManaBar);
+        
+        this.e.append(this.eControls);
     
     }, 
     
     loadingScreen: function() {
     
         this.e.html('<div class="loading"></div>');
+    
+    }, 
+    
+    update: function() {
+    
+        var e = JRPG.hero;
+    
+        this.eHealthBar.find('.current').css('height', (e.life_c / e.life * 100) + '%');
+        this.eHealthBar.find('.value').html(Math.floor(e.life_c));
+        
+        this.eManaBar.find('.current').css('height', (e.mana_c / e.mana * 100) + '%');
+        this.eManaBar.find('.value').html(Math.floor(e.mana_c));
     
     }    
     

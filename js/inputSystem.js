@@ -95,7 +95,7 @@
 
                         if (inputs[i][4]) {
                         
-                            actions.push(['useSkill', 0]);
+                            actions.push(['useSkill', 0, inputs[i][2], inputs[i][3]]);
                         
                         } else {
                     
@@ -107,7 +107,7 @@
                     
                     case this.KeyCode.MOUSE_RIGHT:
                     
-                        actions.push(['useSkill', 1]);
+                        actions.push(['useSkill', 1, inputs[i][2], inputs[i][3]]);
                     
                         break;
                     
@@ -115,6 +115,12 @@
                     
                         actions.push(['useSkill', 2]);
                     
+                        break;
+                    
+                    default:
+                      
+                        actions.push(inputs[i].slice(1, inputs[i].length - 1));
+                        
                         break;    
                 
                 }    

@@ -37,7 +37,7 @@ var TextureSystem = {
                 animations: {
                     death: {
                         offset: 0, 
-                        frameCount: 6, 
+                        frameCount: 0, 
                         duration: 2,
                         loop: false    
                     },

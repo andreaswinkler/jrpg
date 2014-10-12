@@ -14,7 +14,14 @@
         "vit": 10,
         "str": 10,
         "int": 10,
-        "dex": 10
+        "dex": 10,
+        "hbWidth": 100, 
+        "minDmg": 1,
+        "maxDmg": 1,  
+        "skills": [
+            { "name" : "bash", "type": "instant", "damage": 5, "range": 100, "manaCost": 0, "preAnimationTicks": 100, "postAnimationTicks": 100 },
+            { "name" : "superbash", "type": "instant", "damage": 50, "range": 100, "manaCost": 20, "preAnimationTicks": 100, "postAnimationTicks": 100 }    
+        ]
     }, 
     "hystrix": {
         "t": "hystrix",
@@ -32,13 +39,13 @@
         "str": 5,
         "int": 0,
         "dex": 0,
-        "aggroRange": 2000, 
+        "aggroRange": 500, 
         "attackSpeed": 1, 
         "minDmg": 1, 
         "maxDmg": 2, 
         "skills": [
-            { "type" : "projectile", "projectile" : "hystrix_needle", "range": 500, "damage": 1, "speed": 2, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 },
-            { "type" : "bash", "damage": 3, "range": 100, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 }
+            { "name": "hystrixneedle", "type" : "projectile", "projectile" : "hystrix_needle", "range": 250, "damage": 1, "speed": 2, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 },
+            { "name": "hystrixbash", "type" : "instant", "damage": 3, "range": 100, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 }
         ]
     }
 }  

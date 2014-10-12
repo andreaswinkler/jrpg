@@ -79,9 +79,16 @@ var JRPG = {
         
             if (this.map.stack[i].frameUpdates) {
             
-                EntityManager.processFrameUpdates(this.map.stack[i]);
+                // hint this may remove the entity from the stack
+                if (EntityManager.processFrameUpdates(this.map.stack[i])) {
             
-                this.map.stack[i].frameUpdates = null;
+                    i--;
+            
+                } else {
+                
+                    this.map.stack[i].frameUpdates = null;
+                
+                }
             
             }
         
@@ -95,6 +102,7 @@ var JRPG = {
         }
         
         Renderer.update();
+        UI.update();
     
     }, 
     
@@ -132,6 +140,18 @@ var JRPG = {
     joinPublicGame: function(gameId) {
     
         this.socket.emit('joinPublicGame', { gameId: gameId });
+    
+    }, 
+    
+    // resurrect an entity, in case of hero the location can be one of 
+    // corpse, town, checkpoint
+    resurrect: function(location) {
+    
+        var input = InputSystem.input('resurrect');
+        
+        input.push(location);
+    
+        this.socket.emit('input', input);
     
     }, 
     
@@ -299,9 +319,6 @@ var JRPG = {
         }, this)); 
         
         this.socket.on('u', $.proxy(function(frameUpdates) {
-        
-            console.log('FrameUpdateReceived');
-            console.dir(frameUpdates);
             
             var i, u;
             
@@ -317,10 +334,21 @@ var JRPG = {
                         case 'create':
                         
                             this.map.stack = this.map.stack.concat(u[1]);
-                        
+
                             break;
                     
                     }  
+                
+                }
+                
+                // reset hero ref
+                for (i = 0; i < this.map.stack.length; i++) {
+                
+                    if (this.map.stack[i].id == this.hero.id) {
+                    
+                        this.hero = this.map.stack[i];
+                    
+                    }
                 
                 }
             
@@ -332,9 +360,19 @@ var JRPG = {
             
                 if (key != 'global') {
                 
+                    if (key == 1) {
+                    
+                        console.dir(value);
+                    
+                    }
+                
                     e = this.entityById(key);
                     
-                    e.frameUpdates = value;
+                    if (e) {
+                    
+                        e.frameUpdates = value;
+                    
+                    }
                 
                 }
             

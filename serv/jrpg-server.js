@@ -203,9 +203,7 @@ module.exports = {
                     s = p.socket;
                     
                     if (s.inputs.length > 0) {
-                    
-                        console.log(s.inputs.length + ' inputs processed');
-                    
+
                         // process all inputs for the player
                         actions = this._is.processInputs(s.inputs);
                         
@@ -269,9 +267,7 @@ module.exports = {
                         
                             e = value.shift();
                         
-                            if (e.x >= 0 && e.y >= 0) {
-                                value.unshift(['u', e.x, e.y, e.life_c]);
-                            }
+                            value.unshift(['u', e.x, e.y, e.life_c, e.mana_c, e.r]);
                         
                             this._em.frameUpdates[key] = value;    
                         
@@ -346,8 +342,8 @@ module.exports = {
                         return null;
                     }
                 },
-                running: false, 
-                tsLastLoop: 0, 
+                running: true, 
+                tsLastLoop: +new Date(), 
                 owner: player,
                 id: ++this.gamesSequenceNo,
                 name: 'Game #' + this.gamesSequenceNo
@@ -398,7 +394,7 @@ module.exports = {
                     
                         e = this._em.create(o.settings.type, o.settings);
                     
-                        this._em.updatePosition(e, o.x, o.y);
+                        this._em.updatePosition(e, o.x + ((j - 2) * 100), o.y + ((j - 2) * 100));
                         
                         p.stacks[0].push(e);
                     

@@ -48,12 +48,12 @@
                 if (!this.frameUpdates[key]) {
                     
                     this.frameUpdates[key] = [];
+                    
+                    if (key != 'global') {
                 
-                }
-                
-                if (key != 'global') {
-                
-                    this.frameUpdates[key].push(e);
+                        this.frameUpdates[key].push(e);
+                    
+                    }    
                 
                 }
                 
@@ -63,10 +63,20 @@
         
         }, 
         
+        emit: function(key, e) {
+        
+            if (!this.isServer) {
+            
+                EventManager.publish(key, null, e);    
+            
+            }
+        
+        }, 
+        
         // process the frame updates, only happens on the client
         processFrameUpdates: function(e) {
         
-            var i, u;
+            var i, u, removed = false;
             
             for (i = 0; i < e.frameUpdates.length; i++) {
             
@@ -77,15 +87,23 @@
                     // we only update the provided attributes
                     // [x, y, life_c]
                     case 'u':
-                    
+
                         this.updatePosition(e, u[1], u[2]);
-                        this.life_c = u[3];
+                        e.life_c = u[3];
+                        e.mana_c = u[4];
+                        e.r = u[5];
                         
-                        if (e.life_c == 0) {
+                        if (e.life_c == 0 && !e.tsDeath) {
                         
                             e.tsDeath = +new Date();
+                            
+                            this.emit('entityDeath', e);
                         
-                        } 
+                        } else if (e.life_c > 0) {
+                        
+                            e.tsDeath = null;
+                        
+                        }
                         
                         break;
                     
@@ -93,6 +111,8 @@
                     case 'remove':
                     
                         this.remove(e);
+                        
+                        removed = true;
                         
                         break;
                     
@@ -102,10 +122,19 @@
                         this.moveTo(e, u[1], u[2]);
                         
                         break;
+                    
+                    // we stop
+                    case 'stop':
+                    
+                        this.stop(e);
+                        
+                        break;
 
                 }
             
             }
+            
+            return removed;
         
         }, 
         
@@ -118,7 +147,7 @@
                 
                 if (e.ttl <= 0) {
                 
-                    this.remove(e);
+                    this.remove(e, 'ttlExceeded');
                 
                 }
             
@@ -130,7 +159,7 @@
                 // after 1 minute we remove dead things
                 if (e.t != 'hero' && +new Date() - e.tsDeath > 60000) {
                 
-                    this.remove(e);
+                    this.remove(e, 'afterDeathTimeoutExceeded');
                 
                 }
             
@@ -190,14 +219,14 @@
             }
             
             // life per second
-            if (e.lps > 0 && this.life_c < this.life) {
+            if (e.lps > 0 && e.life_c < e.life) {
             
                 e.life_c = Math.min(e.life_c + e.lps / 1000 * ticks, e.life);
             
             }
             
             // mana per second
-            if (e.mps > 0 && this.mana_c < this.mana) {
+            if (e.mps > 0 && e.mana_c < e.mana) {
             
                 e.mana_c = Math.min(e.mana_c + e.mps / 1000 * ticks, e.mana);
             
@@ -205,11 +234,11 @@
         
         },
         
-        remove: function(e) {
+        remove: function(e, reason) {
         
             this.fullStack.splice(this.fullStack.indexOf(e), 1);
             
-            this.frameUpdate(e, ['remove']);
+            this.frameUpdate(e, ['remove', reason]);
         
         }, 
         
@@ -233,7 +262,7 @@
                         
                         case 'destroy':
                         
-                            this.remove(e);
+                            this.remove(e, 'hitTestBehavior. hit ' + ht.t + '#' + ht.id);
                             
                             break;
                     
@@ -255,7 +284,7 @@
                 
                 e.attack.preAnimationTicks -= this.ticks;
                 
-                if (e.attack.preAnimationTicks <= 0) {
+                if (e.attack.preAnimationTicks <= 0 && this.isServer) {
                 
                     switch (e.attack.type) {
                     
@@ -326,7 +355,6 @@
                 });
         
             projectile.damage = attack.damage;
-            projectile.source = source;
             projectile.hitBehaviors = ['applyDamage', 'destroy'];
         
             if (attack.ttl) {
@@ -340,16 +368,16 @@
         
             this.add(projectile);
         
-            this.fullStack.push(projectile);
+            projectile.source = source;
         
         }, 
         
         // adds a new entity to the stack
         add: function(e) {
         
-            this.fullStack.push(projectile);
+            this.fullStack.push(e);
             
-            this.frameUpdate('global', ['create', projectile]);
+            this.frameUpdate('global', ['create', e]);
         
         }, 
         
@@ -360,7 +388,7 @@
         // 4) apply damage
         // 5) death check         
         dealDamage: function(attack, target, source) {
-        
+
             var dmg = attack.damage.amount;
             
             if (!(target.dodgeChance && target.dodgeChance >= Math.random()) &&
@@ -396,6 +424,8 @@
                         target.tsDeath = +new Date();
 
                     }  
+                    
+                    this.frameUpdate(target, ['damage', dmg]);
                 
                 }
             
@@ -457,7 +487,7 @@
         
             // we have an aggro target, let's check if we are still in range
             if (e.aggroTarget) {
-            
+                
                 // the aggro target died or 
                 // we are out of range, let's forget about it
                 if (e.aggroTarget.tsDeath || !this.inRange(e, e.aggroTarget, e.aggroRange)) {
@@ -472,7 +502,7 @@
             if (!e.aggroTarget) {
                 
                 e.aggroTarget = _.find(this.stack, function(i) { return this.inRange(e, i, e.aggroRange); }, this);    
-            
+        
             }
             
             // we have an aggro target and nothing else to do, 
@@ -491,7 +521,7 @@
                 attackSpeed, damage;
 
             // if we are in range, we attack the bastard
-            if (attack && this.inRange(e, target, attack.range)) {
+            if (attack && attack.manaCost <= e.mana_c && this.inRange(e, target, attack.range)) {
                 
                 // we stop moving
                 this.stop(e);
@@ -522,6 +552,9 @@
                     height: 5,
                     ttl: 5000                 
                 };
+                
+                // pay the costs
+                e.mana_c = Math.max(0, e.mana_c - attack.manaCost);
             
             } 
             // otherwise we try to move closer (if we can move at all)
@@ -547,6 +580,7 @@
             if (e.equipment) {
             
                 // TODO: calculate weapon damage
+                
             
             } else if (e.minDmg) {
             
@@ -598,18 +632,22 @@
         
             var distance = this.distance(e.x, e.y, x, y);
             
-            e.target = { 
-                x: x, 
-                y: y, 
-                dx: (x - e.x) / distance, 
-                dy: (y - e.y) / distance,
-                tsStart: +new Date(), 
-                infinite: infinite 
-            };
-
-            this.updateRotation(e, x, y);
+            if (!e.target || e.target.x != x || e.target.y != y) {
             
-            this.frameUpdate(e, ['moveTo', x, y]);
+                e.target = { 
+                    x: x, 
+                    y: y, 
+                    dx: (x - e.x) / distance, 
+                    dy: (y - e.y) / distance,
+                    tsStart: +new Date(), 
+                    infinite: infinite 
+                };
+    
+                this.updateRotation(e, x, y);
+                
+                this.frameUpdate(e, ['moveTo', x, y]);
+            
+            }
         
         }, 
         
@@ -617,6 +655,8 @@
         stop: function(e) {
         
             e.target = null;
+            
+            this.frameUpdate(e, ['stop']);
         
         }, 
         
@@ -664,9 +704,9 @@
         
         refreshHitBox: function(e) {
         
-            e.hb[0] = parseInt(e.x - e.w / 2);
-            e.hb[1] = parseInt(e.y - e.h);
-            e.hb[2] = parseInt(e.x + e.w / 2);
+            e.hb[0] = parseInt(e.x - e.hbw / 2);
+            e.hb[1] = parseInt(e.y - e.hbh);
+            e.hb[2] = parseInt(e.x + e.hbw / 2);
             e.hb[3] = parseInt(e.y);
         
         }, 
@@ -709,7 +749,7 @@
         // rect is [x, y, x2, y2]
         hitTestRect: function(e, rect) {
         
-            return e.hb[0] < rect[2] && e.hb[2] > rect[0] && e.hb[1] < rect[3] && e.hb[3] > rect[1];    
+            return e.hb[2] >= rect[0] && e.hb[0] <= rect[2] && e.hb[3] >= rect[1] && e.hb[1] <= rect[3];
         
         }, 
         
@@ -777,11 +817,16 @@
                     h: settings.h || blueprint.h || 0, 
                     x: settings.x || 0, 
                     y: settings.y || 0, 
-                    z: settings.z || 0, 
+                    z: settings.z || 0,
                     hb: [0, 0, 0, 0], 
                     r: settings.r || 0,
                     speed: settings.speed || blueprint.speed || 0
                 };
+            
+            e.hbw = blueprint.hbWidth || e.w;
+            e.hbh = blueprint.hbHeight || e.h;
+            
+            this.refreshHitBox(e);
             
             return e;    
         
@@ -814,6 +859,16 @@
             return e;  
              
         },
+        
+        resurrect: function(e) {
+        
+            e.life_c = e.life;
+            
+            e.tsDeath = null;
+            
+            this.frameUpdate(e, ['resurrect']);
+        
+        }, 
         
         findAtPosition: function(stack, x, y) {
         
@@ -848,6 +903,28 @@
                         // etc.
                         
                         this.moveTo(e, actions[i][1], actions[i][2]);
+                    
+                        break;
+                    
+                    case 'resurrect':
+                        
+                        if (this.isServer) {
+                    
+                            // todo: handle resurrect location
+                            
+                            this.resurrect(e);
+                        
+                        }
+                        
+                        break;
+                    
+                    case 'useSkill':
+                    
+                        if (this.isServer && e.canAttack) {
+                        
+                            this.attack(e, { x: actions[i][2], y: actions[i][3] }, e.skills[actions[i][1]]);
+                        
+                        }
                     
                         break;
                 
