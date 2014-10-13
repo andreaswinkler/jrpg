@@ -18,6 +18,7 @@
         "hbWidth": 100, 
         "minDmg": 1,
         "maxDmg": 1,  
+        "grantsXp": 0, 
         "skills": [
             { "name" : "bash", "type": "instant", "damage": 5, "range": 100, "manaCost": 0, "preAnimationTicks": 100, "postAnimationTicks": 100 },
             { "name" : "superbash", "type": "instant", "damage": 50, "range": 100, "manaCost": 20, "preAnimationTicks": 100, "postAnimationTicks": 100 }    
@@ -42,7 +43,8 @@
         "aggroRange": 500, 
         "attackSpeed": 1, 
         "minDmg": 1, 
-        "maxDmg": 2, 
+        "maxDmg": 2,
+        "grantsXp": 5,  
         "skills": [
             { "name": "hystrixneedle", "type" : "projectile", "projectile" : "hystrix_needle", "range": 250, "damage": 1, "speed": 2, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 },
             { "name": "hystrixbash", "type" : "instant", "damage": 3, "range": 100, "manaCost": 0, "preAnimationTicks": 0, "postAnimationTicks": 0 }

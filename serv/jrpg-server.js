@@ -2,6 +2,7 @@
 
 module.exports = {
 
+    _fs: require('fs'), 
     _em: require('../js/entityManager.js'),
     _is: require('../js/inputSystem.js'),
     _: require('../js/underscore/underscore.min.js'),
@@ -289,9 +290,17 @@ module.exports = {
                     
                     }
                     
+                    // do we store the user object
                     if (now - s.tsLastUpdate > this.msUpdate) {
                     
                         s.tsLastUpdate = now;
+                    
+                        s.user.hero = s.hero;
+                        s.user.lastUpdate = +new Date();
+                        
+                        this._fs.writeFile('c:/xampp/htdocs/_priv/jrpg14/store/users/' + s.user.key + '.json', JSON.stringify(s.user), function(err) {
+                            
+                        });
                     
                         /*s.emit('update', {
                             n: s.lastProcessedInputNo,

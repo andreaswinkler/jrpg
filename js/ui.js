@@ -156,9 +156,11 @@ var UI = {
         this.eControls = $('<div class="controls"></div>');
         this.eHealthBar = $('<div class="health resource"><div class="current"></div><span class="value"></span></div>');
         this.eManaBar = $('<div class="mana resource"><div class="current"></div><span class="value"></span></div>');
+        this.eXpBar = $('<div class="xp"><div class="current"></div></div>');
         
         this.eControls.append(this.eHealthBar);
         this.eControls.append(this.eManaBar);
+        this.eControls.append(this.eXpBar);
         
         this.e.append(this.eControls);
     
@@ -179,6 +181,8 @@ var UI = {
         
         this.eManaBar.find('.current').css('height', (e.mana_c / e.mana * 100) + '%');
         this.eManaBar.find('.value').html(Math.floor(e.mana_c));
+        
+        this.eXpBar.find('.current').css('width', (e.xp / 500 * 100) + '%');
     
     }    
     

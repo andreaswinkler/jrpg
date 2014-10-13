@@ -55,11 +55,12 @@ io.sockets.on('connection', function (socket) {
         try {
         
             var user = require('../store/users/' + data.username + '.json');
-            
+
             socket.player = { id: 1, socket: socket };
             
             js.players.push(socket.player);
             
+            socket.user = user;
             socket.hero = em.create('hero', user.hero);
             socket.inputs = [];
             socket.tsLastUpdate = 0;
@@ -75,7 +76,7 @@ io.sockets.on('connection', function (socket) {
             });
         
         } catch (err) {
-        
+
             socket.emit('authError');    
         
         }

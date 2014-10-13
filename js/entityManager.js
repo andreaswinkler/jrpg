@@ -129,6 +129,13 @@
                         this.stop(e);
                         
                         break;
+                    
+                    // we got xp
+                    case 'xp':
+                    
+                        this.addXp(e, u[1]);
+                    
+                        break;
 
                 }
             
@@ -422,6 +429,8 @@
                     if (target.life_c == 0) {
 
                         target.tsDeath = +new Date();
+                        
+                        this.frameUpdate(source, ['xp', target.grantsXp]);
 
                     }  
                     
@@ -432,6 +441,13 @@
             }    
         
         },    
+        
+        addXp: function(e, xp) {
+        
+            // handle level ups and stuff
+            e.xp += xp;
+        
+        }, 
         
         // expand a position in form [x,y] to a rect [x1,y1,x2,y2] by a 
         // margin in all directions
@@ -716,8 +732,8 @@
             // TODO: we need a check against the map here, if we 
             // can reach this position
         
-            e.x = x;
-            e.y = y;
+            e.x = Math.floor(x);
+            e.y = Math.floor(y);
             
             this.refreshHitBox(e);
             
@@ -852,7 +868,8 @@
             e.aggroTarget = null;
             e.attackSpeed = blueprint.attackSpeed || 1;
             e.minDmg = blueprint.minDmg || 0;
-            e.maxDmg = blueprint.maxDmg || 0
+            e.maxDmg = blueprint.maxDmg || 0;
+            e.grantsXp = settings.grantsXp || blueprint.grantsXp || 0;
             
             this.refresh(e);
     

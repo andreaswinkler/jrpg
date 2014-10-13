@@ -179,3 +179,5 @@ img.logo { position: absolute; top: 50%; left: 50%; margin: -400px 0px 0px -400p
 .controls .health div { background: #c10000; }
 .controls .mana div { background: #00c100; }
 .controls .resource .value { color: #fff; font-size: 36px; text-align: center; width: 100%; position: absolute; top: 82px; }
+.controls .xp { width: 600px; height: 20px; position: absolute; top: 0; left: 200px; border: 1px solid #ff9600; display: block; }
+.controls .xp div { background: #ff9600; height: 100%; display: block; }

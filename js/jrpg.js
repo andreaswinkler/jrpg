@@ -340,17 +340,6 @@ var JRPG = {
                     }  
                 
                 }
-                
-                // reset hero ref
-                for (i = 0; i < this.map.stack.length; i++) {
-                
-                    if (this.map.stack[i].id == this.hero.id) {
-                    
-                        this.hero = this.map.stack[i];
-                    
-                    }
-                
-                }
             
             }
             
@@ -377,6 +366,17 @@ var JRPG = {
                 }
             
             }, this);
+            
+            // reset hero ref
+            for (i = 0; i < this.map.stack.length; i++) {
+            
+                if (this.map.stack[i].id == this.hero.id) {
+                
+                    this.hero = this.map.stack[i];
+                
+                }
+            
+            }
         
         }, this));
         
