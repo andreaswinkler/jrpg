@@ -23,7 +23,7 @@ module.exports = {
     
     msFrame: 16.6, 
     
-    msUpdate: 2000,
+    msUpdate: 5000,
     
     msDisconnect: 2000,   
     
@@ -298,8 +298,10 @@ module.exports = {
                         s.user.hero = s.hero;
                         s.user.lastUpdate = +new Date();
                         
-                        this._fs.writeFile('c:/xampp/htdocs/_priv/jrpg14/store/users/' + s.user.key + '.json', JSON.stringify(s.user), function(err) {
-                            
+                        this._fs.writeFile('./../store/users/' + s.user.key + '.json', JSON.stringify(s.user), function(err) {
+                            if (err) {
+                                console.log(err);
+                            }    
                         });
                     
                         /*s.emit('update', {
@@ -379,7 +381,7 @@ module.exports = {
     
         game.active = false;
 
-        map = require('../store/maps/' + mapId + '.json');
+        map = require('./../store/maps/' + mapId + '.json');
         
         map.stack = [];
         map.players = [];

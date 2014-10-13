@@ -54,7 +54,7 @@ io.sockets.on('connection', function (socket) {
         // load user file
         try {
         
-            var user = require('../store/users/' + data.username + '.json');
+            var user = require('./../store/users/' + data.username + '.json');
 
             socket.player = { id: 1, socket: socket };
             
@@ -62,6 +62,8 @@ io.sockets.on('connection', function (socket) {
             
             socket.user = user;
             socket.hero = em.create('hero', user.hero);
+            socket.hero.x = 0;
+            socket.hero.y = 0;
             socket.inputs = [];
             socket.tsLastUpdate = 0;
             socket.tsDisconnect = -1;
