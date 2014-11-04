@@ -174,7 +174,7 @@ var UI = {
     
     update: function() {
     
-        var e = JRPG.hero;
+        /*var e = JRPG.hero;
     
         this.eHealthBar.find('.current').css('height', (e.life_c / e.life * 100) + '%');
         this.eHealthBar.find('.value').html(Math.floor(e.life_c));
@@ -182,7 +182,7 @@ var UI = {
         this.eManaBar.find('.current').css('height', (e.mana_c / e.mana * 100) + '%');
         this.eManaBar.find('.value').html(Math.floor(e.mana_c));
         
-        this.eXpBar.find('.current').css('width', (e.xp / 500 * 100) + '%');
+        this.eXpBar.find('.current').css('width', (e.xp / 500 * 100) + '%');*/
     
     }    
     
