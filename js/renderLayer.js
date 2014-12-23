@@ -20,7 +20,9 @@ var RenderLayer = function(width, height) {
     
             this.ctx.clearRect(0, 0, this.width, this.height);
         
-        }    
+        }  
+        
+        return this;  
     
     };
     
@@ -30,6 +32,41 @@ var RenderLayer = function(width, height) {
         this.ctx.strokeStyle = ss || '#000';
         this.ctx.fillRect(x, y, w, h);
         this.ctx.stroke();
+        
+        return this;
+    
+    };
+    
+    this.isoRect = function(x, y, w, h, fs, ss) {
+    
+        this.ctx.fillStyle = fs || '#000';
+        this.ctx.strokeStyle = ss || '#000';
+        
+        this.ctx.beginPath();
+        this.ctx.moveTo(x + w / 2, y);
+        this.ctx.lineTo(x, y + h / 2);
+        this.ctx.lineTo(x + w / 2, y + h);
+        this.ctx.lineTo(x + w, y + h / 2);
+        this.ctx.lineTo(x + w / 2, y);
+        this.ctx.stroke();
+        
+        return this;    
+    
+    };
+    
+    this.alpha = function(alpha) {
+    
+        this.ctx.globalAlpha = alpha;
+        
+        return this;
+    
+    };
+    
+    this.opaque = function() {
+    
+        this.ctx.globalAlpha = 1.0;
+        
+        return this;
     
     };
     
@@ -42,7 +79,9 @@ var RenderLayer = function(width, height) {
         this.ctx.arc(x, y, r, 0, Math.PI * 2, true);
         this.ctx.closePath();
         this.ctx.fill();
-        this.ctx.stroke();    
+        this.ctx.stroke(); 
+        
+        return this;   
     
     };
     
@@ -63,6 +102,8 @@ var RenderLayer = function(width, height) {
         this.ctx.drawImage(canvas, x, y);
         
         this.ctx.restore();
+        
+        return this;
     
     };
     
@@ -77,15 +118,17 @@ var RenderLayer = function(width, height) {
         this.ctx.font = textStyle || 'italic 18px Arial';
         
         this.ctx.fillStyle = color;
-        this.ctx.fillText(text, x, y);    
+        this.ctx.fillText(text, x, y);
+        
+        return this;    
     
     };
     
-    this.textbox = function(x, y, text, color, borderColor) {
+    this.textbox = function(x, y, text, color, borderColor, textStyle) {
     
         var w;
     
-        this.ctx.font = 'italic 12px Arial';
+        this.ctx.font = textStyle || 'italic 12px Arial';
         
         w = this.ctx.measureText(text).width;
         
@@ -93,7 +136,17 @@ var RenderLayer = function(width, height) {
         
         this.ctx.fillStyle = borderColor;
         this.ctx.fillText(text, x, y + 12);
+        
+        return this;
 
+    };
+                         
+    this.image = function(src, sx, sy, sw, sh, x, y, w, h) {
+    
+        this.ctx.drawImage(src, sx, sy, sw, sh, x, y, w, h);
+        
+        return this;    
+    
     };
     
     this.bar = function(x, y, width, height, fillPercent, backgroundColor, foregroundColor, text, textStyle, textColor) {
@@ -110,6 +163,8 @@ var RenderLayer = function(width, height) {
             this.text(x + width / 2 - w / 2, y + 8, text, textColor, textStyle);
         
         }
+        
+        return this;
     
     };
     
@@ -118,6 +173,8 @@ var RenderLayer = function(width, height) {
         this.ctx.save();
         this.ctx.translate(x, y);
         this.ctx.rotate(r);
+        
+        return this;
     
     };
       
